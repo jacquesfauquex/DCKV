@@ -5,3 +5,5 @@ This repository is created initially for collaborative work on the design of a n
 
 The code part of the repository will contain proofs of concept.
 
+___
+DICOM® and DICOMweb™ are Registered and Trade Marks under the copyright of "National Electrical Manufacturers Association" (USA) 
