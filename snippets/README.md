@@ -1,4 +1,4 @@
-# XSLT 3.0 XML converted JSON
+# XSLT 3.0 JSON
 
 This folder contains XSLT transformations applied to JSON input.
 
