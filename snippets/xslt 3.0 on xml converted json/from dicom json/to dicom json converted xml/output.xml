@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map xmlns="http://www.w3.org/2005/xpath-functions">
+   <map key="00020001">
+      <string key="vr">OB</string>
+      <string key="InlineBinary">AAE=</string>
+   </map>
+   <map key="00020002">
+      <string key="vr">UI</string>
+      <array key="Value">
+         <string>1.2.840.10008.5.1.4.1.1.6.1</string>
+      </array>
+   </map>
+   <map key="00020003">
+      <string key="vr">UI</string>
+      <array key="Value">
+         <string>1.2.276.0.26.1.1.1.2.2017.327.49518.8067008.12451840.1</string>
+      </array>
+   </map>
+   <map key="00020010">
+      <string key="vr">UI</string>
+      <array key="Value">
+         <string>1.2.840.10008.1.2.1</string>
+      </array>
+   </map>
+   <map key="00020012">
+      <string key="vr">UI</string>
+      <array key="Value">
+         <string>1.2.276.0.7238010.5.0.3.5.4</string>
+      </array>
+   </map>
+   <map key="00020013">
+      <string key="vr">SH</string>
+      <array key="Value">
+         <string>OSIRIX</string>
+      </array>
+   </map>
+   <map key="00020016">
+      <string key="vr">AE</string>
+      <array key="Value">
+         <string>XXX</string>
+      </array>
+   </map>
+   <map key="00080005">
+      <string key="vr">CS</string>
+      <array key="Value">
+         <string>ISO_IR 100</string>
+      </array>
+   </map>
+   <map key="00080008">
+      <string key="vr">CS</string>
+      <array key="Value">
+         <string>ORIGINAL</string>
+         <string>PRIMARY</string>
+      </array>
+   </map>
+   <map key="00080016">
+      <string key="vr">UI</string>
+      <array key="Value">
+         <string>1.2.840.10008.5.1.4.1.1.6.1</string>
+      </array>
+   </map>
+   <map key="00080018">
+      <string key="vr">UI</string>
+      <array key="Value">
+         <string>1.2.276.0.26.1.1.1.2.2017.327.49518.8067008.12451840.1</string>
+      </array>
+   </map>
+   <map key="00080020">
+      <string key="vr">DA</string>
+      <array key="Value">
+         <string>20171017</string>
+      </array>
+   </map>
+   <map key="00080023">
+      <string key="vr">DA</string>
+      <array key="Value">
+         <string>20171017</string>
+      </array>
+   </map>
+   <map key="00080030">
+      <string key="vr">TM</string>
+      <array key="Value">
+         <string>102914</string>
+      </array>
+   </map>
+   <map key="00080033">
+      <string key="vr">TM</string>
+      <array key="Value">
+         <string>104518</string>
+      </array>
+   </map>
+   <map key="00080050">
+      <string key="vr">SH</string>
+      <array key="Value">
+         <string>38610201.1678230</string>
+      </array>
+   </map>
+   <map key="00080060">
+      <string key="vr">CS</string>
+      <array key="Value">
+         <string>US</string>
+      </array>
+   </map>
+   <map key="00080070">
+      <string key="vr">LO</string>
+      <array key="Value">
+         <string>GE</string>
+      </array>
+   </map>
+   <map key="00080080">
+      <string key="vr">LO</string>
+      <array key="Value">
+         <string>Consultorio</string>
+      </array>
+   </map>
+   <map key="00080090">
+      <string key="vr">PN</string>
+   </map>
+   <map key="00081010">
+      <string key="vr">SH</string>
+      <array key="Value">
+         <string>US1</string>
+      </array>
+   </map>
+   <map key="00081030">
+      <string key="vr">LO</string>
+      <array key="Value">
+         <string>ECOGRAFIA</string>
+      </array>
+   </map>
+   <map key="00081050">
+      <string key="vr">PN</string>
+      <array key="Value">
+         <map>
+            <string key="Alphabetic">DR^X</string>
+         </map>
+      </array>
+   </map>
+   <map key="00081070">
+      <string key="vr">PN</string>
+   </map>
+   <map key="00081090">
+      <string key="vr">LO</string>
+      <array key="Value">
+         <string>V830</string>
+      </array>
+   </map>
+   <map key="00082111">
+      <string key="vr">ST</string>
+      <array key="Value">
+         <string>Lossy compression with JPEG 2K , quality factor 1, compression ratio 6.25</string>
+      </array>
+   </map>
+   <map key="00089215">
+      <string key="vr">SQ</string>
+      <array key="Value">
+         <map>
+            <map key="00080100">
+               <string key="vr">SH</string>
+               <array key="Value">
+                  <string>121327</string>
+               </array>
+            </map>
+            <map key="00080102">
+               <string key="vr">SH</string>
+               <array key="Value">
+                  <string>DCM</string>
+               </array>
+            </map>
+            <map key="00080104">
+               <string key="vr">LO</string>
+               <array key="Value">
+                  <string>Full fidelity image, uncompressed or lossless compressed</string>
+               </array>
+            </map>
+         </map>
+      </array>
+   </map>
+   <map key="00100010">
+      <string key="vr">PN</string>
+      <array key="Value">
+         <map>
+            <string key="Alphabetic">A^B</string>
+         </map>
+      </array>
+   </map>
+   <map key="00100020">
+      <string key="vr">LO</string>
+      <array key="Value">
+         <string>123456789</string>
+      </array>
+   </map>
+   <map key="00100021">
+      <string key="vr">LO</string>
+   </map>
+   <map key="00100030">
+      <string key="vr">DA</string>
+      <array key="Value">
+         <string>19460101</string>
+      </array>
+   </map>
+   <map key="00100040">
+      <string key="vr">CS</string>
+      <array key="Value">
+         <string>F</string>
+      </array>
+   </map>
+   <map key="00181000">
+      <string key="vr">LO</string>
+      <array key="Value">
+         <string>D23281</string>
+      </array>
+   </map>
+   <map key="00181020">
+      <string key="vr">LO</string>
+      <array key="Value">
+         <string>14.x.x VE</string>
+      </array>
+   </map>
+   <map key="00186011">
+      <string key="vr">SQ</string>
+      <array key="Value">
+         <map>
+            <map key="00186012">
+               <string key="vr">US</string>
+               <array key="Value">
+                  <number>1</number>
+               </array>
+            </map>
+            <map key="00186014">
+               <string key="vr">US</string>
+               <array key="Value">
+                  <number>1</number>
+               </array>
+            </map>
+            <map key="00186016">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>0</number>
+               </array>
+            </map>
+            <map key="00186018">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>0</number>
+               </array>
+            </map>
+            <map key="0018601A">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>58</number>
+               </array>
+            </map>
+            <map key="0018601C">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>960</number>
+               </array>
+            </map>
+            <map key="0018601E">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>720</number>
+               </array>
+            </map>
+            <map key="00186020">
+               <string key="vr">SL</string>
+               <array key="Value">
+                  <number>0</number>
+               </array>
+            </map>
+            <map key="00186022">
+               <string key="vr">SL</string>
+               <array key="Value">
+                  <number>720</number>
+               </array>
+            </map>
+            <map key="00186024">
+               <string key="vr">US</string>
+               <array key="Value">
+                  <number>3</number>
+               </array>
+            </map>
+            <map key="00186026">
+               <string key="vr">US</string>
+               <array key="Value">
+                  <number>3</number>
+               </array>
+            </map>
+            <map key="00186028">
+               <string key="vr">FD</string>
+               <array key="Value">
+                  <number>0.0</number>
+               </array>
+            </map>
+            <map key="0018602A">
+               <string key="vr">FD</string>
+               <array key="Value">
+                  <number>0.0</number>
+               </array>
+            </map>
+            <map key="0018602C">
+               <string key="vr">FD</string>
+               <array key="Value">
+                  <number>0.004504256881773472</number>
+               </array>
+            </map>
+            <map key="0018602E">
+               <string key="vr">FD</string>
+               <array key="Value">
+                  <number>0.004504256881773472</number>
+               </array>
+            </map>
+         </map>
+         <map>
+            <map key="00186012">
+               <string key="vr">US</string>
+               <array key="Value">
+                  <number>1</number>
+               </array>
+            </map>
+            <map key="00186014">
+               <string key="vr">US</string>
+               <array key="Value">
+                  <number>1</number>
+               </array>
+            </map>
+            <map key="00186016">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>0</number>
+               </array>
+            </map>
+            <map key="00186018">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>0</number>
+               </array>
+            </map>
+            <map key="0018601A">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>58</number>
+               </array>
+            </map>
+            <map key="0018601C">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>960</number>
+               </array>
+            </map>
+            <map key="0018601E">
+               <string key="vr">UL</string>
+               <array key="Value">
+                  <number>720</number>
+               </array>
+            </map>
+            <map key="00186020">
+               <string key="vr">SL</string>
+               <array key="Value">
+                  <number>0</number>
+               </array>
+            </map>
+            <map key="00186022">
+               <string key="vr">SL</string>
+               <array key="Value">
+                  <number>720</number>
+               </array>
+            </map>
+            <map key="00186024">
+               <string key="vr">US</string>
+               <array key="Value">
+                  <number>3</number>
+               </array>
+            </map>
+            <map key="00186026">
+               <string key="vr">US</string>
+               <array key="Value">
+                  <number>3</number>
+               </array>
+            </map>
+            <map key="00186028">
+               <string key="vr">FD</string>
+               <array key="Value">
+                  <number>0.0</number>
+               </array>
+            </map>
+            <map key="0018602A">
+               <string key="vr">FD</string>
+               <array key="Value">
+                  <number>0.0</number>
+               </array>
+            </map>
+            <map key="0018602C">
+               <string key="vr">FD</string>
+               <array key="Value">
+                  <number>0.004504256881773472</number>
+               </array>
+            </map>
+            <map key="0018602E">
+               <string key="vr">FD</string>
+               <array key="Value">
+                  <number>0.004504256881773472</number>
+               </array>
+            </map>
+         </map>
+      </array>
+   </map>
+   <map key="0020000D">
+      <string key="vr">UI</string>
+      <array key="Value">
+         <string>1.2.276.0.26.1.1.1.2.2017.327.48554.1959860</string>
+      </array>
+   </map>
+   <map key="0020000E">
+      <string key="vr">UI</string>
+      <array key="Value">
+         <string>1.2.276.0.26.1.1.1.2.2017.327.48554.685657</string>
+      </array>
+   </map>
+   <map key="00200010">
+      <string key="vr">SH</string>
+      <array key="Value">
+         <string>1</string>
+      </array>
+   </map>
+   <map key="00200011">
+      <string key="vr">IS</string>
+      <array key="Value">
+         <number>1</number>
+      </array>
+   </map>
+   <map key="00200013">
+      <string key="vr">IS</string>
+      <array key="Value">
+         <number>9</number>
+      </array>
+   </map>
+   <map key="00200020">
+      <string key="vr">CS</string>
+   </map>
+   <map key="00280002">
+      <string key="vr">US</string>
+      <array key="Value">
+         <number>3</number>
+      </array>
+   </map>
+   <map key="00280004">
+      <string key="vr">CS</string>
+      <array key="Value">
+         <string>RGB</string>
+      </array>
+   </map>
+   <map key="00280006">
+      <string key="vr">US</string>
+      <array key="Value">
+         <number>0</number>
+      </array>
+   </map>
+   <map key="00280010">
+      <string key="vr">US</string>
+      <array key="Value">
+         <number>720</number>
+      </array>
+   </map>
+   <map key="00280011">
+      <string key="vr">US</string>
+      <array key="Value">
+         <number>960</number>
+      </array>
+   </map>
+   <map key="00280030">
+      <string key="vr">DS</string>
+      <array key="Value">
+         <number>0.045043</number>
+         <number>0.045043</number>
+      </array>
+   </map>
+   <map key="00280100">
+      <string key="vr">US</string>
+      <array key="Value">
+         <number>8</number>
+      </array>
+   </map>
+   <map key="00280101">
+      <string key="vr">US</string>
+      <array key="Value">
+         <number>8</number>
+      </array>
+   </map>
+   <map key="00280102">
+      <string key="vr">US</string>
+      <array key="Value">
+         <number>7</number>
+      </array>
+   </map>
+   <map key="00280103">
+      <string key="vr">US</string>
+      <array key="Value">
+         <number>0</number>
+      </array>
+   </map>
+   <map key="00282110">
+      <string key="vr">CS</string>
+      <array key="Value">
+         <string>01</string>
+      </array>
+   </map>
+   <map key="00282112">
+      <string key="vr">DS</string>
+      <array key="Value">
+         <number>6.25</number>
+      </array>
+   </map>
+   <map key="00282114">
+      <string key="vr">CS</string>
+      <array key="Value">
+         <string>ISO_10918_1</string>
+      </array>
+   </map>
+   <map key="63010010">
+      <string key="vr">LO</string>
+      <array key="Value">
+         <string>KRETZ_PRIVATE</string>
+      </array>
+   </map>
+   <map key="63011001">
+      <string key="vr">UN</string>
+      <string key="InlineBinary">LTE=</string>
+   </map>
+   <map key="63011002">
+      <string key="vr">UN</string>
+      <string key="InlineBinary">MCA=</string>
+   </map>
+</map>
