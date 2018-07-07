@@ -16,6 +16,6 @@ We design proofs of concept of these two options applied to:
 
 The first objective is to compare the legibility of the various snippets.
 
-In a second step, will include benchmarking of the various combinations.
+In a second step, we will include benchmarking of the various combinations.
 
 All the snippets are edited with Oxygenxml 20.1 using saxon EE 9.8.0.12.
