@@ -1,9 +1,10 @@
 # json xml converted from dicom json
 
-A "application/dicom+json" response is an array of datasets.
-When converted to xml the array of json objects is searchable by means of XPath applied to xml.
+An "application/dicom+json" response is made of an array of objects.
 
-Here is the basic syntax of these Xpath functions.
+When converted to xml, the array is searchable by means of XPath applied to the xml conversion.
+
+Here are some samples of these XPaths.
 
 ## non nested attribute of the first dataset
 ```
