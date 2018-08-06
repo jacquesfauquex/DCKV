@@ -2,7 +2,7 @@
 
 The DICOM standard part 6, version docbook, may be easily transformed in resources directly processable by applications.
 
-To do so, we used the xml plist format using elements <array>, <string> and <integer>.
+To do so, we used the xml `<plist>` format using elements `<array>`, `<string>` and `<integer>`.
 ```
 <plist>
     <array>
