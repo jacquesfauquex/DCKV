@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist xmlns="http://www.apple.com/DTDs/PropertyList-1.0.dtd" version="1.0">
+   <array>
+      <array>
+         <string>1.2.840.10008.1.4.​1.​1</string>
+         <string>1.2.840.10008.1.4.​1.​2</string>
+         <string>1.2.840.10008.1.4.​1.​3</string>
+         <string>1.2.840.10008.1.4.​1.​4</string>
+         <string>1.2.840.10008.1.4.​1.​5</string>
+         <string>1.2.840.10008.1.4.​1.​6</string>
+         <string>1.2.840.10008.1.4.​1.​7</string>
+         <string>1.2.840.10008.1.4.​1.​8</string>
+         <string>1.2.840.10008.1.4.​1.​9</string>
+         <string>1.2.840.10008.1.4.​1.​10</string>
+         <string>1.2.840.10008.1.4.​1.​11</string>
+         <string>1.2.840.10008.1.4.​1.​12</string>
+         <string>1.2.840.10008.1.4.​1.​13</string>
+         <string>1.2.840.10008.1.4.​1.​14</string>
+         <string>1.2.840.10008.1.4.​1.​15</string>
+         <string>1.2.840.10008.1.4.​1.​16</string>
+         <string>1.2.840.10008.1.4.​1.​17</string>
+         <string>1.2.840.10008.1.4.​1.​18</string>
+         <string>1.2.840.10008.1.4.​2.​1</string>
+         <string>1.2.840.10008.1.4.​2.​2</string>
+      </array>
+      <array>
+         <string>Talairach Brain Atlas Frame of Reference</string>
+         <string>SPM2 T1 Frame of Reference</string>
+         <string>SPM2 T2 Frame of Reference</string>
+         <string>SPM2 PD Frame of Reference</string>
+         <string>SPM2 EPI Frame of Reference</string>
+         <string>SPM2 FIL T1 Frame of Reference</string>
+         <string>SPM2 PET Frame of Reference</string>
+         <string>SPM2 TRANSM Frame of Reference</string>
+         <string>SPM2 SPECT Frame of Reference</string>
+         <string>SPM2 GRAY Frame of Reference</string>
+         <string>SPM2 WHITE Frame of Reference</string>
+         <string>SPM2 CSF Frame of Reference</string>
+         <string>SPM2 BRAINMASK Frame of Reference</string>
+         <string>SPM2 AVG305T1 Frame of Reference</string>
+         <string>SPM2 AVG152T1 Frame of Reference</string>
+         <string>SPM2 AVG152T2 Frame of Reference</string>
+         <string>SPM2 AVG152PD Frame of Reference</string>
+         <string>SPM2 SINGLESUBJT1 Frame of Reference</string>
+         <string>ICBM 452 T1 Frame of Reference</string>
+         <string>ICBM Single Subject MRI Frame of Reference</string>
+      </array>
+      <array>
+         <string>Talairach J. and Tournoux P. Co-Planar stereotactic atlas of the human brain. Stutgart: Georg Thieme Verlag, 1988.</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/templates/T1.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/templates/T2.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/templates/PD.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/templates/EPI.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/templates/filT1.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/templates/PET.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/templates/Transm.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/templates/SPECT.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/apriori/gray.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/apriori/white.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/apriori/csf.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/apriori/brainmask.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/canonical/avg305T1.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/canonical/avg152T1.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/canonical/avg152T2.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/canonical/avg152PD.mnc</string>
+         <string>http://​github.com/​spm/​spm2/​blob/​master/canonical/single_subj_T1.mnc</string>
+         <string>ICBM452 T1 Atlas</string>
+         <string>ICBM Single Subject MRI Anatomical Template</string>
+      </array>
+   </array>
+</plist>
