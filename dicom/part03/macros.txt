@@ -1,0 +1,62 @@
+CD		00080100	Table 8.8-1.		Code Sequence Macro Attributes (macro code)
+
+OR		00081150	Table 10-11.		SOP Instance Reference Macro Attributes (macro instance)
+IR			00081150	Table 10-3.			Image SOP Instance Reference Macro Attributes
+ST		00081150	Table 10-3c.		Storage Macro Attributes
+
+SR		00081115	Table 10-4.			Series and Instance Reference Macro Attributes
+
+AM		00082218	Table 10-5.			General Anatomy Mandatory Macro Attributes
+AR		00082218	Table 10-6.			General Anatomy Required Macro Attributes
+AO		00082218	Table 10-7.			General Anatomy Optional Macro Attributes
+AA		00082218	Table 10-7b.		Multiple Site General Anatomy Optional Macro Attributes
+
+AP		00082228	Table 10-8.			Primary Anatomic Structure Macro Attributes
+
+MA		00100021	Table 10-18. 		Issuer of Patient ID Macro Attributes
+
+MA		00181009	Table 10.29-1. 	UDI Macro Attributes
+
+MA		00181411	Table 10-23. 		Exposure Index Macro Attributes
+
+MA		00189900	Table 10.27-1. 	Reference Location Macro Attributes
+
+MA		00189921	Table 10.28-1. 	Protocol Element Identification Macro Attributes
+
+MA		00200013	Table 10-12. 		Content Identification Macro Attributes
+MA		00209529	Table 10-13. 		General Contributing Sources Macro Attributes
+
+MA		00240306	Table 10-22. 		Data Set Identification Macro Attributes
+
+MA		00280010	Table 10-14. 		Contributing Image Sources Macro Attributes
+MA		00280030	Table 10-10. 		Basic Pixel Spacing Calibration Macro Attributes
+
+MA		00400031	Table 10-17. 		HL7v2 Hierarchic Designator Macro Attributes
+MA		00400253	Table 10-16. 		Performed Procedure Step Summary Macro Attributes
+MA		00401001	Table 10-9. 		Request Attributes Macro Attributes
+
+MA		00401101	Table 10-1. 		Person Identification Macro Attributes Description
+MA		0040A040	Table 10-2. 		Content Item Macro Attributes Description
+
+MA		0040A043	Table 10-26. 		Numeric Value Macro Attributes
+
+MA		0040E020	Table 10-3b. 		Referenced Instances and Access Macro Attributes
+
+MA		00440101	Table 10.30-1. 	Assertion Macro Attributes
+
+MA		00540410	Table 10-15. 		Patient Orientation Macro Attributes
+
+DM		00540220	Table 10-24. 		Mandatory View and Slice Progression Direction Macro Attributes
+DO		00540220	Table 10-25. 		Optional View and Slice Progression Direction Macro Attributes
+
+MA		0066002F	Table 10-19. 		Algorithm Identification Macro Attributes
+
+SA		00720026	Table 10-20. 		Selector Attribute Macro Attributes
+
+MA		0072005E	Table 10.26-1. 	Attribute Value Macro Attributes
+
+SE		00820018	Table 10-20a. 	Extended Selector Attribute Macro Attributes
+AC		00820018	Table 10.25-1. 	Attribute Value Constraint Macro Attributes
+
+MA		300A0122	Table 10-27. 		RT Equipment Correlation Macro Attributes Description
+MA		300A0450	Table 10-28. 		Device Motion Control Macro Attributes Description
