@@ -1,0 +1,50 @@
+{
+    "req":  {
+        "uri": "http://",
+        "date": 2017
+    },
+    "resp": {
+        "status": 200,
+        "offset": 1,
+        "limit": 20,
+        "count": 100,
+        "next": "http://",
+        "date": "20170101"
+    },
+    "data": {
+        "uids": [
+            "studyUID_seriesUID_instanceUID"
+        ],
+        "list": [
+            {
+                "apath": [
+                    "aaaaaaaa.bbbbbbbb",
+                    "cccccccc$.~FD",
+                    "dddddddd",
+                    "eeeeeeee"
+                ],
+                "value": [
+                    "X^Y",
+                    [ 6.5454 , 6.4343 ],
+                    null,
+                    {"bulkdataURI": "http://"}
+                ]
+            }
+        ],
+        "module1": [
+            {
+                "apath": [],
+                "value": []
+            }
+        ]
+    },
+    "dict": {
+        "tag": ["00100010"],
+        "vr": ["PN"],
+        "key": ["PatientName"]
+    },
+    "err": {
+        "client": "",
+        "server": ""
+    }
+}

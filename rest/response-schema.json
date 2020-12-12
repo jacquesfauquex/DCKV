@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "APath response",
+    "description": "for both results and error",
+    "type": "object",
+    "properties": {
+        "req": {
+            "description": "request",
+            "type": "object",
+            "properties": {
+                "uri": {
+                    "type": "string"
+                },
+                "date": {
+                    "description": "format iso",
+                    "type": "string"
+                }
+            }
+        },
+        "resp": {
+            "description": "response",
+            "type": "object",
+            "properties": {
+                "uri": {
+                    "type": "string"
+                },
+                "date": {
+                    "description": "format iso",
+                    "type": "string"
+                }
+            }
+        },
+        "data": {
+            "description": "results",
+            "type": "object",
+            "properties": {
+                "uri": {
+                    "type": "string"
+                },
+                "date": {
+                    "description": "format iso",
+                    "type": "string"
+                }
+            }
+        },
+        "dict": {
+            "description": "The propertyName description",
+            "type": "object",
+            "properties": {
+                "uri": {
+                    "type": "string"
+                },
+                "date": {
+                    "description": "format iso",
+                    "type": "string"
+                }
+            }
+        },
+        "err": {
+            "description": "error",
+            "type": "object",
+            "properties": {
+                "server": {
+                    "type": "string"
+                },
+                "client": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
