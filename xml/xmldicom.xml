@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dicom 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmldicom.opendicom.com xmldicom.xsd"
+    xmlns="http://xmldicom.opendicom.com"    
+    >
+    <a p="1" c="00000000" t="AE"><AE>1234567890123456</AE></a>    
+    <a p="1" c="00000001" t="AS"></a>
+</dicom>

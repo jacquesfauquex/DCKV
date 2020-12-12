@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:od="http://xmldicom.opendicom.com" 
+    targetNamespace="http://xmldicom.opendicom.com" 
+    elementFormDefault="unqualified"    
+    xpathDefaultNamespace="##targetNamespace" 
+    >
+
+    <xs:element name="dicom">
+        <xs:complexType>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="od:a"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="a">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element ref="od:AE" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="od:AS"/>
+                <xs:element ref="od:AT"/>
+                <xs:element ref="od:CS"/>
+                <xs:element ref="od:DA"/>
+                <xs:element ref="od:DS"/>
+                <xs:element ref="od:DT"/>
+                <xs:element ref="od:FL"/>
+                <xs:element ref="od:FD"/>
+                <xs:element ref="od:IS"/>
+                <xs:element ref="od:LO"/>
+                <xs:element ref="od:LT"/>
+                <xs:element ref="od:OB"/>
+                <xs:element ref="od:OD"/>
+                <xs:element ref="od:OF"/>
+                <xs:element ref="od:OL"/>
+                <xs:element ref="od:OV"/>
+                <xs:element ref="od:OW"/>
+                <xs:element ref="od:PN"/>
+                <xs:element ref="od:SH"/>
+                <xs:element ref="od:SL"/>
+                <xs:element ref="od:SQ"/>
+                <xs:element ref="od:SS"/>
+                <xs:element ref="od:ST"/>
+                <xs:element ref="od:SV"/>
+                <xs:element ref="od:TM"/>
+                <xs:element ref="od:UC"/>
+                <xs:element ref="od:UI"/>
+                <xs:element ref="od:UL"/>
+                <xs:element ref="od:UN"/>
+                <xs:element ref="od:UR"/>
+                <xs:element ref="od:US"/>
+                <xs:element ref="od:UT"/>
+                <xs:element ref="od:UV"/>
+                <xs:element ref="od:SZ"/>
+                <xs:element ref="od:IT"/>
+                <xs:element ref="od:IZ"/>
+            </xs:choice>
+            <xs:attribute name="p">
+                <xs:annotation>
+                    <xs:documentation>positional (dot separated indexes)</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="c">
+                <xs:annotation>
+                    <xs:documentation>conceptual (dot separated tags)</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="t">
+                <xs:annotation>
+                    <xs:documentation>type (dicom value representation)</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="AE">
+
+        <xs:annotation>
+            <xs:documentation>Application Entity.
+                
+* A string of characters that identifies an Application Entity with leading and trailing spaces (20H) being non-significant. A value consisting solely of spaces shall not be used.
+
+* Default Character Repertoire http://dicom.nema.org/medical/dicom/current/output/html/part05.html#chapter_E excluding character code 5CH (the BACKSLASH "\" in ISO-IR 6), and all control characters.
+
+* 16 bytes maximum
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+           </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+    <xs:element name="AS"/>
+    <xs:element name="AT"/>
+    <xs:element name="CS"/>
+    <xs:element name="DA"/>
+    <xs:element name="DS"/>
+    <xs:element name="DT"/>
+    <xs:element name="FL"/>
+    <xs:element name="FD"/>
+    <xs:element name="IS"/>
+    <xs:element name="LO"/>
+    <xs:element name="LT"/>
+    <xs:element name="OB"/>
+    <xs:element name="OD"/>
+    <xs:element name="OF"/>
+    <xs:element name="OL"/>
+    <xs:element name="OV"/>
+    <xs:element name="OW"/>
+    <xs:element name="PN"/>
+    <xs:element name="SH"/>
+    <xs:element name="SL"/>
+    <xs:element name="SQ"/>
+    <xs:element name="SS"/>
+    <xs:element name="ST"/>
+    <xs:element name="SV"/>
+    <xs:element name="TM"/>
+    <xs:element name="UC"/>
+    <xs:element name="UI"/>
+    <xs:element name="UL"/>
+    <xs:element name="UN"/>
+    <xs:element name="UR"/>
+    <xs:element name="US"/>
+    <xs:element name="UT"/>
+    <xs:element name="UV"/>
+    <xs:element name="SZ"/>
+    <xs:element name="IT"/>
+    <xs:element name="IZ"/>
+</xs:schema>
