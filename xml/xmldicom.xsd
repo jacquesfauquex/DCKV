@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema 
+<xs:schema
     xmlns:xs="http://www.w3.org/2001/XMLSchema" 
     xmlns:od="http://xmldicom.opendicom.com" 
     targetNamespace="http://xmldicom.opendicom.com" 
     elementFormDefault="unqualified"    
-    xpathDefaultNamespace="##targetNamespace" 
     >
 
     <xs:element name="dicom">
@@ -16,45 +15,44 @@
     </xs:element>
 
     <xs:element name="a">
+        <xs:annotation>
+        </xs:annotation>
         <xs:complexType>
-            <xs:choice>
-                <xs:element ref="od:AE" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:choice minOccurs="0" maxOccurs="1">
+                <xs:element ref="od:AE" maxOccurs="unbounded"/>
                 <xs:element ref="od:AS"/>
-                <xs:element ref="od:AT"/>
-                <xs:element ref="od:CS"/>
-                <xs:element ref="od:DA"/>
-                <xs:element ref="od:DS"/>
-                <xs:element ref="od:DT"/>
-                <xs:element ref="od:FL"/>
-                <xs:element ref="od:FD"/>
-                <xs:element ref="od:IS"/>
-                <xs:element ref="od:LO"/>
-                <xs:element ref="od:LT"/>
-                <xs:element ref="od:OB"/>
-                <xs:element ref="od:OD"/>
-                <xs:element ref="od:OF"/>
-                <xs:element ref="od:OL"/>
-                <xs:element ref="od:OV"/>
-                <xs:element ref="od:OW"/>
-                <xs:element ref="od:PN"/>
-                <xs:element ref="od:SH"/>
-                <xs:element ref="od:SL"/>
-                <xs:element ref="od:SQ"/>
-                <xs:element ref="od:SS"/>
-                <xs:element ref="od:ST"/>
-                <xs:element ref="od:SV"/>
-                <xs:element ref="od:TM"/>
-                <xs:element ref="od:UC"/>
-                <xs:element ref="od:UI"/>
-                <xs:element ref="od:UL"/>
-                <xs:element ref="od:UN"/>
-                <xs:element ref="od:UR"/>
-                <xs:element ref="od:US"/>
-                <xs:element ref="od:UT"/>
-                <xs:element ref="od:UV"/>
-                <xs:element ref="od:SZ"/>
-                <xs:element ref="od:IT"/>
-                <xs:element ref="od:IZ"/>
+                <xs:element ref="od:AT" maxOccurs="unbounded"/>
+                <xs:element ref="od:CS" maxOccurs="unbounded"/>
+                <xs:element ref="od:DA" maxOccurs="unbounded"/>
+                <xs:element ref="od:DS" maxOccurs="unbounded"/>
+                <xs:element ref="od:DT" maxOccurs="unbounded"/>
+                <xs:element ref="od:FD" maxOccurs="unbounded"/>
+                <xs:element ref="od:FL" maxOccurs="unbounded"/>
+                <xs:element ref="od:IS" maxOccurs="unbounded"/>
+                <xs:element ref="od:LO" maxOccurs="unbounded"/>
+                <xs:element ref="od:LT" maxOccurs="unbounded"/>
+                <xs:element ref="od:OB" maxOccurs="unbounded"/>
+                <xs:element ref="od:OD" maxOccurs="unbounded"/>
+                <xs:element ref="od:OF" maxOccurs="unbounded"/>
+                <xs:element ref="od:OL" maxOccurs="unbounded"/>
+                <xs:element ref="od:OV" maxOccurs="unbounded"/>
+                <xs:element ref="od:OW" maxOccurs="unbounded"/>
+                <xs:element ref="od:PN" maxOccurs="unbounded"/>
+                <xs:element ref="od:SH" maxOccurs="unbounded"/>
+                <xs:element ref="od:SL" maxOccurs="unbounded"/>
+                <xs:element ref="od:SQ" maxOccurs="unbounded"/>
+                <xs:element ref="od:SS" maxOccurs="unbounded"/>
+                <xs:element ref="od:ST" maxOccurs="unbounded"/>
+                <xs:element ref="od:SV" maxOccurs="unbounded"/>
+                <xs:element ref="od:TM" maxOccurs="unbounded"/>
+                <xs:element ref="od:UC" maxOccurs="unbounded"/>
+                <xs:element ref="od:UI" maxOccurs="unbounded"/>
+                <xs:element ref="od:UL" maxOccurs="unbounded"/>
+                <xs:element ref="od:UN" maxOccurs="unbounded"/>
+                <xs:element ref="od:UR" maxOccurs="unbounded"/>
+                <xs:element ref="od:US" maxOccurs="unbounded"/>
+                <xs:element ref="od:UT" maxOccurs="unbounded"/>
+                <xs:element ref="od:UV" maxOccurs="unbounded"/>
             </xs:choice>
             <xs:attribute name="p">
                 <xs:annotation>
@@ -70,6 +68,47 @@
                 <xs:annotation>
                     <xs:documentation>type (dicom value representation)</xs:documentation>
                 </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:NCName">
+                        <xs:enumeration value="AE"/>
+                        <xs:enumeration value="AS"/>
+                        <xs:enumeration value="AT"/>
+                        <xs:enumeration value="CS"/>
+                        <xs:enumeration value="DA"/>
+                        <xs:enumeration value="DS"/>
+                        <xs:enumeration value="DT"/>
+                        <xs:enumeration value="FD"/>
+                        <xs:enumeration value="FL"/>
+                        <xs:enumeration value="IS"/>
+                        <xs:enumeration value="LO"/>
+                        <xs:enumeration value="LT"/>
+                        <xs:enumeration value="OB"/>
+                        <xs:enumeration value="OD"/>
+                        <xs:enumeration value="OF"/>
+                        <xs:enumeration value="OL"/>
+                        <xs:enumeration value="OV"/>
+                        <xs:enumeration value="OW"/>
+                        <xs:enumeration value="PN"/>
+                        <xs:enumeration value="SH"/>
+                        <xs:enumeration value="SL"/>
+                        <xs:enumeration value="SQ"/>
+                        <xs:enumeration value="SS"/>
+                        <xs:enumeration value="ST"/>
+                        <xs:enumeration value="SV"/>
+                        <xs:enumeration value="TM"/>
+                        <xs:enumeration value="UC"/>
+                        <xs:enumeration value="UI"/>
+                        <xs:enumeration value="UL"/>
+                        <xs:enumeration value="UN"/>
+                        <xs:enumeration value="UR"/>
+                        <xs:enumeration value="US"/>
+                        <xs:enumeration value="UT"/>
+                        <xs:enumeration value="UV"/>
+                        <xs:enumeration value="IT"/>
+                        <xs:enumeration value="IZ"/>
+                        <xs:enumeration value="SZ"/>
+                    </xs:restriction>
+                </xs:simpleType>
             </xs:attribute>
         </xs:complexType>
     </xs:element>
@@ -78,11 +117,8 @@
 
         <xs:annotation>
             <xs:documentation>Application Entity.
-                
 * A string of characters that identifies an Application Entity with leading and trailing spaces (20H) being non-significant. A value consisting solely of spaces shall not be used.
-
 * Default Character Repertoire http://dicom.nema.org/medical/dicom/current/output/html/part05.html#chapter_E excluding character code 5CH (the BACKSLASH "\" in ISO-IR 6), and all control characters.
-
 * 16 bytes maximum
             </xs:documentation>
         </xs:annotation>
@@ -90,42 +126,501 @@
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
            </xs:restriction>
-        </xs:simpleType>
+       </xs:simpleType>
     </xs:element>
-    <xs:element name="AS"/>
-    <xs:element name="AT"/>
-    <xs:element name="CS"/>
-    <xs:element name="DA"/>
-    <xs:element name="DS"/>
-    <xs:element name="DT"/>
-    <xs:element name="FL"/>
-    <xs:element name="FD"/>
-    <xs:element name="IS"/>
-    <xs:element name="LO"/>
-    <xs:element name="LT"/>
-    <xs:element name="OB"/>
-    <xs:element name="OD"/>
-    <xs:element name="OF"/>
-    <xs:element name="OL"/>
-    <xs:element name="OV"/>
-    <xs:element name="OW"/>
-    <xs:element name="PN"/>
-    <xs:element name="SH"/>
-    <xs:element name="SL"/>
-    <xs:element name="SQ"/>
-    <xs:element name="SS"/>
-    <xs:element name="ST"/>
-    <xs:element name="SV"/>
-    <xs:element name="TM"/>
-    <xs:element name="UC"/>
-    <xs:element name="UI"/>
-    <xs:element name="UL"/>
-    <xs:element name="UN"/>
-    <xs:element name="UR"/>
-    <xs:element name="US"/>
-    <xs:element name="UT"/>
-    <xs:element name="UV"/>
-    <xs:element name="SZ"/>
-    <xs:element name="IT"/>
-    <xs:element name="IZ"/>
+    
+    
+    <xs:element name="AS">
+        <xs:annotation>
+            <xs:documentation>Age String
+* A string of characters with one of the following formats -- nnnD, nnnW, nnnM, nnnY; where nnn shall contain the number of days for D, weeks for W, months for M, or years for Y.Example: "018M" would represent an age of 18 months.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:string">
+                <xs:pattern value="[0-9][0-9][1-9][DWMY]"></xs:pattern>
+            </xs:restriction>
+        </xs:simpleType>        
+    </xs:element>
+    
+    
+    <xs:element name="AT">
+        <xs:annotation>
+            <xs:documentation>Attribute Tag
+*Ordered pair of 16-bit unsigned integers that is the value of a Data Element Tag.Example: A Data Element Tag of (0018,00FF) would be encoded as a series of 4 bytes in a Little-Endian Transfer Syntax as 18H,00H,FFH,00H.            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:hexBinary">
+                <xs:maxLength value="4"/>
+            </xs:restriction>
+        </xs:simpleType>                
+    </xs:element>
+    
+    
+    <xs:element name="CS">
+        <xs:annotation>
+            <xs:documentation>Code String
+*A string of characters identifying a controlled concept. Leading or trailing spaces (20H) are not significant.   *Uppercase characters, "0"-"9", the SPACE character, and underscore "_", of the Default Character Repertoire
+*16 bytes maximum
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:pattern value="[0-9A-Z_\s]*"></xs:pattern>
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="DA">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="DS">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="DT">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="FL">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="FD">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="IS">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="LO">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="LT">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="OB">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="OD">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="OF">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="OL">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="OV">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="OW">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="PN">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="SH">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="SL">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="SQ">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="SS">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="ST">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="SV">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="TM">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="UC">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="UI">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="UL">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="UN">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="UR">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="US">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="UT">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+    
+    
+    <xs:element name="UV">
+        <xs:annotation>
+            <xs:documentation>
+                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:maxLength value="16"/>
+            </xs:restriction>
+        </xs:simpleType>        
+        
+    </xs:element>
+
 </xs:schema>
