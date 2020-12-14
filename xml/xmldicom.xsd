@@ -30,28 +30,28 @@
                 <xs:element ref="od:FL" maxOccurs="unbounded"/>
                 <xs:element ref="od:IS" maxOccurs="unbounded"/>
                 <xs:element ref="od:LO" maxOccurs="unbounded"/>
-                <xs:element ref="od:LT" maxOccurs="unbounded"/>
-                <xs:element ref="od:OB" maxOccurs="unbounded"/>
-                <xs:element ref="od:OD" maxOccurs="unbounded"/>
-                <xs:element ref="od:OF" maxOccurs="unbounded"/>
-                <xs:element ref="od:OL" maxOccurs="unbounded"/>
-                <xs:element ref="od:OV" maxOccurs="unbounded"/>
-                <xs:element ref="od:OW" maxOccurs="unbounded"/>
+                <xs:element ref="od:LT"/>
+                <xs:element ref="od:OB"/>
+                <xs:element ref="od:OD"/>
+                <xs:element ref="od:OF"/>
+                <xs:element ref="od:OL"/>
+                <xs:element ref="od:OV"/>
+                <xs:element ref="od:OW"/>
                 <xs:element ref="od:PN" maxOccurs="unbounded"/>
                 <xs:element ref="od:SH" maxOccurs="unbounded"/>
                 <xs:element ref="od:SL" maxOccurs="unbounded"/>
-                <xs:element ref="od:SQ" maxOccurs="unbounded"/>
+                <xs:element ref="od:SQ"/>
                 <xs:element ref="od:SS" maxOccurs="unbounded"/>
-                <xs:element ref="od:ST" maxOccurs="unbounded"/>
+                <xs:element ref="od:ST"/>
                 <xs:element ref="od:SV" maxOccurs="unbounded"/>
                 <xs:element ref="od:TM" maxOccurs="unbounded"/>
                 <xs:element ref="od:UC" maxOccurs="unbounded"/>
                 <xs:element ref="od:UI" maxOccurs="unbounded"/>
                 <xs:element ref="od:UL" maxOccurs="unbounded"/>
-                <xs:element ref="od:UN" maxOccurs="unbounded"/>
-                <xs:element ref="od:UR" maxOccurs="unbounded"/>
+                <xs:element ref="od:UN"/>
+                <xs:element ref="od:UR"/>
                 <xs:element ref="od:US" maxOccurs="unbounded"/>
-                <xs:element ref="od:UT" maxOccurs="unbounded"/>
+                <xs:element ref="od:UT"/>
                 <xs:element ref="od:UV" maxOccurs="unbounded"/>
             </xs:choice>
             <xs:attribute name="p">
@@ -176,13 +176,13 @@
     
     <xs:element name="DA">
         <xs:annotation>
-            <xs:documentation>
-                
+            <xs:documentation>Date
+*A string of characters of the format YYYYMMDD; where YYYY shall contain year, MM shall contain the month, and DD shall contain the day, interpreted as a date of the Gregorian calendar system.
             </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
-                <xs:maxLength value="16"/>
+                <xs:pattern value="(19|20)[0-9][0-9](01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)"></xs:pattern>
             </xs:restriction>
         </xs:simpleType>        
         
@@ -191,12 +191,16 @@
     
     <xs:element name="DS">
         <xs:annotation>
-            <xs:documentation>
-                
+            <xs:documentation>Decimal String
+*A string of characters representing either a fixed point number or a floating point number. A fixed point number shall contain only the characters 0-9 with an optional leading "+" or "-" and an optional "." to mark the decimal point. A floating point number shall be conveyed as defined in ANSI X3.9, with an "E" or "e" to indicate the start of the exponent. Decimal Strings may be padded with leading or trailing spaces. Embedded spaces are not allowed.
+* Data Elements with multiple values using this VR may not be properly encoded if Explicit-VR Transfer Syntax is used and the VL of this attribute exceeds 65534 bytes.
+*"0"-"9", "+", "-", "E", "e", "." and the SPACE 
+*16 bytes maximum
             </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
+                <xs:pattern value="([+-]?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*|NaN)"></xs:pattern>
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
@@ -206,58 +210,74 @@
     
     <xs:element name="DT">
         <xs:annotation>
-            <xs:documentation>
-                
+            <xs:documentation>Date Time
+*A concatenated date-time character string in the format: YYYYMMDDHHMMSS.FFFFFF[+-]ZZXX
+*The components of this string, from left to right, are 
+**YYYY = Year, 
+**MM = Month, 
+**DD = Day, 
+**HH = Hour (range "00" - "23"), 
+**MM = Minute (range "00" - "59"), 
+**SS = Second (range "00" - "60").
+**FFFFFF = Fractional Second contains a fractional part of a second (range "000000" - "999999").
+**[+-]ZZXX is an optional suffix for offset from Coordinated Universal Time (UTC),  ZZ = Hours and XX = Minutes
+*The year, month, and day shall be interpreted as a date of the Gregorian calendar system.
+*A 24-hour clock is used. Midnight shall be represented by only "0000".
+*The Fractional Second component, if present, shall contain 1 to 6 digits. 
+*If Fractional Second is unspecified the preceding "." shall not be included. 
+*The offset suffix, if present, shall contain 4 digits. 
+*The string may be padded with trailing SPACE characters. 
+*Leading and embedded spaces are not allowed.
+*A component that is omitted from the string is termed a null component. 
+*Trailing null components of Date Time indicate that the value is not precise to the precision of those components. 
+*The YYYY component shall not be null. 
+*Non-trailing null components are prohibited. 
+*The optional suffix is not considered as a component.
+*A Date Time value without the optional suffix is interpreted to be in the local time zone of the application creating the Data Element, unless explicitly specified by the Timezone Offset From UTC (0008,0201).
+*UTC offsets are calculated as "local time minus UTC". The offset for a Date Time value in UTC shall be +0000.
+*Note
+**The range of the offset is -1200 to +1400.
+**The RFC 2822 use of -0000 as an offset to indicate local time is not allowed.
+**A Date Time value of 195308 means August 1953, not specific to particular day. 
+**A Date Time value of 19530827111300.0 means August 27, 1953, 11;13 a.m. accurate to 1/10th second.
+*The Second component may have a value of 60 only for a leap second.
+*The offset may be included regardless of null components; e.g., 2007-0500 is a legal value.
+*"0"-"9", "+", "-", "." and the SPACE character of Default Character Repertoire
+*26 bytes maximum
             </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
-                <xs:maxLength value="16"/>
+                <xs:maxLength value="26"/>
+                <xs:pattern value="(19|20)[0-9][0-9]((01|02|03|04|05|06|07|08|09|10|11|12)((01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)((00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23)([0-5][0-9](\.[0-9]{1,6})?)?)?)?)?([+-](00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23)[0-5][0-9])?"/>
             </xs:restriction>
         </xs:simpleType>        
         
     </xs:element>
     
     
-    <xs:element name="FL">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-            <xs:restriction base="xs:token">
-                <xs:maxLength value="16"/>
-            </xs:restriction>
-        </xs:simpleType>        
-        
-    </xs:element>
+    <xs:element name="FL" type="xs:float"/>
     
     
-    <xs:element name="FD">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-            <xs:restriction base="xs:token">
-                <xs:maxLength value="16"/>
-            </xs:restriction>
-        </xs:simpleType>        
-        
-    </xs:element>
+    <xs:element name="FD" type="xs:double"/>
     
     
     <xs:element name="IS">
         <xs:annotation>
-            <xs:documentation>
-                
+            <xs:documentation>Integer String
+*A string of characters representing an Integer in base-10 (decimal), 
+*shall contain only the characters 0 - 9, 
+*with an optional leading "+" or "-". 
+*It may be padded with leading and/or trailing spaces. 
+*Embedded spaces are not allowed.
+*"0"-"9", "+", "-" and the SPACE character of Default Character Repertoire
+*12 bytes maximum
             </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
-                <xs:maxLength value="16"/>
+                <xs:pattern value="[\s]*(0|[+-]?[1-9][0-9]{0,9})[\s]*"></xs:pattern>
+                <xs:maxLength value="12"/>
             </xs:restriction>
         </xs:simpleType>        
         
@@ -266,13 +286,17 @@
     
     <xs:element name="LO">
         <xs:annotation>
-            <xs:documentation>
-                
+            <xs:documentation>Long String
+*A character string that may be padded with leading and/or trailing spaces. The character code 5CH (the BACKSLASH "\" in ISO-IR 6) shall not be present, as it is used as the delimiter between values in multi-valued data elements. The string shall not have Control Characters except for ESC.
+*Default Character Repertoire and/or as defined by (0008,0005) excluding character code 5CH (the BACKSLASH "\" in ISO-IR 6), and all Control Characters except ESC when used for ISO 2022 escape sequences.
+*64 chars maximum
+*The lengths of Value Representations for which the Character Repertoire can be extended or replaced are expressly specified in characters rather than bytes in Table 6.2-1. This is because the mapping from a character to the number of bytes used for that character's encoding may be dependent on the character set used.
             </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
-            <xs:restriction base="xs:token">
-                <xs:maxLength value="16"/>
+            <xs:restriction base="xs:string">
+                <xs:pattern value="[^\\]*"></xs:pattern>
+                <xs:maxLength value="64"/>
             </xs:restriction>
         </xs:simpleType>        
         
@@ -281,32 +305,28 @@
     
     <xs:element name="LT">
         <xs:annotation>
-            <xs:documentation>
-                
+            <xs:documentation>Long Text (NOT MULTIVALUED)
+*A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
+*Default Character Repertoire and/or as defined by (0008,0005) excluding Control Characters except TAB, LF, FF, CR (and ESC when used for ISO 2022 escape sequences).
+*10240 chars maximum (see Note in Section 6.2)
             </xs:documentation>
         </xs:annotation>
         <xs:simpleType>
-            <xs:restriction base="xs:token">
-                <xs:maxLength value="16"/>
+            <xs:restriction base="xs:string">
+                <xs:maxLength value="10249"/>
             </xs:restriction>
         </xs:simpleType>        
         
     </xs:element>
     
     
-    <xs:element name="OB">
+    <xs:element name="OB" type="xs:base64Binary">
         <xs:annotation>
-            <xs:documentation>
-                
+            <xs:documentation>Other Byte
+*An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.                
             </xs:documentation>
         </xs:annotation>
-        <xs:simpleType>
-            <xs:restriction base="xs:token">
-                <xs:maxLength value="16"/>
-            </xs:restriction>
-        </xs:simpleType>        
-        
-    </xs:element>
+   </xs:element>
     
     
     <xs:element name="OD">
@@ -320,7 +340,6 @@
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
     
     
