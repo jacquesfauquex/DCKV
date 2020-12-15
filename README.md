@@ -1,9 +1,11 @@
 # APath
-Ordered attributePath-value representation of DICOM instances for big data and machine learning
+Ordered attributePath-value representation of DICOM instance
 
-This repository is created initially for collaborative work on the design of a new representation for DICOM instances. This will be done in the wiki part of the repository.
+This repository is a work in progress toward a new representation for DICOM objects.
 
-The code part of the repository will contain proofs of concept.
+The wiki part of the repository contains the definition of the representation.
+
+The code part of the repository contains proofs of concept.
 
 ___
 DICOM® and DICOMweb™ are Registered and Trade Marks under the copyright of "National Electrical Manufacturers Association" (USA) 
