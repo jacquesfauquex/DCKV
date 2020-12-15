@@ -1,141 +1,179 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema
     xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-    xmlns:od="http://xmldicom.opendicom.com" 
+    xmlns:xd="http://xmldicom.opendicom.com" 
     targetNamespace="http://xmldicom.opendicom.com" 
     elementFormDefault="unqualified"    
     >
 
-    <xs:element name="dicom">
+    <!-- dataset :flat list of a(ttributes) ============= -->
+    
+    <xs:element name="dataset">
         <xs:complexType>
             <xs:sequence minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="od:a"/>
+                <xs:element ref="xd:a"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
+    
+    
+    <!-- a(ttribute) alternative value representation -->
+    
     <xs:element name="a">
-        <xs:annotation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:choice minOccurs="0" maxOccurs="1">
-                <xs:element ref="od:AE" maxOccurs="unbounded"/>
-                <xs:element ref="od:AS"/>
-                <xs:element ref="od:AT" maxOccurs="unbounded"/>
-                <xs:element ref="od:CS" maxOccurs="unbounded"/>
-                <xs:element ref="od:DA" maxOccurs="unbounded"/>
-                <xs:element ref="od:DS" maxOccurs="unbounded"/>
-                <xs:element ref="od:DT" maxOccurs="unbounded"/>
-                <xs:element ref="od:FD" maxOccurs="unbounded"/>
-                <xs:element ref="od:FL" maxOccurs="unbounded"/>
-                <xs:element ref="od:IS" maxOccurs="unbounded"/>
-                <xs:element ref="od:LO" maxOccurs="unbounded"/>
-                <xs:element ref="od:LT"/>
-                <xs:element ref="od:OB"/>
-                <xs:element ref="od:OD"/>
-                <xs:element ref="od:OF"/>
-                <xs:element ref="od:OL"/>
-                <xs:element ref="od:OV"/>
-                <xs:element ref="od:OW"/>
-                <xs:element ref="od:PN" maxOccurs="unbounded"/>
-                <xs:element ref="od:SH" maxOccurs="unbounded"/>
-                <xs:element ref="od:SL" maxOccurs="unbounded"/>
-                <xs:element ref="od:SQ"/>
-                <xs:element ref="od:SS" maxOccurs="unbounded"/>
-                <xs:element ref="od:ST"/>
-                <xs:element ref="od:SV" maxOccurs="unbounded"/>
-                <xs:element ref="od:TM" maxOccurs="unbounded"/>
-                <xs:element ref="od:UC" maxOccurs="unbounded"/>
-                <xs:element ref="od:UI" maxOccurs="unbounded"/>
-                <xs:element ref="od:UL" maxOccurs="unbounded"/>
-                <xs:element ref="od:UN"/>
-                <xs:element ref="od:UR"/>
-                <xs:element ref="od:US" maxOccurs="unbounded"/>
-                <xs:element ref="od:UT"/>
-                <xs:element ref="od:UV" maxOccurs="unbounded"/>
-            </xs:choice>
-            <xs:attribute name="p">
-                <xs:annotation>
-                    <xs:documentation>positional (dot separated indexes)</xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-            <xs:attribute name="c">
-                <xs:annotation>
-                    <xs:documentation>conceptual (dot separated tags)</xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-            <xs:attribute name="t">
-                <xs:annotation>
-                    <xs:documentation>type (dicom value representation)</xs:documentation>
-                </xs:annotation>
-                <xs:simpleType>
-                    <xs:restriction base="xs:NCName">
-                        <xs:enumeration value="AE"/>
-                        <xs:enumeration value="AS"/>
-                        <xs:enumeration value="AT"/>
-                        <xs:enumeration value="CS"/>
-                        <xs:enumeration value="DA"/>
-                        <xs:enumeration value="DS"/>
-                        <xs:enumeration value="DT"/>
-                        <xs:enumeration value="FD"/>
-                        <xs:enumeration value="FL"/>
-                        <xs:enumeration value="IS"/>
-                        <xs:enumeration value="LO"/>
-                        <xs:enumeration value="LT"/>
-                        <xs:enumeration value="OB"/>
-                        <xs:enumeration value="OD"/>
-                        <xs:enumeration value="OF"/>
-                        <xs:enumeration value="OL"/>
-                        <xs:enumeration value="OV"/>
-                        <xs:enumeration value="OW"/>
-                        <xs:enumeration value="PN"/>
-                        <xs:enumeration value="SH"/>
-                        <xs:enumeration value="SL"/>
-                        <xs:enumeration value="SQ"/>
-                        <xs:enumeration value="SS"/>
-                        <xs:enumeration value="ST"/>
-                        <xs:enumeration value="SV"/>
-                        <xs:enumeration value="TM"/>
-                        <xs:enumeration value="UC"/>
-                        <xs:enumeration value="UI"/>
-                        <xs:enumeration value="UL"/>
-                        <xs:enumeration value="UN"/>
-                        <xs:enumeration value="UR"/>
-                        <xs:enumeration value="US"/>
-                        <xs:enumeration value="UT"/>
-                        <xs:enumeration value="UV"/>
-                        <xs:enumeration value="IT"/>
-                        <xs:enumeration value="IZ"/>
-                        <xs:enumeration value="SZ"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
-        </xs:complexType>
+        <xs:alternative test="@vr='AE'" type="xd:ae"/>
+        <xs:alternative test="@vr='AS'" type="xd:as"/>
+        <xs:alternative test="@vr='AT'" type="xd:at"/>
+        <xs:alternative test="@vr='CS'" type="xd:cs"/>
+        <xs:alternative test="@vr='DA'" type="xd:da"/>
+        <xs:alternative test="@vr='DS'" type="xd:ds"/>
+        <xs:alternative test="@vr='DT'" type="xd:dt"/>
+        <xs:alternative test="@vr='FD'" type="xd:fd"/>
+        <xs:alternative test="@vr='FL'" type="xd:fl"/>
+        <xs:alternative test="@vr='IS'" type="xd:is"/>
+        <xs:alternative test="@vr='LO'" type="xd:lo"/>
+        <xs:alternative test="@vr='LT'" type="xd:lt"/>
+        <xs:alternative test="@vr='OB'" type="xd:ob"/>
+        <xs:alternative test="@vr='OD'" type="xd:od"/>
+        <xs:alternative test="@vr='OF'" type="xd:of"/>
+        <xs:alternative test="@vr='OL'" type="xd:ol"/>
+        <xs:alternative test="@vr='OV'" type="xd:ov"/>
+        <xs:alternative test="@vr='OW'" type="xd:ow"/>
+        <xs:alternative test="@vr='PN'" type="xd:pn"/>
+        <xs:alternative test="@vr='SH'" type="xd:sh"/>
+        <xs:alternative test="@vr='SL'" type="xd:sl"/>
+        <xs:alternative test="@vr='SQ'" type="xd:sq"/>
+        <xs:alternative test="@vr='SS'" type="xd:ss"/>
+        <xs:alternative test="@vr='ST'" type="xd:st"/>
+        <xs:alternative test="@vr='SV'" type="xd:sv"/>
+        <xs:alternative test="@vr='TM'" type="xd:tm"/>
+        <xs:alternative test="@vr='UC'" type="xd:uc"/>
+        <xs:alternative test="@vr='UI'" type="xd:ui"/>
+        <xs:alternative test="@vr='UL'" type="xd:ul"/>
+        <xs:alternative test="@vr='UN'" type="xd:un"/>
+        <xs:alternative test="@vr='UR'" type="xd:ur"/>
+        <xs:alternative test="@vr='US'" type="xd:us"/>
+        <xs:alternative test="@vr='UT'" type="xd:ut"/>
+        <xs:alternative test="@vr='UV'" type="xd:uv"/>
+        <xs:alternative type="xd:delimiter"/>
     </xs:element>
 
-    <xs:element name="AE">
+    <!-- a xml attributes pos,tag and vr types and default a complexType-->   
+    
+    <xs:simpleType name="POS">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[1-9](\.[1-9]){0,16}"></xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="TAG">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9a-f]{8}(\.[0-9a-f]{8}){0,16}"></xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="VR">
+        <xs:restriction base="xs:NCName">
+            <xs:enumeration value="AE"/>
+            <xs:enumeration value="AS"/>
+            <xs:enumeration value="AT"/>
+            <xs:enumeration value="CS"/>
+            <xs:enumeration value="DA"/>
+            <xs:enumeration value="DS"/>
+            <xs:enumeration value="DT"/>
+            <xs:enumeration value="FD"/>
+            <xs:enumeration value="FL"/>
+            <xs:enumeration value="IS"/>
+            <xs:enumeration value="LO"/>
+            <xs:enumeration value="LT"/>
+            <xs:enumeration value="OB"/>
+            <xs:enumeration value="OD"/>
+            <xs:enumeration value="OF"/>
+            <xs:enumeration value="OL"/>
+            <xs:enumeration value="OV"/>
+            <xs:enumeration value="OW"/>
+            <xs:enumeration value="PN"/>
+            <xs:enumeration value="SH"/>
+            <xs:enumeration value="SL"/>
+            <xs:enumeration value="SQ"/>
+            <xs:enumeration value="SS"/>
+            <xs:enumeration value="ST"/>
+            <xs:enumeration value="SV"/>
+            <xs:enumeration value="TM"/>
+            <xs:enumeration value="UC"/>
+            <xs:enumeration value="UI"/>
+            <xs:enumeration value="UL"/>
+            <xs:enumeration value="UN"/>
+            <xs:enumeration value="UR"/>
+            <xs:enumeration value="US"/>
+            <xs:enumeration value="UT"/>
+            <xs:enumeration value="UV"/>
+            <xs:enumeration value="delimiter"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="delimiter">
+        <xs:sequence/>
+        <xs:attribute name="pos"/>
+        <xs:attribute name="tag" type="xd:TAG"/>
+        <xs:attribute name="vr" type="xd:VR"/>
+        <xs:assert test="string-length(@pos) - string-length(translate(@pos, '.',''))=string-length(@tag) - string-length(translate(@tag, '.',''))"/>
+    </xs:complexType>
+    
+    
+<!-- =========================================================================== -->    
+<!--                            Value Representations                            -->
+<!-- =========================================================================== -->    
 
-        <xs:annotation>
-            <xs:documentation>Application Entity.
-* A string of characters that identifies an Application Entity with leading and trailing spaces (20H) being non-significant. A value consisting solely of spaces shall not be used.
+
+    <!-- AE (Application Entity) -->
+    <!--  
+* leading and trailing spaces (20H) non-significant. 
+* A value consisting solely of spaces shall not be used.
 * Default Character Repertoire http://dicom.nema.org/medical/dicom/current/output/html/part05.html#chapter_E excluding character code 5CH (the BACKSLASH "\" in ISO-IR 6), and all control characters.
 * 16 bytes maximum
-            </xs:documentation>
-        </xs:annotation>
+    -->
+    <xs:complexType name="ae">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:AE" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="AE">
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
-           </xs:restriction>
+            </xs:restriction>
        </xs:simpleType>
     </xs:element>
-    
+
+    <!-- AS (Age String) ========================= -->
+    <!-- 
+nnnD, nnnW, nnnM, nnnY; 
+
+where nnn shall contain 
+the number of days for D, 
+weeks for W, 
+months for M, 
+or years for Y.
+
+Example: "018M" would represent an age of 18 months.
+    -->
+
+    <xs:complexType name="as">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:AS" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="AS">
-        <xs:annotation>
-            <xs:documentation>Age String
-* A string of characters with one of the following formats -- nnnD, nnnW, nnnM, nnnY; where nnn shall contain the number of days for D, weeks for W, months for M, or years for Y.Example: "018M" would represent an age of 18 months.
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:string">
                 <xs:pattern value="[0-9][0-9][1-9][DWMY]"></xs:pattern>
@@ -143,12 +181,22 @@
         </xs:simpleType>        
     </xs:element>
     
+    <!-- AT (Attribute Tag) ========================= -->    
+    <!-- 
+*Ordered pair of 16-bit unsigned integers that is the value of a Data Element Tag.
+*Example: A Data Element Tag of (0018,00FF) would be encoded as a series of 4 bytes in a Little-Endian Transfer Syntax as 18H,00H,FFH,00H.        
+    -->
+    <xs:complexType name="at">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:AT" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="AT">
-        <xs:annotation>
-            <xs:documentation>Attribute Tag
-*Ordered pair of 16-bit unsigned integers that is the value of a Data Element Tag.Example: A Data Element Tag of (0018,00FF) would be encoded as a series of 4 bytes in a Little-Endian Transfer Syntax as 18H,00H,FFH,00H.            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:hexBinary">
                 <xs:maxLength value="4"/>
@@ -156,61 +204,94 @@
         </xs:simpleType>                
     </xs:element>
     
+    <!-- CS (Code String) ======================== -->    
+    <!-- 
+*A string of characters identifying a controlled concept. 
+*Leading or trailing spaces (20H) are not significant.   
+*Uppercase characters, "0"-"9", the SPACE character, and underscore "_", of the Default Character Repertoire
+*16 bytes maximum    
+    -->
+    
+    <xs:complexType name="cs">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:CS" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="CS">
-        <xs:annotation>
-            <xs:documentation>Code String
-*A string of characters identifying a controlled concept. Leading or trailing spaces (20H) are not significant.   *Uppercase characters, "0"-"9", the SPACE character, and underscore "_", of the Default Character Repertoire
-*16 bytes maximum
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:pattern value="[0-9A-Z_\s]*"></xs:pattern>
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
     
+    <!-- DA (Date) ============================== -->    
+    <!-- 
+*A string of characters of the format YYYYMMDD; 
+*where YYYY shall contain year, 
+*MM shall contain the month, 
+*and DD shall contain the day, 
+*interpreted as a date of the Gregorian calendar system.
+    -->
+    <xs:complexType name="da">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:DA" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
     <xs:element name="DA">
-        <xs:annotation>
-            <xs:documentation>Date
-*A string of characters of the format YYYYMMDD; where YYYY shall contain year, MM shall contain the month, and DD shall contain the day, interpreted as a date of the Gregorian calendar system.
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:pattern value="(19|20)[0-9][0-9](01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)"></xs:pattern>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
     
-    <xs:element name="DS">
-        <xs:annotation>
-            <xs:documentation>Decimal String
-*A string of characters representing either a fixed point number or a floating point number. A fixed point number shall contain only the characters 0-9 with an optional leading "+" or "-" and an optional "." to mark the decimal point. A floating point number shall be conveyed as defined in ANSI X3.9, with an "E" or "e" to indicate the start of the exponent. Decimal Strings may be padded with leading or trailing spaces. Embedded spaces are not allowed.
+    <!-- DS (Decimal String) ========================== -->    
+    <!-- 
+*A string of characters representing either a fixed point number or a floating point number. 
+*A fixed point number shall contain only the characters 0-9 with an optional leading "+" or "-" and an optional "." to mark the decimal point. 
+*A floating point number shall be conveyed as defined in ANSI X3.9, with an "E" or "e" to indicate the start of the exponent. 
+*Decimal Strings may be padded with leading or trailing spaces. 
+*Embedded spaces are not allowed.
 * Data Elements with multiple values using this VR may not be properly encoded if Explicit-VR Transfer Syntax is used and the VL of this attribute exceeds 65534 bytes.
 *"0"-"9", "+", "-", "E", "e", "." and the SPACE 
-*16 bytes maximum
-            </xs:documentation>
-        </xs:annotation>
+*16 bytes maximum    
+    -->
+    <xs:complexType name="ds">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:DS" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="DS">
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:pattern value="([+-]?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*|NaN)"></xs:pattern>
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
     
-    <xs:element name="DT">
-        <xs:annotation>
-            <xs:documentation>Date Time
+    <!-- DT (Date Time) ========================= -->    
+    <!-- 
 *A concatenated date-time character string in the format: YYYYMMDDHHMMSS.FFFFFF[+-]ZZXX
 *The components of this string, from left to right, are 
 **YYYY = Year, 
@@ -243,28 +324,59 @@
 *The Second component may have a value of 60 only for a leap second.
 *The offset may be included regardless of null components; e.g., 2007-0500 is a legal value.
 *"0"-"9", "+", "-", "." and the SPACE character of Default Character Repertoire
-*26 bytes maximum
-            </xs:documentation>
-        </xs:annotation>
+*26 bytes maximum    -->
+    <xs:complexType name="dt">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:DT" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="DT">
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="26"/>
                 <xs:pattern value="(19|20)[0-9][0-9]((01|02|03|04|05|06|07|08|09|10|11|12)((01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)((00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23)([0-5][0-9](\.[0-9]{1,6})?)?)?)?)?([+-](00|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23)[0-5][0-9])?"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- FL (Float) ========================== -->    
+    
+    <xs:complexType name="fl">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:FL" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="FL" type="xs:float"/>
     
     
+    <!-- FD (Float Double) ===================== -->    
+    
+    <xs:complexType name="fd">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:FD" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
     <xs:element name="FD" type="xs:double"/>
     
     
-    <xs:element name="IS">
-        <xs:annotation>
-            <xs:documentation>Integer String
+    <!-- IS (Integer String) ===================== -->    
+    <!-- 
 *A string of characters representing an Integer in base-10 (decimal), 
 *shall contain only the characters 0 - 9, 
 *with an optional leading "+" or "-". 
@@ -272,69 +384,110 @@
 *Embedded spaces are not allowed.
 *"0"-"9", "+", "-" and the SPACE character of Default Character Repertoire
 *12 bytes maximum
-            </xs:documentation>
-        </xs:annotation>
+    -->
+    <xs:complexType name="is">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:IS" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="IS">
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:pattern value="[\s]*(0|[+-]?[1-9][0-9]{0,9})[\s]*"></xs:pattern>
                 <xs:maxLength value="12"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
     
-    <xs:element name="LO">
-        <xs:annotation>
-            <xs:documentation>Long String
+    <!-- LO (Long String) ======================== -->    
+    <!-- 
 *A character string that may be padded with leading and/or trailing spaces. The character code 5CH (the BACKSLASH "\" in ISO-IR 6) shall not be present, as it is used as the delimiter between values in multi-valued data elements. The string shall not have Control Characters except for ESC.
 *Default Character Repertoire and/or as defined by (0008,0005) excluding character code 5CH (the BACKSLASH "\" in ISO-IR 6), and all Control Characters except ESC when used for ISO 2022 escape sequences.
 *64 chars maximum
 *The lengths of Value Representations for which the Character Repertoire can be extended or replaced are expressly specified in characters rather than bytes in Table 6.2-1. This is because the mapping from a character to the number of bytes used for that character's encoding may be dependent on the character set used.
-            </xs:documentation>
-        </xs:annotation>
+    -->
+    <xs:complexType name="lo">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:LO" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="LO">
         <xs:simpleType>
             <xs:restriction base="xs:string">
                 <xs:pattern value="[^\\]*"></xs:pattern>
                 <xs:maxLength value="64"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
     
-    <xs:element name="LT">
-        <xs:annotation>
-            <xs:documentation>Long Text (NOT MULTIVALUED)
+    <!-- LT (Long Text (NOT MULTIVALUED)) ====================== -->    
+    <!-- 
 *A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
 *Default Character Repertoire and/or as defined by (0008,0005) excluding Control Characters except TAB, LF, FF, CR (and ESC when used for ISO 2022 escape sequences).
 *10240 chars maximum (see Note in Section 6.2)
-            </xs:documentation>
-        </xs:annotation>
+    -->
+    <xs:complexType name="lt">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:LT" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="LT">
         <xs:simpleType>
             <xs:restriction base="xs:string">
                 <xs:maxLength value="10249"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
     
-    <xs:element name="OB" type="xs:base64Binary">
-        <xs:annotation>
-            <xs:documentation>Other Byte
-*An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.                
-            </xs:documentation>
-        </xs:annotation>
-   </xs:element>
+    <!-- OB (Other Byte) ========================== -->    
+    <!-- 
+*An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.          -->
+    <xs:complexType name="ob">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:OB" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
+    <xs:element name="OB" type="xs:base64Binary"/>
+   
+    
+    
+    <!-- OD ================================== -->    
+    <!-- 
+    -->
+    <xs:complexType name="od">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:OD" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="OD">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
@@ -342,304 +495,425 @@
         </xs:simpleType>        
     </xs:element>
     
+    
+    <!-- OF ================================== -->    
+    
+    <xs:complexType name="of">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:OF" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="OF">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- OL ================================== -->    
+    
+    <xs:complexType name="ol">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:OL" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="OL">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- OV ================================== -->    
+    
+    <xs:complexType name="ov">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:OV" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="OV">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- OW ================================== -->    
+    
+    <xs:complexType name="ow">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:OW" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="OW">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- PN ================================== -->    
+    
+    <xs:complexType name="pn">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:PN" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="PN">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- SH ================================== -->    
+    
+    <xs:complexType name="sh">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:SH" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="SH">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- SL ================================== -->    
+    
+    <xs:complexType name="sl">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:SL" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="SL">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
     
+    
+    <!-- SQ ================================== -->    
+    
+    <xs:complexType name="sq">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:SQ" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="SQ">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- SS ================================== -->    
+    
+    <xs:complexType name="ss">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:SS" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="SS">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
     
+    
+    <!-- ST ================================== -->    
+    
+    <xs:complexType name="st">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:ST" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="ST">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>
     </xs:element>
     
+    
+    <!-- SV ================================== -->    
+    
+    <xs:complexType name="sv">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:SV" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="SV">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
     
+    
+    <!-- TM ================================== -->    
+    
+    <xs:complexType name="tm">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:TM" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="TM">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- UC ================================== -->    
+    
+    <xs:complexType name="uc">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:UC" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="UC">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
     
+    
+    <!-- UI ================================== -->    
+    
+    <xs:complexType name="ui">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:UI" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="UI">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
     
+    
+    <!-- UL ================================== -->    
+    
+    <xs:complexType name="ul">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:UL" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="UL">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
     
+    
+    <!-- UN ================================== -->    
+    
+    <xs:complexType name="un">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:UN" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="UN">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- UR ================================== -->    
+    
+    <xs:complexType name="ur">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:UR" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="UR">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- US ================================== -->    
+    
+    <xs:complexType name="us">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:US" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="US">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
     
+    
+    <!-- UT ================================== -->    
+    
+    <xs:complexType name="ut">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:UT" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="UT">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
-        </xs:simpleType>        
-        
+        </xs:simpleType>                
     </xs:element>
     
+    
+    <!-- UV ================================== -->    
+    
+    <xs:complexType name="uv">
+        <xs:complexContent>
+            <xs:extension base="xd:delimiter">
+                <xs:sequence>
+                    <xs:element ref="xd:UV" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
     
     <xs:element name="UV">
-        <xs:annotation>
-            <xs:documentation>
-                
-            </xs:documentation>
-        </xs:annotation>
         <xs:simpleType>
             <xs:restriction base="xs:token">
                 <xs:maxLength value="16"/>
             </xs:restriction>
         </xs:simpleType>        
-        
     </xs:element>
 
+        
 </xs:schema>

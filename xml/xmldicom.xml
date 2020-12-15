@@ -1,47 +1,43 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<dicom 
+<?xml version="1.1" encoding="UTF-8"?>
+<dataset 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://xmldicom.opendicom.com xmldicom.xsd"
     xmlns="http://xmldicom.opendicom.com"    
     >
-    <a p="1" c="00000001" t="AE"><AE>1234567890123456</AE></a>    
-    <a p="1" c="00000002" t="AS"><AS>054Y</AS></a>
-    <a p="1" c="00000003" t="AT"><AT>1800FF00</AT></a>
-    <a p="1" c="00000004" t="CS"><CS>RIGHT SIDE</CS></a>
-    <a p="1" c="00000005" t="DA"><DA>20201231</DA></a>
-    <a p="1" c="00000006" t="DS"><DS>+0.10023E02</DS></a>
-    <a p="1" c="00000007" t="DT"><DT></DT></a>
-    <a p="1" c="00000008" t="FD"><FD></FD></a>
-    <a p="1" c="00000009" t="FL"><FL></FL></a>
-    <a p="1" c="00000010" t="IS"><IS></IS></a>
-    <a p="1" c="00000011" t="LO"><LO></LO></a>
-    <a p="1" c="00000012" t="LT"><LT></LT></a>
-    <a p="1" c="00000013" t="OB"><OB></OB></a>
-    <a p="1" c="00000014" t="OD"><OD></OD></a>
-    <a p="1" c="00000015" t="OF"><OF></OF></a>
-    <a p="1" c="00000016" t="OL"><OL></OL></a>
-    <a p="1" c="00000017" t="OV"><OV></OV></a>
-    <a p="1" c="00000018" t="OW"><OW></OW></a>
-    <a p="1" c="00000019" t="PN"><PN></PN></a>
-    <a p="1" c="00000020" t="SH"><SH></SH></a>
-    <a p="1" c="00000021" t="SL"><SL></SL></a>
-    <a p="1" c="00000022" t="SQ"><SQ></SQ></a>
-    <a p="1" c="00000023" t="SS"><SS></SS></a>
-    <a p="1" c="00000024" t="ST"><ST></ST></a>
-    <a p="1" c="00000025" t="SV"><SV></SV></a>
-    <a p="1" c="00000026" t="TM"><TM></TM></a>
-    <a p="1" c="00000027" t="UC"><UC></UC></a>
-    <a p="1" c="00000028" t="UI"><UI></UI></a>
-    <a p="1" c="00000029" t="UL"><UL></UL></a>
-    <a p="1" c="00000030" t="UN"><UN></UN></a>
-    <a p="1" c="00000031" t="UR"><UR></UR></a>
-    <a p="1" c="00000032" t="US"><US></US></a>
-    <a p="1" c="00000033" t="UT"><UT></UT></a>
-    <a p="1" c="00000034" t="UV"><UV></UV></a>
-    <a p="1" c="00000035" t="IT"/>
-    <a p="1" c="00000036" t="IZ"/>
-    <a p="1" c="00000037" t="SZ"/>
+    <a pos="1.1" tag="00000001.0000ffff" vr="AE"><AE>1234567890123456</AE></a>    
+    <a pos="1" tag="00000002" vr="AS"><AS>054Y</AS></a>
+    <a pos="1" tag="00000003" vr="AT"><AT>1800FF00</AT></a>
+    <a pos="1" tag="00000004" vr="CS"><CS>RIGHT SIDE</CS></a>
+    <a pos="1" tag="00000005" vr="DA"><DA>20201231</DA></a>
+    <a pos="1" tag="00000006" vr="DS"><DS>+0.10023E-02</DS></a>
+    <a pos="1" tag="00000007" vr="DT"><DT>202012200555.000011+0300</DT></a>
+    <a pos="1" tag="00000008" vr="FD"><FD>0.3</FD></a>
+    <a pos="1" tag="00000009" vr="FL"><FL>0.3</FL></a>
+    <a pos="1" tag="00000010" vr="IS"><IS>-1</IS></a>
+    <a pos="1" tag="00000011" vr="LO"><LO>asdfa asfg sdasfdg</LO></a>
+    <a pos="1" tag="00000012" vr="LT"><LT>asdfa</LT></a>
+    <a pos="1" tag="00000013" vr="OB"><OB></OB></a>
+    <a pos="1" tag="00000014" vr="OD"><OD></OD></a>
+    <a pos="1" tag="00000015" vr="OF"><OF></OF></a>
+    <a pos="1" tag="00000016" vr="OL"><OL></OL></a>
+    <a pos="1" tag="00000017" vr="OV"><OV></OV></a>
+    <a pos="1" tag="00000018" vr="OW"><OW></OW></a>
+    <a pos="1" tag="00000019" vr="PN"><PN></PN></a>
+    <a pos="1" tag="00000020" vr="SH"><SH></SH></a>
+    <a pos="1" tag="00000021" vr="SL"><SL></SL></a>
+    <a pos="1" tag="00000022" vr="SQ"><SQ></SQ></a>
+    <a pos="1" tag="00000023" vr="SS"><SS></SS></a>
+    <a pos="1" tag="00000024" vr="ST"><ST></ST></a>
+    <a pos="1" tag="00000025" vr="SV"><SV></SV></a>
+    <a pos="1" tag="00000026" vr="TM"><TM></TM></a>
+    <a pos="1" tag="00000027" vr="UC"><UC></UC></a>
+    <a pos="1" tag="00000028" vr="UI"><UI></UI></a>
+    <a pos="1" tag="00000029" vr="UL"><UL></UL></a>
+    <a pos="1" tag="00000030" vr="UN"><UN></UN></a>
+    <a pos="1" tag="00000031" vr="UR"><UR></UR></a>
+    <a pos="1" tag="00000032" vr="US"><US></US></a>
+    <a pos="1" tag="00000033" vr="UT"><UT></UT></a>
+    <a pos="1" tag="00000034" vr="UV"><UV></UV></a>
+    <a pos="1" tag="00000035" vr="auxiliaryDelimiters"/>
     
-    <!--<a p="1" c="00000100" t="XX"></a>-->
-    
-</dicom>
+</dataset>
