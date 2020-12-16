@@ -59,13 +59,13 @@
 
     <!-- a(ttribute) xml, @pos, @tag and @vr ======================= -->   
     
-    <xs:simpleType name="POS">
+    <xs:simpleType name="BRANCH">
         <xs:restriction base="xs:string">
             <xs:pattern value="[1-9](\.[1-9]){0,16}"></xs:pattern>
         </xs:restriction>
     </xs:simpleType>
     
-    <xs:simpleType name="TAG">
+    <xs:simpleType name="TAGCHAIN">
         <xs:restriction base="xs:string">
             <xs:pattern value="[0-9a-f]{8}(\.[0-9a-f]{8}){0,16}"></xs:pattern>
         </xs:restriction>
@@ -113,10 +113,10 @@
 
     <xs:complexType name="delimiter">
         <xs:sequence/>
-        <xs:attribute name="pos"/>
-        <xs:attribute name="tag" type="xd:TAG"/>
+        <xs:attribute name="branch"/>
+        <xs:attribute name="tagchain" type="xd:TAGCHAIN"/>
         <xs:attribute name="vr" type="xd:VR"/>
-        <xs:assert test="string-length(@pos) - string-length(translate(@pos, '.',''))=string-length(@tag) - string-length(translate(@tag, '.',''))"/>
+        <xs:assert test="string-length(@branch) - string-length(translate(@branch, '.',''))=string-length(@tagchain) - string-length(translate(@tagchain, '.',''))"/>
     </xs:complexType>
     
     

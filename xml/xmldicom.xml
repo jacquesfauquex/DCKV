@@ -4,40 +4,40 @@
     xsi:schemaLocation="http://xmldicom.opendicom.com xmldicom.xsd"
     xmlns="http://xmldicom.opendicom.com"    
     >
-    <a pos="1.1" tag="00000001.0000fffd" vr="AE"><AE>1234567890123456</AE></a>    
-    <a pos="1" tag="00000002" vr="AS"><AS>054Y</AS></a>
-    <a pos="1" tag="00000003" vr="AT"><AT>1800FF00</AT></a>
-    <a pos="1" tag="00000004" vr="CS"><CS>RIGHT SIDE</CS></a>
-    <a pos="1" tag="00000005" vr="DA"><DA>20201231</DA></a>
-    <a pos="1" tag="00000006" vr="DS"><DS>+0.10023E-02</DS></a>
-    <a pos="1" tag="00000007" vr="DT"><DT>202012200555.000011+0300</DT></a>
-    <a pos="1" tag="00000008" vr="FD"><FD>0.3</FD></a>
-    <a pos="1" tag="00000009" vr="FL"><FL>0.3</FL></a>
-    <a pos="1" tag="00000010" vr="IS"><IS>-1</IS></a>
-    <a pos="1" tag="00000011" vr="LO"><LO>asdfa asfg sdasfdg</LO></a>
-    <a pos="1" tag="00000012" vr="LT"><LT>asdfa</LT></a>
-    <a pos="1" tag="00000013" vr="OB"><OB></OB></a>
-    <a pos="1" tag="00000014" vr="OD"><OD></OD></a>
-    <a pos="1" tag="00000015" vr="OF"><OF></OF></a>
-    <a pos="1" tag="00000016" vr="OL"><OL></OL></a>
-    <a pos="1" tag="00000017" vr="OV"><OV></OV></a>
-    <a pos="1" tag="00000018" vr="OW"><OW></OW></a>
-    <a pos="1" tag="00000019" vr="PN"><PN>jaadsfañÑ asdfalsj^asdfa</PN></a>
-    <a pos="1" tag="00000020" vr="SH"><SH></SH></a>
-    <a pos="1" tag="00000021" vr="SL"><SL>-3</SL></a>
-    <a pos="1" tag="00000022" vr="SQ"/>
-    <a pos="1" tag="00000023" vr="SS"><SS>0</SS></a>
-    <a pos="1" tag="00000024" vr="ST"><ST></ST></a>
-    <a pos="1" tag="00000025" vr="SV"><SV>-123456789012345678</SV></a>
-    <a pos="1" tag="00000026" vr="TM"><TM>231333.122222</TM></a>
-    <a pos="1" tag="00000027" vr="UC"><UC></UC></a>
-    <a pos="1" tag="00000028" vr="UI"><UI>1.234.567</UI></a>
-    <a pos="1" tag="00000029" vr="UL"><UL>8</UL></a>
-    <a pos="1" tag="00000030" vr="UN"><UN></UN></a>
-    <a pos="1" tag="00000031" vr="UR"><UR></UR></a>
-    <a pos="1" tag="00000032" vr="US"><US>9</US></a>
-    <a pos="1" tag="00000033" vr="UT"><UT></UT></a>
-    <a pos="1" tag="00000034" vr="UV"><UV>1</UV></a>
-    <a pos="1" tag="00000035" vr="delimiter"/>
+    <a branch="1.1" tagchain="00000001.0000fffd" vr="AE"><AE>1234567890123456</AE></a>    
+    <a branch="1" tagchain="00000002" vr="AS"><AS>054Y</AS></a>
+    <a branch="1" tagchain="00000003" vr="AT"><AT>1800FF00</AT></a>
+    <a branch="1" tagchain="00000004" vr="CS"><CS>RIGHT SIDE</CS></a>
+    <a branch="1" tagchain="00000005" vr="DA"><DA>20201231</DA></a>
+    <a branch="1" tagchain="00000006" vr="DS"><DS>+0.10023E-02</DS></a>
+    <a branch="1" tagchain="00000007" vr="DT"><DT>202012200555.000011+0300</DT></a>
+    <a branch="1" tagchain="00000008" vr="FD"><FD>0.3</FD></a>
+    <a branch="1" tagchain="00000009" vr="FL"><FL>0.3</FL></a>
+    <a branch="1" tagchain="00000010" vr="IS"><IS>-1</IS></a>
+    <a branch="1" tagchain="00000011" vr="LO"><LO>asdfa asfg sdasfdg</LO></a>
+    <a branch="1" tagchain="00000012" vr="LT"><LT>asdfa</LT></a>
+    <a branch="1" tagchain="00000013" vr="OB"><OB></OB></a>
+    <a branch="1" tagchain="00000014" vr="OD"><OD></OD></a>
+    <a branch="1" tagchain="00000015" vr="OF"><OF></OF></a>
+    <a branch="1" tagchain="00000016" vr="OL"><OL></OL></a>
+    <a branch="1" tagchain="00000017" vr="OV"><OV></OV></a>
+    <a branch="1" tagchain="00000018" vr="OW"><OW></OW></a>
+    <a branch="1" tagchain="00000019" vr="PN"><PN>jaadsfañÑ asdfalsj^asdfa</PN></a>
+    <a branch="1" tagchain="00000020" vr="SH"><SH></SH></a>
+    <a branch="1" tagchain="00000021" vr="SL"><SL>-3</SL></a>
+    <a branch="1" tagchain="00000022" vr="SQ"/>
+    <a branch="1" tagchain="00000023" vr="SS"><SS>0</SS></a>
+    <a branch="1" tagchain="00000024" vr="ST"><ST></ST></a>
+    <a branch="1" tagchain="00000025" vr="SV"><SV>-123456789012345678</SV></a>
+    <a branch="1" tagchain="00000026" vr="TM"><TM>231333.122222</TM></a>
+    <a branch="1" tagchain="00000027" vr="UC"><UC></UC></a>
+    <a branch="1" tagchain="00000028" vr="UI"><UI>1.234.567</UI></a>
+    <a branch="1" tagchain="00000029" vr="UL"><UL>8</UL></a>
+    <a branch="1" tagchain="00000030" vr="UN"><UN></UN></a>
+    <a branch="1" tagchain="00000031" vr="UR"><UR></UR></a>
+    <a branch="1" tagchain="00000032" vr="US"><US>9</US></a>
+    <a branch="1" tagchain="00000033" vr="UT"><UT></UT></a>
+    <a branch="1" tagchain="00000034" vr="UV"><UV>1</UV></a>
+    <a branch="1" tagchain="00000035" vr="delimiter"/>
     
 </dataset>
