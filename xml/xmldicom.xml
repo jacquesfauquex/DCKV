@@ -4,8 +4,8 @@
     xsi:schemaLocation="http://xmldicom.opendicom.com xmldicom.xsd"
     xmlns="http://xmldicom.opendicom.com"    
     >
-    <a branch="1.1" tagchain="00000001.0000fffd" vr="AE"><AE>1234567890123456</AE></a>    
-    <a branch="1" tagchain="00000002" vr="AS"><AS>054Y</AS></a>
+    <a branch="1.1" tagchain="00000001.00000100" vr="AE"><AE>1234567890123456</AE></a>    
+    <a branch="1.2" tagchain="00000002." vr="AS"><AS>054Y</AS></a>
     <a branch="1" tagchain="00000003" vr="AT"><AT>1800FF00</AT></a>
     <a branch="1" tagchain="00000004" vr="CS"><CS>RIGHT SIDE</CS></a>
     <a branch="1" tagchain="00000005" vr="DA"><DA>20201231</DA></a>
