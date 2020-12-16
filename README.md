@@ -1,5 +1,4 @@
-# APath
-Ordered attributePath-value representation of DICOM instance
+# DICOM ordered contextualizedKey-values
 
 This repository is a work in progress toward a new representation for DICOM objects.
 
