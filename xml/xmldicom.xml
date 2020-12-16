@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://xmldicom.opendicom.com xmldicom.xsd"
     xmlns="http://xmldicom.opendicom.com"    
     >
-    <a pos="1.1" tag="00000001.0000ffff" vr="AE"><AE>1234567890123456</AE></a>    
+    <a pos="1.1" tag="00000001.0000fffd" vr="AE"><AE>1234567890123456</AE></a>    
     <a pos="1" tag="00000002" vr="AS"><AS>054Y</AS></a>
     <a pos="1" tag="00000003" vr="AT"><AT>1800FF00</AT></a>
     <a pos="1" tag="00000004" vr="CS"><CS>RIGHT SIDE</CS></a>
@@ -22,22 +22,22 @@
     <a pos="1" tag="00000016" vr="OL"><OL></OL></a>
     <a pos="1" tag="00000017" vr="OV"><OV></OV></a>
     <a pos="1" tag="00000018" vr="OW"><OW></OW></a>
-    <a pos="1" tag="00000019" vr="PN"><PN></PN></a>
+    <a pos="1" tag="00000019" vr="PN"><PN>jaadsfañÑ asdfalsj^asdfa</PN></a>
     <a pos="1" tag="00000020" vr="SH"><SH></SH></a>
-    <a pos="1" tag="00000021" vr="SL"><SL></SL></a>
-    <a pos="1" tag="00000022" vr="SQ"><SQ></SQ></a>
-    <a pos="1" tag="00000023" vr="SS"><SS></SS></a>
+    <a pos="1" tag="00000021" vr="SL"><SL>-3</SL></a>
+    <a pos="1" tag="00000022" vr="SQ"/>
+    <a pos="1" tag="00000023" vr="SS"><SS>0</SS></a>
     <a pos="1" tag="00000024" vr="ST"><ST></ST></a>
-    <a pos="1" tag="00000025" vr="SV"><SV></SV></a>
-    <a pos="1" tag="00000026" vr="TM"><TM></TM></a>
+    <a pos="1" tag="00000025" vr="SV"><SV>-123456789012345678</SV></a>
+    <a pos="1" tag="00000026" vr="TM"><TM>231333.122222</TM></a>
     <a pos="1" tag="00000027" vr="UC"><UC></UC></a>
-    <a pos="1" tag="00000028" vr="UI"><UI></UI></a>
-    <a pos="1" tag="00000029" vr="UL"><UL></UL></a>
+    <a pos="1" tag="00000028" vr="UI"><UI>1.234.567</UI></a>
+    <a pos="1" tag="00000029" vr="UL"><UL>8</UL></a>
     <a pos="1" tag="00000030" vr="UN"><UN></UN></a>
     <a pos="1" tag="00000031" vr="UR"><UR></UR></a>
-    <a pos="1" tag="00000032" vr="US"><US></US></a>
+    <a pos="1" tag="00000032" vr="US"><US>9</US></a>
     <a pos="1" tag="00000033" vr="UT"><UT></UT></a>
-    <a pos="1" tag="00000034" vr="UV"><UV></UV></a>
-    <a pos="1" tag="00000035" vr="auxiliaryDelimiters"/>
+    <a pos="1" tag="00000034" vr="UV"><UV>1</UV></a>
+    <a pos="1" tag="00000035" vr="delimiter"/>
     
 </dataset>
