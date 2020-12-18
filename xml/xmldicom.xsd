@@ -53,7 +53,7 @@
         <xs:alternative test="@vr='US'" type="xd:us"/>
         <xs:alternative test="@vr='UT'" type="xd:ut"/>
         <xs:alternative test="@vr='UV'" type="xd:uv"/>
-        <xs:alternative type="xd:delimiter"/>
+        <xs:alternative type="xd:attribute"/>
     </xs:element>
 
 
@@ -107,11 +107,11 @@
             <xs:enumeration value="US"/>
             <xs:enumeration value="UT"/>
             <xs:enumeration value="UV"/>
-            <xs:enumeration value="delimiter"/>
+            <xs:enumeration value="attribute"/>
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:complexType name="delimiter">
+    <xs:complexType name="attribute">
         <xs:sequence/>
         <xs:attribute name="b" type="xd:branch"/>
         <xs:attribute name="t" type="xd:tagchain"/>
@@ -134,7 +134,7 @@
     -->
     <xs:complexType name="ae">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:AE" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -164,7 +164,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="as">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:AS" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -187,7 +187,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="at">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:AT" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -212,7 +212,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="cs">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:CS" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -239,7 +239,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="da">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:DA" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -268,7 +268,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="ds">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:DS" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -323,7 +323,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="dt">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:DT" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -343,7 +343,7 @@ Example: "018M" would represent an age of 18 months.
     <!-- FL (Float) Number ========================================= -->    
     <xs:complexType name="fl">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:FL" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -356,7 +356,7 @@ Example: "018M" would represent an age of 18 months.
     <!-- FD (Float Double) Number ================================== -->    
     <xs:complexType name="fd">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:FD" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -378,7 +378,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="is">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:IS" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -404,7 +404,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="lo">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:LO" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -429,7 +429,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="lt">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:LT" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -451,7 +451,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="ob">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:OB" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -467,7 +467,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="od">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:OD" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -483,7 +483,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="of">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:OF" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -499,7 +499,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="ol">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:OL" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -515,7 +515,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="ov">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:OV" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -531,7 +531,7 @@ Example: "018M" would represent an age of 18 months.
     -->
     <xs:complexType name="ow">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:OW" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -570,7 +570,7 @@ Default Character Repertoire and/or as defined by (0008,0005) excluding characte
     -->
     <xs:complexType name="pn">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:PN" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -594,7 +594,7 @@ Default Character Repertoire and/or as defined by (0008,0005) excluding characte
     -->
     <xs:complexType name="sh">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:SH" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -616,7 +616,7 @@ Signed binary integer 32 bits long in 2's complement form.
     -->
     <xs:complexType name="sl">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:SL" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -633,7 +633,7 @@ Signed binary integer 16 bits long in 2's complement form.
     -->
     <xs:complexType name="ss">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:SS" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -651,7 +651,7 @@ Signed binary integer 16 bits long in 2's complement form.
     -->
     <xs:complexType name="st">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:ST" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -670,7 +670,7 @@ Signed binary integer 16 bits long in 2's complement form.
     <!-- SV (Signed 64-bit Very Long) String ======================= -->    
     <xs:complexType name="sv">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:SV" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -721,7 +721,7 @@ In the context of a Query with range matching (see PS3.4), the length is 28 byte
     -->
     <xs:complexType name="tm">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:TM" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -746,7 +746,7 @@ In the context of a Query with range matching (see PS3.4), the length is 28 byte
     -->
     <xs:complexType name="uc">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:UC" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -759,7 +759,7 @@ In the context of a Query with range matching (see PS3.4), the length is 28 byte
     <!-- UI (Unique Identifier) UID String ========================= -->        
     <xs:complexType name="ui">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:UI" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -779,7 +779,7 @@ In the context of a Query with range matching (see PS3.4), the length is 28 byte
     <!-- UL (Unsigned Long) Number================================== -->   
     <xs:complexType name="ul">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:UL" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -792,7 +792,7 @@ In the context of a Query with range matching (see PS3.4), the length is 28 byte
     <!-- UN (Unknown) Base64======================================== -->        
     <xs:complexType name="un">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:UN" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -818,7 +818,7 @@ The Backslash (5CH) character is among those disallowed in URIs.
     -->
     <xs:complexType name="ur">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:UR" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -834,7 +834,7 @@ Unsigned binary integer 16 bits long.
     -->
     <xs:complexType name="us">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:US" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
@@ -854,7 +854,7 @@ Default Character Repertoire and/or as defined by (0008,0005) excluding Control 
     -->
     <xs:complexType name="ut">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:UT" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
@@ -872,7 +872,7 @@ Unsigned binary integer 64 bits long. Represents an integer n in the range:
     -->
     <xs:complexType name="uv">
         <xs:complexContent>
-            <xs:extension base="xd:delimiter">
+            <xs:extension base="xd:attribute">
                 <xs:sequence>
                     <xs:element ref="xd:UV" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
