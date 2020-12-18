@@ -22,3 +22,10 @@ In the XML lenguage, there is no problem with the variability of the value names
 At the moment we validate that :
 - the values contained in an attribute correspond to the @r
 - the text() of the values respect the XML datatype defined to mimic closely the value representation defined in the DICOM standard part 5
+
+xmldicom.xsd is available online from this github repository.
+an xml instance, like xmldicom.xml here or any other one, downloads automatically the validating xsd. 
+
+Alternatively, a local copy of the xsd can be referred to in the xml instance with a new path instead of the one in bold blue below:
+
+xsi:schemaLocation="xmldicom.xsd **https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd**"
