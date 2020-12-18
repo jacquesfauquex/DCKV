@@ -20,39 +20,39 @@
     <!-- a(ttribute) alternative value representation ============== -->
     
     <xs:element name="a">
-        <xs:alternative test="@vr='AE'" type="xd:ae"/>
-        <xs:alternative test="@vr='AS'" type="xd:as"/>
-        <xs:alternative test="@vr='AT'" type="xd:at"/>
-        <xs:alternative test="@vr='CS'" type="xd:cs"/>
-        <xs:alternative test="@vr='DA'" type="xd:da"/>
-        <xs:alternative test="@vr='DS'" type="xd:ds"/>
-        <xs:alternative test="@vr='DT'" type="xd:dt"/>
-        <xs:alternative test="@vr='FD'" type="xd:fd"/>
-        <xs:alternative test="@vr='FL'" type="xd:fl"/>
-        <xs:alternative test="@vr='IS'" type="xd:is"/>
-        <xs:alternative test="@vr='LO'" type="xd:lo"/>
-        <xs:alternative test="@vr='LT'" type="xd:lt"/>
-        <xs:alternative test="@vr='OB'" type="xd:ob"/>
-        <xs:alternative test="@vr='OD'" type="xd:od"/>
-        <xs:alternative test="@vr='OF'" type="xd:of"/>
-        <xs:alternative test="@vr='OL'" type="xd:ol"/>
-        <xs:alternative test="@vr='OV'" type="xd:ov"/>
-        <xs:alternative test="@vr='OW'" type="xd:ow"/>
-        <xs:alternative test="@vr='PN'" type="xd:pn"/>
-        <xs:alternative test="@vr='SH'" type="xd:sh"/>
-        <xs:alternative test="@vr='SL'" type="xd:sl"/>
-        <xs:alternative test="@vr='SS'" type="xd:ss"/>
-        <xs:alternative test="@vr='ST'" type="xd:st"/>
-        <xs:alternative test="@vr='SV'" type="xd:sv"/>
-        <xs:alternative test="@vr='TM'" type="xd:tm"/>
-        <xs:alternative test="@vr='UC'" type="xd:uc"/>
-        <xs:alternative test="@vr='UI'" type="xd:ui"/>
-        <xs:alternative test="@vr='UL'" type="xd:ul"/>
-        <xs:alternative test="@vr='UN'" type="xd:un"/>
-        <xs:alternative test="@vr='UR'" type="xd:ur"/>
-        <xs:alternative test="@vr='US'" type="xd:us"/>
-        <xs:alternative test="@vr='UT'" type="xd:ut"/>
-        <xs:alternative test="@vr='UV'" type="xd:uv"/>
+        <xs:alternative test="@r='AE'" type="xd:ae"/>
+        <xs:alternative test="@r='AS'" type="xd:as"/>
+        <xs:alternative test="@r='AT'" type="xd:at"/>
+        <xs:alternative test="@r='CS'" type="xd:cs"/>
+        <xs:alternative test="@r='DA'" type="xd:da"/>
+        <xs:alternative test="@r='DS'" type="xd:ds"/>
+        <xs:alternative test="@r='DT'" type="xd:dt"/>
+        <xs:alternative test="@r='FD'" type="xd:fd"/>
+        <xs:alternative test="@r='FL'" type="xd:fl"/>
+        <xs:alternative test="@r='IS'" type="xd:is"/>
+        <xs:alternative test="@r='LO'" type="xd:lo"/>
+        <xs:alternative test="@r='LT'" type="xd:lt"/>
+        <xs:alternative test="@r='OB'" type="xd:ob"/>
+        <xs:alternative test="@r='OD'" type="xd:od"/>
+        <xs:alternative test="@r='OF'" type="xd:of"/>
+        <xs:alternative test="@r='OL'" type="xd:ol"/>
+        <xs:alternative test="@r='OV'" type="xd:ov"/>
+        <xs:alternative test="@r='OW'" type="xd:ow"/>
+        <xs:alternative test="@r='PN'" type="xd:pn"/>
+        <xs:alternative test="@r='SH'" type="xd:sh"/>
+        <xs:alternative test="@r='SL'" type="xd:sl"/>
+        <xs:alternative test="@r='SS'" type="xd:ss"/>
+        <xs:alternative test="@r='ST'" type="xd:st"/>
+        <xs:alternative test="@r='SV'" type="xd:sv"/>
+        <xs:alternative test="@r='TM'" type="xd:tm"/>
+        <xs:alternative test="@r='UC'" type="xd:uc"/>
+        <xs:alternative test="@r='UI'" type="xd:ui"/>
+        <xs:alternative test="@r='UL'" type="xd:ul"/>
+        <xs:alternative test="@r='UN'" type="xd:un"/>
+        <xs:alternative test="@r='UR'" type="xd:ur"/>
+        <xs:alternative test="@r='US'" type="xd:us"/>
+        <xs:alternative test="@r='UT'" type="xd:ut"/>
+        <xs:alternative test="@r='UV'" type="xd:uv"/>
         <xs:alternative type="xd:attribute"/>
     </xs:element>
 
@@ -113,9 +113,9 @@
 
     <xs:complexType name="attribute">
         <xs:sequence/>
-        <xs:attribute name="b" type="xd:branch"/>
-        <xs:attribute name="t" type="xd:tagchain"/>
-        <xs:attribute name="r" type="xd:vr"/>
+        <xs:attribute name="b" type="xd:branch" use="required"/>
+        <xs:attribute name="t" type="xd:tagchain" use="required"/>
+        <xs:attribute name="r" type="xd:vr" use="required"/>
         <xs:assert test="string-length(@b) - string-length(translate(@b, '.',''))=string-length(@t) - string-length(translate(@t, '.',''))"/>
     </xs:complexType>
     
