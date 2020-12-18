@@ -113,8 +113,8 @@
 
     <xs:complexType name="delimiter">
         <xs:sequence/>
-        <xs:attribute name="branch"/>
-        <xs:attribute name="tagchain" type="xd:TAGCHAIN"/>
+        <xs:attribute name="br"/>
+        <xs:attribute name="tc" type="xd:TAGCHAIN"/>
         <xs:attribute name="vr" type="xd:VR"/>
         <xs:assert test="string-length(@branch) - string-length(translate(@branch, '.',''))=string-length(@tagchain) - string-length(translate(@tagchain, '.',''))"/>
     </xs:complexType>
