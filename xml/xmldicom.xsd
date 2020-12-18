@@ -57,21 +57,21 @@
     </xs:element>
 
 
-    <!-- a(ttribute) xml, @pos, @tag and @vr ======================= -->   
+    <!-- a(ttribute) xml, @b (branch), @t (tagchain) and @r (vr) -->   
     
-    <xs:simpleType name="BRANCH">
+    <xs:simpleType name="branch">
         <xs:restriction base="xs:string">
             <xs:pattern value="[1-9](\.[1-9]){0,16}"></xs:pattern>
         </xs:restriction>
     </xs:simpleType>
     
-    <xs:simpleType name="TAGCHAIN">
+    <xs:simpleType name="tagchain">
         <xs:restriction base="xs:string">
             <xs:pattern value="[0-9a-f]{8}(\.[0-9a-f]{8}){0,16}(\.)?"></xs:pattern>
         </xs:restriction>
     </xs:simpleType>
     
-    <xs:simpleType name="VR">
+    <xs:simpleType name="vr">
         <xs:restriction base="xs:NCName">
             <xs:enumeration value="AE"/>
             <xs:enumeration value="AS"/>
@@ -113,10 +113,10 @@
 
     <xs:complexType name="delimiter">
         <xs:sequence/>
-        <xs:attribute name="br"/>
-        <xs:attribute name="tc" type="xd:TAGCHAIN"/>
-        <xs:attribute name="vr" type="xd:VR"/>
-        <xs:assert test="string-length(@branch) - string-length(translate(@branch, '.',''))=string-length(@tagchain) - string-length(translate(@tagchain, '.',''))"/>
+        <xs:attribute name="b" type="xd:branch"/>
+        <xs:attribute name="t" type="xd:tagchain"/>
+        <xs:attribute name="r" type="xd:vr"/>
+        <xs:assert test="string-length(@b) - string-length(translate(@b, '.',''))=string-length(@t) - string-length(translate(@t, '.',''))"/>
     </xs:complexType>
     
     

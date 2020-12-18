@@ -4,40 +4,40 @@
     xsi:schemaLocation="xmldicom.xsd https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd"
     xmlns="xmldicom.xsd"    
     >
-    <a br="1.1" tc="00000001.00000100" vr="AE"><AE>1234567890123456</AE></a>    
-    <a br="1.2" tc="00000002." vr="AS"><AS>054Y</AS></a>
-    <a br="1" tc="00000003" vr="AT"><AT>1800FF00</AT></a>
-    <a br="1" tc="00000004" vr="CS"><CS>RIGHT SIDE</CS></a>
-    <a br="1" tc="00000005" vr="DA"><DA>20201231</DA></a>
-    <a br="1" tc="00000006" vr="DS"><DS>+0.10023E-02</DS></a>
-    <a br="1" tc="00000007" vr="DT"><DT>202012200555.000011+0300</DT></a>
-    <a br="1" tc="00000008" vr="FD"><FD>0.3</FD></a>
-    <a br="1" tc="00000009" vr="FL"><FL>0.3</FL></a>
-    <a br="1" tc="00000010" vr="IS"><IS>-1</IS></a>
-    <a br="1" tc="00000011" vr="LO"><LO>asdfa asfg sdasfdg</LO></a>
-    <a br="1" tc="00000012" vr="LT"><LT>asdfa</LT></a>
-    <a br="1" tc="00000013" vr="OB"><OB></OB></a>
-    <a br="1" tc="00000014" vr="OD"><OD></OD></a>
-    <a br="1" tc="00000015" vr="OF"><OF></OF></a>
-    <a br="1" tc="00000016" vr="OL"><OL></OL></a>
-    <a br="1" tc="00000017" vr="OV"><OV></OV></a>
-    <a br="1" tc="00000018" vr="OW"><OW></OW></a>
-    <a br="1" tc="00000019" vr="PN"><PN>jaadsfañÑ asdfalsj^asdfa</PN></a>
-    <a br="1" tc="00000020" vr="SH"><SH></SH></a>
-    <a br="1" tc="00000021" vr="SL"><SL>-3</SL></a>
-    <a br="1" tc="00000022" vr="SQ"/>
-    <a br="1" tc="00000023" vr="SS"><SS>0</SS></a>
-    <a br="1" tc="00000024" vr="ST"><ST></ST></a>
-    <a br="1" tc="00000025" vr="SV"><SV>-123456789012345678</SV></a>
-    <a br="1" tc="00000026" vr="TM"><TM>231333.122222</TM></a>
-    <a br="1" tc="00000027" vr="UC"><UC></UC></a>
-    <a br="1" tc="00000028" vr="UI"><UI>1.234.567</UI></a>
-    <a br="1" tc="00000029" vr="UL"><UL>8</UL></a>
-    <a br="1" tc="00000030" vr="UN"><UN></UN></a>
-    <a br="1" tc="00000031" vr="UR"><UR></UR></a>
-    <a br="1" tc="00000032" vr="US"><US>9</US></a>
-    <a br="1" tc="00000033" vr="UT"><UT></UT></a>
-    <a br="1" tc="00000034" vr="UV"><UV>1</UV></a>
-    <a br="1" tc="00000035" vr="delimiter"/>
+    <a b="1.1" t="00000001.00000100" r="AE"><AE>1234567890123456</AE></a>    
+    <a b="1.2" t="00000002." r="AS"><AS>054Y</AS></a>
+    <a b="1" t="00000003" r="AT"><AT>1800FF00</AT></a>
+    <a b="1" t="00000004" r="CS"><CS>RIGHT SIDE</CS></a>
+    <a b="1" t="00000005" r="DA"><DA>20201231</DA></a>
+    <a b="1" t="00000006" r="DS"><DS>+0.10023E-02</DS></a>
+    <a b="1" t="00000007" r="DT"><DT>202012200555.000011+0300</DT></a>
+    <a b="1" t="00000008" r="FD"><FD>0.3</FD></a>
+    <a b="1" t="00000009" r="FL"><FL>0.3</FL></a>
+    <a b="1" t="00000010" r="IS"><IS>-1</IS></a>
+    <a b="1" t="00000011" r="LO"><LO>asdfa asfg sdasfdg</LO></a>
+    <a b="1" t="00000012" r="LT"><LT>asdfa</LT></a>
+    <a b="1" t="00000013" r="OB"><OB></OB></a>
+    <a b="1" t="00000014" r="OD"><OD></OD></a>
+    <a b="1" t="00000015" r="OF"><OF></OF></a>
+    <a b="1" t="00000016" r="OL"><OL></OL></a>
+    <a b="1" t="00000017" r="OV"><OV></OV></a>
+    <a b="1" t="00000018" r="OW"><OW></OW></a>
+    <a b="1" t="00000019" r="PN"><PN>jaadsfañÑ asdfalsj^asdfa</PN></a>
+    <a b="1" t="00000020" r="SH"><SH></SH></a>
+    <a b="1" t="00000021" r="SL"><SL>-3</SL></a>
+    <a b="1" t="00000022" r="SQ"/>
+    <a b="1" t="00000023" r="SS"><SS>0</SS></a>
+    <a b="1" t="00000024" r="ST"><ST></ST></a>
+    <a b="1" t="00000025" r="SV"><SV>-123456789012345678</SV></a>
+    <a b="1" t="00000026" r="TM"><TM>231333.122222</TM></a>
+    <a b="1" t="00000027" r="UC"><UC></UC></a>
+    <a b="1" t="00000028" r="UI"><UI>1.234.567</UI></a>
+    <a b="1" t="00000029" r="UL"><UL>8</UL></a>
+    <a b="1" t="00000030" r="UN"><UN></UN></a>
+    <a b="1" t="00000031" r="UR"><UR></UR></a>
+    <a b="1" t="00000032" r="US"><US>9</US></a>
+    <a b="1" t="00000033" r="UT"><UT></UT></a>
+    <a b="1" t="00000034" r="UV"><UV>1</UV></a>
+    <a b="1" t="00000035" r="delimiter"/>
     
 </dataset>
