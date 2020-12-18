@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema
     xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-    xmlns:xd="http://xmldicom.opendicom.com" 
-    targetNamespace="http://xmldicom.opendicom.com" 
+    xmlns:xd="xmldicom.xsd" 
+    targetNamespace="xmldicom.xsd" 
     elementFormDefault="unqualified"    
     >
 
