@@ -2,7 +2,7 @@
 
 This repository is a work in progress toward a new representation for DICOM objects.
 
-The wiki part of the repository contains the definition of the representation.
+The ___(wiki)[https://github.com/jacquesfauquex/DICOM_contextualizedKey-values/wiki]___ part of the repository contains the definition of the representation.
 
 The code part of the repository contains proofs of concept.
 
