@@ -72,7 +72,7 @@
     </xs:simpleType>
     
     <xs:simpleType name="vr">
-        <xs:restriction base="xs:NCName">
+        <xs:restriction base="xs:string">
             <xs:enumeration value="AE"/>
             <xs:enumeration value="AS"/>
             <xs:enumeration value="AT"/>
@@ -107,7 +107,7 @@
             <xs:enumeration value="US"/>
             <xs:enumeration value="UT"/>
             <xs:enumeration value="UV"/>
-            <xs:enumeration value="attribute"/>
+            <xs:enumeration value=""/>
         </xs:restriction>
     </xs:simpleType>
 
