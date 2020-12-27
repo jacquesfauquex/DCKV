@@ -7,10 +7,10 @@ Our design of this XML representation of DICOM datasets is constrainted by the f
 - easy edition with xsl 1
 
 ## small markup
-Thanks to contextualizedKey-values syntax, datasets are "flattened" and represented in uniform two-to-three-level-deep xml structures:
-- the root level is the element dataset
-- DICOM attributes named "a" and corresponponding XML attributes @b (branch) @t (tagchain) and @r (value representation) are listed as XML attributes
-- Each value of the DICOM attribute is an element named after the value representation. This third level doesn´t appear in case of empty DICOM attributes.
+Using the contextualizedKey-values syntax, datasets are "flattened" and represented in uniform two-to-three-level-deep xml structures:
+- the root level is the element ```<dataset>```
+- DICOM attributes named ```<a>``` and corresponponding XML attributes ```@b``` (branch) ```@t``` (tagchain) and ```@r``` (value representation) are listed as XML attributes
+- Each value of the DICOM attribute is an element named after the value representation. For instance ```<CS>```.This third level doesn´t appear in case of empty DICOM attributes.
 
 ## xml schema validation
 In XML tools where schema validation is enabled, __[our validating XML schema](https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd)__ checks these aspects of well-formedness:
@@ -23,7 +23,10 @@ Alternatively, a local copy of the xsd can be referred to in the xml instance wi
 
 xsi:schemaLocation="xmldicom.xsd **https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd**"
 
+We believe that specific SOP classes may be further validated with specialization of this schema which formalize the structures of modules of information based on the part 3 of the DICOM standard.
+
 ## conversion to other representations with xsl 1
+xsl 1 is embedded in most modern web browsers, and many opensource tools exist for its application. As a proof of concept of the versality of the contextualizedKey-values xml syntax, transformers were written to text-based json and to xml dicom native format.
 
 
 ## easy edition with xslt
