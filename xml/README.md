@@ -26,8 +26,23 @@ xsi:schemaLocation="xmldicom.xsd **https://raw.githubusercontent.com/jacquesfauq
 We believe that specific SOP classes may be further validated with specialization of this schema which formalize the structures of modules of information based on the part 3 of the DICOM standard.
 
 ## conversion to other representations with xsl 1
-xsl 1 is embedded in most modern web browsers, and many opensource tools exist for its application. As a proof of concept of the versality of the contextualizedKey-values xml syntax, transformers were written to text-based json and to xml dicom native format.
+xsl 1 is embedded in most modern web browsers, and many opensource tools exist. As a proof of concept of the versality of the contextualizedKey-values xml syntax, transformers were written :
+- to text-based json 
+- to xml dicom native
+- from xml dicom native
 
 
 ## easy edition with xslt
+XML native dicom is easy to explore in xsl. XPath selects individualy any elements of its structure.
 
+But there are also limitations:
+- the XPath may be very long, especially for attributes in the depth of various levels of items.
+- adding or removing an item or a value may imply a fastidious renumbering of the siblings
+- because of the complexity of the XPaths (multiple atribute filters at different levels), selections are performed slowly
+- the construction of the XML DOM and use of XPath are imperative. Precise hacking, for instance with regex on a flat file, is impossible if the targe is an attribute which is found at various levels (for instance a code).
+
+ContextualizedKey-values xmldicom does not suffer from these limitations as much as xml native dicom:
+-the XPath is very short because of the two or three levels máx to reach any attribute and the short names a,b,t,r.
+- adding or removing an item or a value does not affect any of the siblings
+- XPath is very fast
+- XML DOM construction is not imperative. Precise hacking with regex on a flat file is posible.
