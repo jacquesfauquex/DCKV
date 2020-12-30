@@ -102,7 +102,9 @@
             <xs:enumeration value="US"/>
             <xs:enumeration value="UT"/>
             <xs:enumeration value="UV"/>
-            <xs:enumeration value=""/>
+            <xs:enumeration value="IQ"/>
+            <xs:enumeration value="SZ"/>
+            <xs:enumeration value="IZ"/>
         </xs:restriction>
     </xs:simpleType>
 
