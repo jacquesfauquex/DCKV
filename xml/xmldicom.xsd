@@ -59,13 +59,8 @@
 
     <!-- a(ttribute) xml, @b (branch), @t (tagchain) and @r (vr) -->   
     
-    <xs:simpleType name="branch">
-        <xs:restriction base="xs:string">
-            <xs:pattern value="[1-9](\.[1-9]){0,16}"></xs:pattern>
-        </xs:restriction>
-    </xs:simpleType>
     
-    <xs:simpleType name="tagchain">
+    <xs:simpleType name="hexaint">
         <xs:restriction base="xs:string">
             <xs:pattern value="[0-9A-F]{8}(\.[0-9A-F]{8}){0,16}(\.)?"></xs:pattern>
         </xs:restriction>
@@ -113,8 +108,8 @@
 
     <xs:complexType name="attribute">
         <xs:sequence/>
-        <xs:attribute name="b" type="xd:branch" use="required"/>
-        <xs:attribute name="t" type="xd:tagchain" use="required"/>
+        <xs:attribute name="b" type="xd:hexaint" use="required"/>
+        <xs:attribute name="t" type="xd:hexaint" use="required"/>
         <xs:attribute name="r" type="xd:vr" use="required"/>
         <xs:assert test="string-length(@b) - string-length(translate(@b, '.',''))=string-length(@t) - string-length(translate(@t, '.',''))"/>
     </xs:complexType>
