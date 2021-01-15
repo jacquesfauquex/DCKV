@@ -45,4 +45,4 @@ Our design of this XML representation of DICOM datasets is constrainted by the f
 
 ```
 
-the contents of <array2> is homogeneous ( <map3> only or <string3> only or <number3> only )
+the contents of ```<array2>``` is homogeneous ( ```<map3>``` only or ```<string3>``` only or ```<number3>``` only )
