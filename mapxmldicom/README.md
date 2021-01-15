@@ -5,8 +5,7 @@ Our design of this XML representation of DICOM datasets is constrainted by the f
 - markup for SQ end, item start and end, in order to simplify serialization to binary dicom
 - conversion to json with XPath 3.1 xml-to-json function
 - usability of new XPath 3.1 functions (in particular on map, but also higher order functions) on the dataset
-- modularity
-- possible reference to the modules definitions in the DICOM standard part 3 
+- modularity and possible reference to the modules definitions in the DICOM standard part 3 using json schema markup
 
 
 ## implementation details
