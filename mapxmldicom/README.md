@@ -11,9 +11,6 @@ Our design of this XML representation of DICOM datasets is constrainted by the f
 
 ## implementation details
 
-- The root object is a map in the targetNamespace="http://www.w3.org/2005/xpath-functions"
-
-
 ```
 <map0>
   |
@@ -34,14 +31,19 @@ Our design of this XML representation of DICOM datasets is constrainted by the f
 <string4>
 
 
-|---|---|---|---|
-| map0    | 1      |      | root map in the targetNamespace="http://www.w3.org/2005/xpath-functions" |
-| string1 | [0..n] | @key | reserved for json $id, $schema and $ref properties |
-| map1    | [0..n] | @key | datasets (for instance one for each module |
-| array2  | |0..n] | @key | attributes |
-| null2   | |0..n] | @key | end SQ, start and end item |
-| string2 | [0..n] | @key | reserved for json $id, $schema and $ref properties |
-| map3    | [0..n] |      | list of references |
-| string3 | [0..n] |      | string and base 64 encoded binary attributes values |
-| number3 | [0..n] |      | numeric attributes values |
-| string4 | [0..n] | @key | identified url to resources
++---------+--------+--------+------+--------------------------------------------------------------------------+
+| map0    | 1      | <map>         | root map in the targetNamespace="http://www.w3.org/2005/xpath-functions" |
+| string1 | [0..n] | <string @key> | reserved for json $id, $schema and $ref properties                       |
+| map1    | [0..n] | <map @key>    | datasets (for instance one per module)                                   |
+| array2  | |0..n] | <array @key>  | attributes                                                               |
+| null2   | |0..n] | <null @key>   | end SQ, start and end item                                               |
+| string2 | [0..n] | <string @key> | reserved for json $id, $schema and $ref properties                       |
+| map3    | [0..n] | <map>         | list of references                                                       |
+| string3 | [0..n] | <string>      | string and base 64 encoded binary attributes values                      |
+| number3 | [0..n] | <number>      | numeric attributes values                                                |
+| string4 | [0..n] | <string @key> | identified urls to resources                                             |
++---------+--------+--------+------+--------------------------------------------------------------------------+
+
+```
+
+the contents of <array2> is homogeneous ( <map3> only or <string3> only or <number3> only )
