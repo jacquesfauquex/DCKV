@@ -10,7 +10,12 @@ Our design of this XML representation of DICOM datasets is constrainted by the f
 
 ## implementation details
 
-__[Subset of map and array functions implementation in XPath 3.1](https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd)__
+__[Subset of map and array functions implementation in XPath 3.1](https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd)__:
+- @key is specialized
+- <boolean> is not used
+- recursion of <map> and <array> and contents of them are restricted
+
+
 
 ```
 <map0>
