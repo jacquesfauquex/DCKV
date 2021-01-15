@@ -10,7 +10,7 @@ Our design of this XML representation of DICOM datasets is constrainted by the f
 
 ## implementation details
 
-Subset of map and array functions implementation in XPath 3.1
+__[Subset of map and array functions implementation in XPath 3.1](https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd)__
 
 ```
 <map0>
