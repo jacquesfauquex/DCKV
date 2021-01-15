@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map xmlns="http://www.w3.org/2005/xpath-functions">
+    <map key="dataset">
+        <array key="00000001-00080002_CS">
+            <string>MUNDO</string>
+            <string>LINDO</string>
+        </array>
+        <array key="00000001-00080005_CS">
+            <string>ISO_IR 100</string>
+        </array>
+        <array key="00000001-0008103E_PN">
+            <string>a^^^^=a</string>
+            <string>a^b^c^d^e==^^^^e</string>
+            <string>a^^c=a^^^d=a^^^^e</string>
+        </array>
+        <array key="00000001-0020000E_UI">
+            <string>2.25.122801937713916620771692490997587045049</string>
+        </array>
+        <array key="00000001-00200011_SL">
+            <number>-16</number>
+        </array>
+        <array key="00000001-00080000_SQ"/>
+        <array key="00000001-00080000.00000001-00000000_IQ"/>
+        <array key="00000001-00080000.00000001-FFFEE00D_IZ"/>
+        <array key="00000001-00080000.00000002-00000000_IQ"/>
+        <array key="00000001-00080000.00000002-0000000E_SQ"/>        
+        <null key="00000001-00080000.00000002-0000000E.00000001-00000000_IQ"/>        
+        <array key="00000001-00080000.00000002-0000000E.00000001-00000001_CS">
+            <string>HOLA</string>
+        </array>
+        <null key="00000001-00080000.00000002-0000000E.00000001-FFFEE00D_IZ"/>
+        <null key="00000001-00080000.00000002-0000000E.FFFFFFFF-FFFEE0DD_SZ"/>
+        <null key="00000001-00080000.00000002-FFFEE00D_IZ"/>
+        <null key="00000001-00080000.FFFFFFFF-FFFEE0DD_SZ"/>
+    </map>
+</map>
