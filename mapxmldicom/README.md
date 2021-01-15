@@ -1,4 +1,4 @@
-# xml4jsondicom: DICOM dataset in contextualizedKey-values xml representation
+# mapxmldicom: DICOM dataset in contextualizedKey-values xml map representation
 
 Our design of this XML representation of DICOM datasets is constrainted by the following requirements:
 - small markup (shorthand for mono valued attributes)
@@ -11,12 +11,37 @@ Our design of this XML representation of DICOM datasets is constrainted by the f
 
 ## implementation details
 
-- The root object is a map with targetNamespace="http://www.w3.org/2005/xpath-functions"
-- Inside a map 
-    - string is reserved for $id, $schema and $ref properties
-    - array is reserved of dicom attributes
-    - null is reserved for SQ end, item start and end markup
-- Inside an array
-    - string is reserved for string and base64 binary dicom attributes
-    - number is reserved for number dicom attributes
-    - map is resereved for url reference to external binary resources
+- The root object is a map in the targetNamespace="http://www.w3.org/2005/xpath-functions"
+
+
+```
+<map0>
+  |
+  +-----------+
+  |           |
+<map1>     <string1>
+  |      
+  +-----------+----------+
+  |           |          |
+<array2>   <null2>    <string2>
+  |
+  +-----------+----------+
+  |           |          |  
+<map3>    <string3>   <number3>
+  |
+  |
+  |
+<string4>
+
+
+|---|---|---|---|
+| map0    | 1      |      | root map in the targetNamespace="http://www.w3.org/2005/xpath-functions" |
+| string1 | [0..n] | @key | reserved for json $id, $schema and $ref properties |
+| map1    | [0..n] | @key | datasets (for instance one for each module |
+| array2  | |0..n] | @key | attributes |
+| null2   | |0..n] | @key | end SQ, start and end item |
+| string2 | [0..n] | @key | reserved for json $id, $schema and $ref properties |
+| map3    | [0..n] |      | list of references |
+| string3 | [0..n] |      | string and base 64 encoded binary attributes values |
+| number3 | [0..n] |      | numeric attributes values |
+| string4 | [0..n] | @key | identified url to resources
