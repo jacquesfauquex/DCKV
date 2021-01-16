@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map xmlns="http://www.w3.org/2005/xpath-functions">
+<map 
+    xmlns="http://www.w3.org/2005/xpath-functions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.w3.org/2005/xpath-functions
+    mapxmldicom.xsd"
+    >
+    <string key="$">1</string>
     <map key="dataset">
         <array key="00000001-00080002_CS">
             <string>MUNDO</string>
             <string>LINDO</string>
         </array>
         <array key="00000001-00080005_CS">
-            <string>ISO_IR 100</string>
+            <map><string key="x">ISO_IR 100</string></map>
         </array>
         <array key="00000001-0008103E_PN">
             <string>a^^^^=a</string>
