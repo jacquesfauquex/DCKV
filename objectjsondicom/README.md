@@ -1,11 +1,17 @@
-# xml4jsondicom
-## DICOM dataset in contextualizedKey-values xml representation
+# objectjsondicom
+## DICOM dataset contextualizedKey-values representation as JSON
 
-Our design of this XML representation of DICOM datasets is constrainted by the following requirements:
-- small markup (including shorthands for mono valued attributes)
-- usability of new XPath 3.1 functions (in particular on map, but also higher order functions)
-- conversion to json with XPath 3.1 xml-to-json function, with target json results conformant to __[JSON schema](https://json-schema.org/specification.html)__ , also found in __[ietf](https://tools.ietf.org/html/draft-handrews-json-schema-02)__
-- enable modularity thanks to a root layer of internal and reference to external categories. The syntaxis used in the root layer conforms to:
-    - URI resolution scopes and dereferencing in JSON schema
-    - __[RFC 6901 JavaScript Object Notation (JSON) Pointer](https://tools.ietf.org/html/rfc6901)__
+DICOM dataset contextualizedKey-values representation may be written as XML or as JSON. Two functions of XPath3.1 lenguage xml-to-json() and json2xml() are instrumenting the equivalency.
+
+JSON is more compact and since the creation of json-schema, there is a standard way to link external objects json objects. This seems to be an interesting feature for the development of a database of DICOM dataset objects.
+
+On the xml side there exists __[Xlink](https://www.w3.org/TR/xlink11/)__. We found dificult to adapt it to our representation of dicom dataset because the specification requires its own xml namespace. This burden is not found in the json syntax to link objects.
+
+In the xml schema of the representation, we intentionally added ```<string>``` elements within the root ```<map>``` (map0) and the dicom attributes ```<map>``` (map1) in order to incorporate json markup around the core dicom dataset and posibly link JSON objects.
+
+## JSON schema (draft 7) and JSON pointers and external links
+- https://json-schema.org/learn/getting-started-step-by-step.html
+- https://json-schema.org/learn/file-system.html
+- https://json-schema.org/understanding-json-schema/
+
 
