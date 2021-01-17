@@ -54,12 +54,12 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
 +---------+--------+--------+------+------------------------------------------------------------------+
 
 ```
-the contents of ```<array2>``` must be homogeneous ( ```<map3>``` only or ```<string3>``` only or ```<number3>``` only )
+The contents of ```<array2>``` must be homogeneous ( ```<map3>``` only or ```<string3>``` only or ```<number3>``` only )
 
-## convert to json
+## Write as json
 
 See:
 - https://stackoverflow.com/questions/62927952/how-to-convert-xml-to-json-in-xslt
 - https://stackoverflow.com/questions/62334578/using-xslt-3-0-to-transform-xml
 
-__[M2J.xsl](https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/M2J.xsl)__ shows how to write the XML representation into JSON univocally with the function xml-to-json()
+__[M2J.xsl](https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/M2J.xsl)__ shows how to write univocally this XML as JSON, using the XSLT 3.0 function *xml-to-json()*
