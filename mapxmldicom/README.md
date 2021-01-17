@@ -62,4 +62,4 @@ See:
 - https://stackoverflow.com/questions/62927952/how-to-convert-xml-to-json-in-xslt
 - https://stackoverflow.com/questions/62334578/using-xslt-3-0-to-transform-xml
 
-__[M2J.xsl](M2J.xsl)__ shows how to write the XML representation into JSON biunivocally with the function xml-to-json()
+__[M2J.xsl](https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/M2J.xsl)__ shows how to write the XML representation into JSON univocally with the function xml-to-json()
