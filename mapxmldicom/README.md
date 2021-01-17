@@ -54,5 +54,11 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
 +---------+--------+--------+------+------------------------------------------------------------------+
 
 ```
+the contents of ```<array2>``` must be homogeneous ( ```<map3>``` only or ```<string3>``` only or ```<number3>``` only )
 
-the contents of ```<array2>``` is homogeneous ( ```<map3>``` only or ```<string3>``` only or ```<number3>``` only )
+## convert to json
+
+See:
+- https://stackoverflow.com/questions/62927952/how-to-convert-xml-to-json-in-xslt
+- https://stackoverflow.com/questions/62334578/using-xslt-3-0-to-transform-xml
+
