@@ -33,7 +33,11 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
   |
   |
   |
-<string4>
+<array4>
+  |
+  |
+  |
+<string5>
 
 
 +---------+--------+---------------+--------------------------------------------------------------+
@@ -53,7 +57,9 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
 | string3 | [0..n] | <string>      | string and base 64 encoded binary attributes values          |
 | number3 | [0..n] | <number>      | numeric attributes values                                    |
 +---------+--------+---------------+--------------------------------------------------------------+
-| string4 | [0..n] | <string @key> | identified urls to resources                                 |
+| array4 | [0..n]  | <array @key>  | alternative lists of urls to resources                       |
++---------+--------+--------+------+--------------------------------------------------------------+
+| string5 | [0..n] | <string>      | url to fragments or to one resource                          |
 +---------+--------+--------+------+--------------------------------------------------------------+
 
 ```
