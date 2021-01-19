@@ -66,7 +66,7 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
 +---------+----------+--------+------+--------------------------------------------------------------+
 
 ```
-###Notes:
+### Notes:
 - map0 targetNamespace="http://www.w3.org/2005/xpath-functions"
 - the contents of ```<array2>``` must be homogeneous ( ```<map3>``` only or ```<string3>``` only or ```<number3>``` only )
 
