@@ -36,24 +36,31 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
 <string4>
 
 
-+---------+--------+---------------+------------------------------------------------------------------+
-| map0    | 1      | <map>         | root in targetNamespace="http://www.w3.org/2005/xpath-functions" |
-| map1    | [0..n] | <map @key>    | datasets (for instance one per module)                           |
-| string1 | [0..n] | <string @key> | reserved for object id                                           |
-| true1   | [0..1] | <true @key>   | IOCM marked up. Keep                                             |
-| false1  | [0..1] | <false @key>  | IOCM marked up. Reject                                           |
-| number1 | [0..n] | <map @key>    | number of descendant sop instances (eventually by modality       |
-| array1  | [0..n] | <array @key>  | list of ids of child elements (e.j series of a study)            |
-| array2  | |0..n] | <array @key>  | attributes                                                       |
-| null2   | |0..n] | <null @key>   | end SQ, start and end item                                       |
-| map3    | [0..n] | <map>         | list of references                                               |
-| string3 | [0..n] | <string>      | string and base 64 encoded binary attributes values              |
-| number3 | [0..n] | <number>      | numeric attributes values                                        |
-| string4 | [0..n] | <string @key> | identified urls to resources                                     |
-+---------+--------+--------+------+------------------------------------------------------------------+
++---------+--------+---------------+--------------------------------------------------------------+
+| map0    | 1      | <map>         | root                                                         |
++---------+--------+---------------+--------------------------------------------------------------+
+| map1    | [0..n] | <map @key>    | dataset(s)                                                   |
+| string1 | [0..n] | <string @key> | object id                                                    |
+| true1   | [0..1] | <true @key>   | IOCM keep                                                    |
+| false1  | [0..1] | <false @key>  | IOCM obfuscate                                               |
+| number1 | [0..n] | <map @key>    | number of descendant sop instances                           |
+| array1  | [0..n] | <array @key>  | list of ids of child elements (e.j series of a study module) |
++---------+--------+---------------+--------------------------------------------------------------+
+| array2  | |0..n] | <array @key>  | attributes                                                   |
+| null2   | |0..n] | <null @key>   | end SQ, start and end item                                   |
++---------+--------+---------------+--------------------------------------------------------------+
+| map3    | [0..n] | <map>         | list of references                                           |
+| string3 | [0..n] | <string>      | string and base 64 encoded binary attributes values          |
+| number3 | [0..n] | <number>      | numeric attributes values                                    |
++---------+--------+---------------+--------------------------------------------------------------+
+| string4 | [0..n] | <string @key> | identified urls to resources                                 |
++---------+--------+--------+------+--------------------------------------------------------------+
 
 ```
-The contents of ```<array2>``` must be homogeneous ( ```<map3>``` only or ```<string3>``` only or ```<number3>``` only )
+###Notes:
+- map0 targetNamespace="http://www.w3.org/2005/xpath-functions"
+- the contents of ```<array2>``` must be homogeneous ( ```<map3>``` only or ```<string3>``` only or ```<number3>``` only )
+
 
 ## Write as json
 
