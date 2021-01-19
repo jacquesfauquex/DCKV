@@ -59,7 +59,7 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
 +---------+--------+---------------+--------------------------------------------------------------+
 | array4 | [0..n]  | <array @key>  | alternative lists of urls to resources                       |
 +---------+--------+--------+------+--------------------------------------------------------------+
-| string5 | [0..n] | <string>      | url to fragments or to one resource                          |
+| string5 | [0..n] | <string>      | url(s) to fragments or to one resource                       |
 +---------+--------+--------+------+--------------------------------------------------------------+
 
 ```
