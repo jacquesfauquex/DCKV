@@ -39,10 +39,10 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
   |
 <string5>
 
-
-+---------+--------+---------------+--------------------------------------------------------------+
+|objLevel |how many| object        | description                                                  |
++=========+========+===============+==============================================================+
 | map0    | 1      | <map>         | root                                                         |
-+---------+--------+---------------+--------------------------------------------------------------+
++----------+-------+---------------+--------------------------------------------------------------+
 | map1    | [0..n] | <map @key>    | dataset(s)                                                   |
 | string1 | [0..n] | <string @key> | object id                                                    |
 | true1   | [0..1] | <true @key>   | IOCM keep                                                    |
@@ -57,7 +57,7 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
 | string3 | [0..n] | <string>      | string and base 64 encoded binary attributes values          |
 | number3 | [0..n] | <number>      | numeric attributes values                                    |
 +---------+--------+---------------+--------------------------------------------------------------+
-| array4 | [0..n]  | <array @key>  | alternative lists of urls to resources                       |
+| array4  | [0..n]  | <array @key>  | alternative lists of urls to resources                       |
 +---------+--------+--------+------+--------------------------------------------------------------+
 | string5 | [0..n] | <string>      | url(s) to fragments or to one resource                       |
 +---------+--------+--------+------+--------------------------------------------------------------+
