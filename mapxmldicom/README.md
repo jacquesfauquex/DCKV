@@ -22,10 +22,10 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
   +-----------+-----------+-----------+-----------+-----------+
   |           |           |           |           |           |
 <map1>     <string1>    <true1>    <false1>    <number1>   <array1>
-  |      
-  +-----------+
-  |           |
-<array2>   <null2>
+  |                                                           |
+  +-----------+                                               |
+  |           |                                               |
+<array2>   <null2>                                         <string2>
   |
   +-----------+----------+
   |           |          |  
@@ -41,29 +41,30 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
 
 
 
-+=========+==========+===============+==============================================================+
-| level   | how many | object        | description                                                  |
-+=========+==========+===============+==============================================================+
-| map0    | 1        | <map>         | root                                                         |
-+----------+---------+---------------+--------------------------------------------------------------+
-| map1    | [0..n]   | <map @key>    | dataset(s)                                                   |
-| string1 | [0..n]   | <string @key> | object id                                                    |
-| true1   | [0..1]   | <true @key>   | IOCM keep                                                    |
-| false1  | [0..1]   | <false @key>  | IOCM obfuscate                                               |
-| number1 | [0..n]   | <map @key>    | number of descendant sop instances                           |
-| array1  | [0..n]   | <array @key>  | list of ids of child elements (e.j series of a study module) |
-+---------+----------+---------------+--------------------------------------------------------------+
-| array2  | |0..n]   | <array @key>  | attributes                                                   |
-| null2   | |0..n]   | <null @key>   | end SQ, start and end item                                   |
-+---------+----------+---------------+--------------------------------------------------------------+
-| map3    | [0..n]   | <map>         | list of references                                           |
-| string3 | [0..n]   | <string>      | string and base 64 encoded binary attributes values          |
-| number3 | [0..n]   | <number>      | numeric attributes values                                    |
-+---------+----------+---------------+--------------------------------------------------------------+
-| array4  | [0..n]   | <array @key>  | alternative lists of urls to resources                       |
-+---------+----------+--------+------+--------------------------------------------------------------+
-| string5 | [0..n]   | <string>      | url(s) to fragments or to one resource                       |
-+---------+----------+--------+------+--------------------------------------------------------------+
++=========+==========+===============+=====================================================+
+| level   | how many | object        | description                                         |
++=========+==========+===============+=====================================================+
+| map0    | 1        | <map>         | root                                                |
++----------+---------+---------------+-----------------------------------------------------+
+| map1    | [0..n]   | <map @key>    | dataset(s)                                          |
+| string1 | [0..n]   | <string @key> | object id                                           |
+| true1   | [0..1]   | <true @key>   | IOCM keep                                           |
+| false1  | [0..1]   | <false @key>  | IOCM obfuscate                                      |
+| number1 | [0..n]   | <map @key>    | number of descendant sop instances                  |
+| array1  | [0..n]   | <array @key>  | list of children ids (e.j series of a study module) |
++---------+----------+---------------+-----------------------------------------------------+
+| array2  | |0..n]   | <array @key>  | attributes                                          |
+| null2   | |0..n]   | <null @key>   | end SQ, start and end ite                           |
+| string2 | [0..n]   | <string @key> | children id                                         |
++---------+----------+---------------+-----------------------------------------------------+
+| map3    | [0..n]   | <map>         | list of references                                  |
+| string3 | [0..n]   | <string>      | string and base 64 encoded binary attributes values |
+| number3 | [0..n]   | <number>      | numeric attributes values                           |
++---------+----------+---------------+-----------------------------------------------------+
+| array4  | [0..n]   | <array @key>  | alternative lists of urls to resources              |
++---------+----------+--------+------+-----------------------------------------------------+
+| string5 | [0..n]   | <string>      | url(s) to fragments or to one resource              |
++---------+----------+--------+------+-----------------------------------------------------+
 
 ```
 ### Notes:
