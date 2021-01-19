@@ -39,6 +39,9 @@ __[Subset of map and array functions implementation in XPath 3.1](https://raw.gi
   |
 <string5>
 
+
+
++=========+========+===============+==============================================================+
 |objLevel |how many| object        | description                                                  |
 +=========+========+===============+==============================================================+
 | map0    | 1      | <map>         | root                                                         |
