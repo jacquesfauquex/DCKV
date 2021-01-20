@@ -16,7 +16,7 @@
      * modified by Jacques Fauquex for mapxmldicom:
      *
      * constraints on contextualizedkey @key
-     * constraints on string @key jsonschema7Key
+     * constraints on string @key objectIDkey
      *
      * boolean removal
      *
@@ -30,11 +30,43 @@
     <xs:element name="map">
         <xs:complexType>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="true" maxOccurs="1" >
+                    <xs:annotation>
+                        <xs:documentation>IOMC available. object selected</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:attributeGroup ref="j:iocmSelectKey"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="false" maxOccurs="1" >
+                    <xs:annotation>
+                        <xs:documentation>IOCM available. object hidden</xs:documentation>
+                    </xs:annotation>                   
+                    <xs:complexType>
+                        <xs:attributeGroup ref="j:iocmRejectKey"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="number">
+                    <xs:annotation>
+                        <xs:documentation>number of SOP instances referenced (eventually classified by SOP class). Optional. Always "1" except in the case of study or series modularization.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="j:finiteNumberType">
+                                <xs:attributeGroup ref="j:numberOfInstancesKey"/>
+                                <xs:anyAttribute processContents="skip" namespace="##other"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="string">
+                    <xs:annotation>
+                        <xs:documentation>object id as @key id and url as string contents</xs:documentation>
+                    </xs:annotation>
                     <xs:complexType>
                         <xs:simpleContent>
                             <xs:extension base="xs:string">
-                                <xs:attributeGroup ref="j:jsonschema7key"/>
+                                <xs:attributeGroup ref="j:objectIDkey"/>
                                 <xs:attribute name="escaped" type="xs:boolean" use="optional" default="false"/>
                                 <xs:anyAttribute processContents="skip" namespace="##other"/>
                             </xs:extension>
@@ -42,28 +74,29 @@
                     </xs:complexType>
                 </xs:element>   
                 <xs:element name="map">
+                    <xs:annotation>
+                        <xs:documentation>DICOM dataset</xs:documentation>
+                    </xs:annotation>
                     <xs:complexType>
                         <xs:choice minOccurs="0" maxOccurs="unbounded">
-                            <xs:element name="string">
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="xs:string">
-                                            <xs:attributeGroup ref="j:jsonschema7key"/>
-                                            <xs:attribute name="escaped" type="xs:boolean" use="optional" default="false"/>
-                                            <xs:anyAttribute processContents="skip" namespace="##other"/>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>               
-                            </xs:element>   
                             <xs:element name="null" >
+                                <xs:annotation>
+                                    <xs:documentation>materializes SQ end, item start and item end. This allows to speedup serialization to binary DICOM</xs:documentation>
+                                </xs:annotation>
                                 <xs:complexType>
                                     <xs:attributeGroup ref="j:contextualizedKey"/>
                                 </xs:complexType>
                             </xs:element>
                             <xs:element name="array">
+                                <xs:annotation>
+                                    <xs:documentation>DICOM attributes</xs:documentation>
+                                </xs:annotation>
                                 <xs:complexType>
                                     <xs:choice minOccurs="0" maxOccurs="unbounded">
                                         <xs:element name="string">
+                                            <xs:annotation>
+                                                <xs:documentation>for string VRs AE|AS|AT|CS|DA|DS|DT|IS|LO|LT|SH|ST|SV|TM|UC|UI|UR|UT|UV Person Namre VR PN and binary base 64 encoded VRs OB|OD|OF|OL|OV|OW|UN"</xs:documentation>
+                                            </xs:annotation>
                                             <xs:complexType>
                                                 <xs:simpleContent>
                                                     <xs:extension base="xs:string">
@@ -73,7 +106,11 @@
                                                 </xs:simpleContent>
                                             </xs:complexType>
                                         </xs:element>
+                                        
                                         <xs:element name="number">
+                                            <xs:annotation>
+                                                <xs:documentation>for numeric VRs FL|FD|SL|SS|UL|US</xs:documentation>
+                                            </xs:annotation>
                                             <xs:complexType>
                                                 <xs:simpleContent>
                                                     <xs:extension base="j:finiteNumberType">
@@ -83,13 +120,16 @@
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element name="map">
+                                            <xs:annotation>
+                                                <xs:documentation>alternative for binary VRs OB|OD|OF|OL|OV|OW|UN</xs:documentation>
+                                            </xs:annotation>
                                             <xs:complexType>
                                                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                                                     <xs:element name="string">
                                                         <xs:complexType>
                                                             <xs:simpleContent>
                                                                 <xs:extension base="xs:string">
-                                                                    <xs:attributeGroup ref="j:jsonschema7key"/>
+                                                                    <xs:attributeGroup ref="j:objectIDkey"/>
                                                                     <xs:attribute name="escaped" type="xs:boolean" use="optional" default="false"/>
                                                                     <xs:anyAttribute processContents="skip" namespace="##other"/>
                                                                 </xs:extension>
@@ -106,15 +146,38 @@
                                 </xs:complexType>
                             </xs:element>            
                         </xs:choice>
-                        <xs:attributeGroup ref="j:jsonschema7key"/>
+                        <xs:attributeGroup ref="j:datasetNameKey"/>
+                        <xs:attribute name="escaped" type="xs:boolean" use="optional" default="false"/>
                         <xs:anyAttribute processContents="skip" namespace="##other"/>        
-                    </xs:complexType>
-                    
+                    </xs:complexType>                    
                     <xs:unique name="unique-key-2">
                         <xs:selector xpath="*"/>
                         <xs:field xpath="@key"/>
                     </xs:unique>
                 </xs:element>            
+                <xs:element name="array">
+                    <xs:annotation>
+                        <xs:documentation>list of child elements (e.j. series of a study module)</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:choice minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="string">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attributeGroup ref="j:objectIDkey"></xs:attributeGroup>
+                                            <xs:attribute name="escaped" type="xs:boolean" use="optional" default="false"/>
+                                            <xs:anyAttribute processContents="skip" namespace="##other"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:choice>
+                        <xs:attributeGroup ref="j:includeListKey"/>
+                        <xs:attribute name="escaped" type="xs:boolean" use="optional" default="false"/>
+                        <xs:anyAttribute processContents="skip" namespace="##other"/>        
+                    </xs:complexType>
+                 </xs:element>                           
             </xs:choice>
             <xs:anyAttribute processContents="skip" namespace="##other"/>
         </xs:complexType>        
@@ -137,17 +200,80 @@
     </xs:attributeGroup>
 
 
-    <xs:attributeGroup name="jsonschema7key">
+    <xs:attributeGroup name="objectIDkey">
         <xs:attribute name="key" use="required">
             <xs:simpleType>
+                <xs:annotation>
+                    <xs:documentation>bson | uid | base64uid</xs:documentation>
+                </xs:annotation>
                 <xs:restriction base="xs:string">
-                    <xs:pattern value="[$a-zA-Z_].*"/>
+                    <xs:pattern value="_id|[0-9\.]+|[0-9a-zA-Z+/]+[=]{0,2}"></xs:pattern>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
-        <xs:attribute name="escaped-key" type="xs:boolean" use="optional" default="false"/>
     </xs:attributeGroup>
 
+
+    <xs:attributeGroup name="iocmRejectKey">
+        <xs:annotation>
+            <xs:documentation>http://dicom.nema.org/medical/dicom/current/output/html/part16.html#sect_CID_7010</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="key" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="Rejected for Quality Reasons"/>
+                    <xs:enumeration value="Rejected for Patient Safety Reasons"/>
+                    <xs:enumeration value="Incorrect Modality Worklist Entry"/>
+                    <xs:enumeration value="Data Retention Policy Expired"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:attributeGroup>
+    
+    <xs:attributeGroup name="iocmSelectKey">
+        <xs:annotation>
+            <xs:documentation>http://dicom.nema.org/medical/dicom/current/output/html/part16.html#sect_CID_7010</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="key" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="IOCM"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:attributeGroup>
+    
+    <xs:attributeGroup name="numberOfInstancesKey">
+        <xs:annotation>
+            <xs:documentation>http://dicom.nema.org/medical/dicom/current/output/html/part16.html#sect_CID_7010</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="key" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="SOPinstances"/>
+                    <xs:enumeration value="OTs"/>
+                    <xs:enumeration value="DOCSs"/>
+                    <xs:enumeration value="SRs"/>
+                    <!-- complete as necesary -->
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:attributeGroup>
+    
+    <xs:attributeGroup name="datasetNameKey">
+        <xs:annotation>
+            <xs:documentation>default: dataset</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="key" type="xs:Name" default="dataset"/>
+    </xs:attributeGroup>
+    
+    <xs:attributeGroup name="includeListKey">
+        <xs:annotation>
+            <xs:documentation>default: include</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="key" type="xs:Name" default="include"/>
+    </xs:attributeGroup>
+    
 
     <xs:simpleType name="finiteNumberType">
         <xs:restriction base="xs:double">

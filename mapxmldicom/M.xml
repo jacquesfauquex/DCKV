@@ -5,14 +5,15 @@
     xsi:schemaLocation="http://www.w3.org/2005/xpath-functions
     mapxmldicom.xsd"
     >
-    <string key="$">1</string>
+    <string key="_id">1</string>
+    <array key="a"></array>
     <map key="dataset">
         <array key="00000001-00080002_CS">
             <string>MUNDO</string>
             <string>LINDO</string>
         </array>
         <array key="00000001-00080005_CS">
-            <map><string key="x">ISO_IR 100</string></map>
+            <string>ISO_IR 100</string>
         </array>
         <array key="00000001-0008103E_PN">
             <string>a^^^^=a</string>
