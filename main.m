@@ -20,7 +20,7 @@ void parse(
            uint32 beforetag,
            NSString *keyprefix,
            NSMutableDictionary *hashmap,
-           NSError **error)
+           NSError *error)
 {
    uint64 itemmaxoffset = length - 4 + *offset;
    while ( *offset < itemmaxoffset ) {
@@ -105,7 +105,7 @@ void parse(
              break;
                
          case 0x5153: //SQ
-         {
+             {
             uint32 itemnumber=1;
             NSString *keySQprefix=[NSString stringWithFormat:@"%@_%@",keyprefix,tagstring(tag)];
             uint32 vll = duobytes[*offset+4] + ( duobytes[*offset+5] << 16 );
@@ -119,7 +119,7 @@ void parse(
                   uint32 vllitem = duobytes[*offset+2] + ( duobytes[*offset+3] << 16 );
                   NSString *keyitemprefix=[NSString stringWithFormat:@"%@.%08X",keySQprefix,itemnumber];
                   [hashmap setObject:[NSString stringWithFormat:@"%d+8 : %d",*offset * 2,vllitem]
-                              forKey:[NSString stringWithFormat:@"%@.00000000-IQ",keyitemprefix]
+                              forKey:[NSString stringWithFormat:@"%@_00000000-IQ",keyitemprefix]
                   ];//FFFEE000FFFFFFFF
                   *offset+=4;
                   if (vllitem==0xFFFFFFFF) parse(data,duobytes,offset,vll,0xE00DFFFE,keyitemprefix,hashmap,error);
@@ -127,7 +127,7 @@ void parse(
                   tag = duobytes[*offset] + (duobytes[*offset+1] << 16);
                   if (tag==0xE00DFFFE)
                   {
-                     [hashmap setObject:[NSString stringWithFormat:@"%d+8",*offset * 2]  forKey:[NSString stringWithFormat:@"%@.FFFEE00D-IZ",keyitemprefix]];//FFFEE00D00000000
+                     [hashmap setObject:[NSString stringWithFormat:@"%d+8",*offset * 2]  forKey:[NSString stringWithFormat:@"%@_FFFEE00D-IZ",keyitemprefix]];//FFFEE00D00000000
                      *offset+=4;
                      tag = duobytes[*offset] + (duobytes[*offset+1] << 16);
                   }
@@ -142,7 +142,8 @@ void parse(
                tag = duobytes[*offset] + (duobytes[*offset+1] << 16);
             }
             else [hashmap setObject:@"" forKey:[NSString stringWithFormat:@"%@.FFFEE0DD_00000000-SZ",keySQprefix]];
-         }
+            }
+            break;
        }
      }
      else break;
@@ -166,7 +167,7 @@ int main(int argc, const char * argv[]) {
             0xFFFFFFFF,
             @"00000001",
             hashmap,
-            &error
+            error
             );
 //sr
       NSData *data2=[NSData dataWithContentsOfFile:@"/Users/jacquesfauquex/dcvvparser/dcvvparser/sr.dcm"];
@@ -181,7 +182,7 @@ int main(int argc, const char * argv[]) {
             0xFFFFFFFF,
             @"00000002",
             hashmap,
-            &error
+            error
             );
 
       if (error) NSLog(@"%@",error.description);
