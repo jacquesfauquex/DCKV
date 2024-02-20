@@ -108,15 +108,17 @@ const uint32 fffee0dd=0xFFFEE0DD;
 void parse(
            uint8_t *keybytes,
            uint8 keydepth,
-           uint16 keycss,
+           uint16 keycs,
+           
            uint8_t *valbytes,
            uint8_t *llbytes,
            uint32 *ll,
-           NSMutableData *lldata,
+
            NSInputStream *stream,
            uint64 *idx,
            uint32 beforebyte,
            uint32 beforetag,
+           
            RocksDB *db,
            NSError *error
            )
@@ -364,10 +366,16 @@ void parse(
                //NSLog(@"error");
                return;
             }
-            
-            //NSData *k=[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false];
-            
-            if (*ll > 0){
+            *idx += 12 + *ll;
+
+            if (*ll==0) {
+               [db
+                setData:emptyData
+                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
+                error:&error
+               ];
+            }
+            else if (*ll < 0x10000){
                if ([stream read:valbytes maxLength:*ll]!=*ll) {
                   //NSLog(@"error");
                   return;
@@ -378,14 +386,31 @@ void parse(
                    error:&error
                   ];
                }
-            } else
+            } else {
+               //loop read into NSMutableData
+               NSMutableData *lldata=[NSMutableData dataWithLength:*ll];
+               while (*ll>0xFFFF)
+               {
+                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
+                     //NSLog(@"error");
+                     return;
+                  }
+                  [lldata appendBytes:valbytes length: 0xFFFF];
+                  *ll-=0xFFFF;
+               }
+               if ([stream read:valbytes maxLength:*ll]!=*ll) {
+                  //NSLog(@"error");
+                  return;
+               }
+               [lldata appendBytes:valbytes length: *ll];
                [db
-                setData:emptyData
+                setData:lldata
                 forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                 error:&error
                ];
+            }
+               
              
-            *idx += 12 + *ll;
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -402,10 +427,16 @@ void parse(
                //NSLog(@"error");
                return;
             }
-            
-            //NSData *k=[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false];
-            
-            if (*ll > 0){
+            *idx += 12 + *ll;
+
+            if (*ll==0) {
+               [db
+                setData:emptyData
+                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
+                error:&error
+               ];
+            }
+            else if (*ll < 0x10000){
                if ([stream read:valbytes maxLength:*ll]!=*ll) {
                   //NSLog(@"error");
                   return;
@@ -416,14 +447,30 @@ void parse(
                    error:&error
                   ];
                }
-            } else
+            } else {
+               //loop read into NSMutableData
+               NSMutableData *lldata=[NSMutableData dataWithLength:*ll];
+               while (*ll>0xFFFF)
+               {
+                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
+                     //NSLog(@"error");
+                     return;
+                  }
+                  [lldata appendBytes:valbytes length: 0xFFFF];
+                  *ll-=0xFFFF;
+               }
+               if ([stream read:valbytes maxLength:*ll]!=*ll) {
+                  //NSLog(@"error");
+                  return;
+               }
+               [lldata appendBytes:valbytes length: *ll];
                [db
-                setData:emptyData
+                setData:lldata
                 forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                 error:&error
                ];
-             
-            *idx += 12 + *ll;
+            }
+            
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -440,7 +487,16 @@ void parse(
                //NSLog(@"error");
                return;
             }
-            if (*ll > 0){
+            *idx += 12 + *ll;
+
+            if (*ll==0) {
+               [db
+                setData:emptyData
+                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
+                error:&error
+               ];
+            }
+            else if (*ll < 0x10000){
                if ([stream read:valbytes maxLength:*ll]!=*ll) {
                   //NSLog(@"error");
                   return;
@@ -451,14 +507,29 @@ void parse(
                    error:&error
                   ];
                }
-            } else
+            } else {
+               //loop read into NSMutableData
+               NSMutableData *lldata=[NSMutableData dataWithLength:*ll];
+               while (*ll>0xFFFF)
+               {
+                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
+                     //NSLog(@"error");
+                     return;
+                  }
+                  [lldata appendBytes:valbytes length: 0xFFFF];
+                  *ll-=0xFFFF;
+               }
+               if ([stream read:valbytes maxLength:*ll]!=*ll) {
+                  //NSLog(@"error");
+                  return;
+               }
+               [lldata appendBytes:valbytes length: *ll];
                [db
-                setData:emptyData
+                setData:lldata
                 forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                 error:&error
                ];
-             
-            *idx += 12 + *ll;
+            }
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -472,13 +543,15 @@ void parse(
          case SQ://sequence
          {
             //register SA in rocksdb
-            [lldata setData:emptyData];
-            [lldata appendBytes:attrbytes length:8];//GGggUUuuSQ00
-            [lldata appendBytes:&ffffffff length:4];//FFFFFFFF
+            keybytes[keydepth+0x8]=0xff;
+            keybytes[keydepth+0x9]=0xff;
+            keybytes[keydepth+0xA]=0xff;
+            keybytes[keydepth+0xB]=0xff;
+            NSData *SQdata=[NSData dataWithBytes:keybytes+keydepth length:12];
             attrstruct->r=SA;
             attrstruct->l=0x0;
             [db
-             setData:lldata
+             setData:SQdata
              forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
              error:&error
             ];
@@ -561,11 +634,10 @@ void parse(
                   parse(
                         keybytes,
                         keydepth,
-                        keycss,
+                        keycs,
                         valbytes,
                         llbytes,
                         ll,
-                        lldata,
                         stream,
                         idx,
                         (uint32)beforebyteIT,
@@ -709,7 +781,6 @@ int main(int argc, const char * argv[]) {
       //additional ll and llvaluedata read ll attrs of the stream
       uint8_t *llbytes = malloc(4);
       uint32 *ll = (uint32*) llbytes ;
-      NSMutableData *lldata=[NSMutableData data];
       uint64 streamindex=144;
       uint64 *idx=&streamindex;
 
@@ -729,7 +800,6 @@ int main(int argc, const char * argv[]) {
             valbytes,
             llbytes,
             ll,
-            lldata,
             stream1,
             idx,
             0xFFFFFFFF,
@@ -755,7 +825,6 @@ int main(int argc, const char * argv[]) {
                valbytes,
                llbytes,
                ll,
-               lldata,
                stream2,
                idx,
                0xFFFFFFFF,
