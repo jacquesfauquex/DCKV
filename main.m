@@ -56,6 +56,140 @@ const uint16 IA=0x2B2B;//++
 const uint16 IZ=0x5F5F;//__
 const uint16 SZ=0xFFFF;
 
+enum repertoireenum{
+   
+   REPERTOIRE_GL,
+   ISO_IR100,
+   ISO_IR101,
+   ISO_IR109,
+   ISO_IR110,
+   ISO_IR148,
+   ISO_IR126,
+   ISO_IR127,
+   
+   ISO_IR192,
+   RFC3986,
+   ISO_IR13,
+   ISO_IR144,
+   ISO_IR138,
+   ISO_IR166,
+   GB18030,
+   GBK,
+   
+   ISO2022IR6,
+   ISO2022IR100,
+   ISO2022IR101,
+   ISO2022IR109,
+   ISO2022IR110,
+   ISO2022IR148,
+   ISO2022IR126,
+   ISO2022IR127,
+   
+   ISO2022IR87,
+   ISO2022IR159,
+   ISO2022IR13,
+   ISO2022IR144,
+   ISO2022IR138,
+   ISO2022IR166,
+   ISO2022IR149,
+   ISO2022IR58
+};
+
+
+NSString *repertoirestring[]={
+   //one code
+   @"",                //empty
+   @"ISO_IR 100",      //latin1
+   @"ISO_IR 101",      //latin2
+   @"ISO_IR 109",      //latin3
+   @"ISO_IR 110",      //latin4
+   @"ISO_IR 148",      //latin5
+   @"ISO_IR 126",      //greek
+   @"ISO_IR 127",      //arabic
+
+   @"ISO_IR 192",      //utf-8 (multi byte)
+   @"RFC3986 ",         //for UR (not a DICOM defined code)
+   @"ISO_IR 13 ",      //japanese
+   @"ISO_IR 144",      //cyrilic
+   @"ISO_IR 138",      //hebrew
+   @"ISO_IR 166",      //thai
+   @"GB18030 ",        //chinese  (multi byte)
+   @"GBK ",            //chinese simplified  (multi byte)
+   
+   //code extension
+   @"ISO 2022 IR 6 ",  //default
+   @"ISO 2022 IR 100 ",//latin1
+   @"ISO 2022 IR 101 ",//latin2
+   @"ISO 2022 IR 109 ",//latin3
+   @"ISO 2022 IR 110 ",//latin4
+   @"ISO 2022 IR 148 ",//latin5
+   @"ISO 2022 IR 126 ",//greek
+   @"ISO 2022 IR 127 ",//arabic
+   
+   @"ISO 2022 IR 87",  //japanese (multi byte)
+   @"ISO 2022 IR 159 ",//japanese (multi byte)
+   @"ISO 2022 IR 13",  //japanese
+   @"ISO 2022 IR 144 ",//cyrilic
+   @"ISO 2022 IR 138 ",//hebrew
+   @"ISO 2022 IR 166 ",//thai
+   @"ISO 2022 IR 149 ",//korean (multi byte)
+   @"ISO 2022 IR 58"   //chinese simplified (multi byte)
+};
+
+uint32 repertoireindexes( uint8_t *valbytes, uint16 vallength )
+{
+   switch (vallength){
+      case 0:
+         return REPERTOIRE_GL;
+      case 4://@"GBK "
+         return GBK;
+      case 8://@"GB18030 "
+         return GB18030;
+      case 10:{
+         uint16 *duos = (uint16*) valbytes+4 ;
+         switch (*duos) {
+            case 0x3030://latin1
+               return ISO_IR100;
+            case 0x3130://latin2
+               return ISO_IR101;
+            case 0x3930://latin3
+               return ISO_IR109;
+            case 0x3031://latin4
+               return ISO_IR110;
+            case 0x3834://latin5
+               return ISO_IR148;
+            case 0x3632://greek
+               return ISO_IR126;
+            case 0x3732://arabic
+               return ISO_IR127;
+            case 0x3239://utf-8
+               return ISO_IR192;
+            case 0x2033://japones
+               return ISO_IR13;
+               
+               //return RFC3986
+            case 0x3434://cyrilic
+               return ISO_IR144;
+            case 0x3833://hebrew
+               return ISO_IR138;
+            case 0x3636://thai
+               return ISO_IR166;
+            default:
+               return 0x9;//error
+         }
+      }
+      case 14:{
+#pragma mark TODO
+      }
+      case 16:{
+#pragma mark TODO
+      }
+      default:{
+#pragma mark TODO encoding extension
+      }
+   }
+   return 0x9;//error
+}
 
 struct ele {
    uint8 g;
@@ -123,6 +257,7 @@ void parse(
            NSError *error
            )
 {
+   uint16 vl=0;
    uint8 *attrbytes=keybytes+keydepth;
    struct ele *attrstruct=(struct ele*) attrbytes;
    if ([stream read:attrbytes maxLength:8]!=8) {
@@ -143,13 +278,15 @@ void parse(
          case UL://unsigned long
          case US://unsigned short
          {
-            if (attrstruct->l > 0){
-               if ([stream read:valbytes maxLength:attrstruct->l]!=attrstruct->l) {
+            vl=attrstruct->l;
+            if (vl > 0){
+               if ([stream read:valbytes maxLength:vl]!=vl) {
                   //NSLog(@"error");
                   return;
                } else {
+                  attrstruct->l=REPERTOIRE_GL;
                   [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:attrstruct->l freeWhenDone:false]
+                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
                    forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                    error:&error
                   ];
@@ -161,7 +298,7 @@ void parse(
                 error:&error
                ];
              
-            *idx += 8 + attrstruct->l;
+            *idx += 8 + vl;
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -172,13 +309,15 @@ void parse(
 #pragma mark vl tag code
          case AT://attribute tag
          {
-            if (attrstruct->l > 0){
-               if ([stream read:valbytes maxLength:attrstruct->l]!=attrstruct->l) {
+            vl=attrstruct->l;
+            if (vl > 0){
+               if ([stream read:valbytes maxLength:vl]!=vl) {
                   //NSLog(@"error");
                   return;
                } else {
+                  attrstruct->l=REPERTOIRE_GL;
                   [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:attrstruct->l freeWhenDone:false]
+                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
                    forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                    error:&error
                   ];
@@ -190,7 +329,7 @@ void parse(
                 error:&error
                ];
              
-            *idx += 8 + attrstruct->l;
+            *idx += 8 + vl;
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -201,13 +340,25 @@ void parse(
 #pragma mark vl ascii code
          case CS://coded string
          {
-            if (attrstruct->l > 0){
-               if ([stream read:valbytes maxLength:attrstruct->l]!=attrstruct->l) {
+            vl=attrstruct->l;
+            if (vl > 0){
+               if ([stream read:valbytes maxLength:vl]!=vl) {
                   //NSLog(@"error");
                   return;
                } else {
+                  attrstruct->l=REPERTOIRE_GL;
+
+                  if ( (attrstruct->U ==0x05) && (attrstruct->g ==0x00) && (attrstruct->G ==0x08) && (attrstruct->u ==0x00) ){
+                     NSData *encodingdata=[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false];
+                     NSString *encodingstring=[[NSString alloc]initWithData:encodingdata encoding:NSASCIIStringEncoding];
+                     uint16 repidxs=repertoireindexes(valbytes,vl);
+
+                     if ((repidxs==0x09)||(![repertoirestring[repidxs] isEqualToString:encodingstring]))
+                        NSLog(@"BAD REPERTOIRE: '%@' %@",encodingstring,encodingdata.description);
+                     else keycs=(keycs & 0x8000) | repidxs;
+                  }
                   [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:attrstruct->l freeWhenDone:false]
+                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
                    forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                    error:&error
                   ];
@@ -219,7 +370,7 @@ void parse(
                 error:&error
                ];
              
-            *idx += 8 + attrstruct->l;
+            *idx += 8 + vl;
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -230,13 +381,15 @@ void parse(
 #pragma mark vl oid code
          case UI://unique ID
          {
-            if (attrstruct->l > 0){
-               if ([stream read:valbytes maxLength:attrstruct->l]!=attrstruct->l) {
+            vl=attrstruct->l;
+            if (vl > 0){
+               if ([stream read:valbytes maxLength:vl]!=vl) {
                   //NSLog(@"error");
                   return;
                } else {
+                  attrstruct->l=REPERTOIRE_GL;
                   [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:attrstruct->l freeWhenDone:false]
+                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
                    forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                    error:&error
                   ];
@@ -248,7 +401,7 @@ void parse(
                 error:&error
                ];
              
-            *idx += 8 + attrstruct->l;
+            *idx += 8 + vl;
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -265,13 +418,15 @@ void parse(
          case IS://integer string
          case TM://time
          {
-            if (attrstruct->l > 0){
-               if ([stream read:valbytes maxLength:attrstruct->l]!=attrstruct->l) {
+            vl=attrstruct->l;
+            if (vl > 0){
+               if ([stream read:valbytes maxLength:vl]!=vl) {
                   //NSLog(@"error");
                   return;
                } else {
+                  attrstruct->l=REPERTOIRE_GL;
                   [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:attrstruct->l freeWhenDone:false]
+                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
                    forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                    error:&error
                   ];
@@ -283,7 +438,7 @@ void parse(
                 error:&error
                ];
              
-            *idx += 8 + attrstruct->l;
+            *idx += 8 + vl;
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -297,13 +452,15 @@ void parse(
          case SH://short string
          case ST://short text
          {
-            if (attrstruct->l > 0){
-               if ([stream read:valbytes maxLength:attrstruct->l]!=attrstruct->l) {
+            vl=attrstruct->l;
+            if (vl > 0){
+               if ([stream read:valbytes maxLength:vl]!=vl) {
                   //NSLog(@"error");
                   return;
                } else {
+                  attrstruct->l=keycs;
                   [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:attrstruct->l freeWhenDone:false]
+                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
                    forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                    error:&error
                   ];
@@ -315,7 +472,7 @@ void parse(
                 error:&error
                ];
              
-            *idx += 8 + attrstruct->l;
+            *idx += 8 + vl;
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -326,13 +483,15 @@ void parse(
 #pragma mark vl person
          case PN://person name
          {
-            if (attrstruct->l > 0){
-               if ([stream read:valbytes maxLength:attrstruct->l]!=attrstruct->l) {
+            vl=attrstruct->l;
+            if (vl > 0){
+               if ([stream read:valbytes maxLength:vl]!=vl) {
                   //NSLog(@"error");
                   return;
                } else {
+                  attrstruct->l=keycs;
                   [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:attrstruct->l freeWhenDone:false]
+                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
                    forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
                    error:&error
                   ];
@@ -344,7 +503,7 @@ void parse(
                 error:&error
                ];
              
-            *idx += 8 + attrstruct->l;
+            *idx += 8 + vl;
             if ([stream read:attrbytes maxLength:8]!=8) {
                NSLog(@"error");
                //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
@@ -420,9 +579,70 @@ void parse(
          } break;
 #pragma mark vll charset
          case UC://unlimited characters
-         case UR://universal resource identifier/locator
          case UT://unlimited text
          {
+            attrstruct->l=keycs;
+
+            if ([stream read:llbytes maxLength:4]!=4) {
+               //NSLog(@"error");
+               return;
+            }
+            *idx += 12 + *ll;
+
+            if (*ll==0) {
+               [db
+                setData:emptyData
+                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
+                error:&error
+               ];
+            }
+            else if (*ll < 0x10000){
+               if ([stream read:valbytes maxLength:*ll]!=*ll) {
+                  //NSLog(@"error");
+                  return;
+               } else {
+                  [db
+                   setData:[NSData dataWithBytesNoCopy:valbytes length:*ll freeWhenDone:false]
+                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
+                   error:&error
+                  ];
+               }
+            } else {
+               //loop read into NSMutableData
+               NSMutableData *lldata=[NSMutableData dataWithLength:*ll];
+               while (*ll>0xFFFF)
+               {
+                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
+                     //NSLog(@"error");
+                     return;
+                  }
+                  [lldata appendBytes:valbytes length: 0xFFFF];
+                  *ll-=0xFFFF;
+               }
+               if ([stream read:valbytes maxLength:*ll]!=*ll) {
+                  //NSLog(@"error");
+                  return;
+               }
+               [lldata appendBytes:valbytes length: *ll];
+               [db
+                setData:lldata
+                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
+                error:&error
+               ];
+            }
+            
+            if ([stream read:attrbytes maxLength:8]!=8) {
+               NSLog(@"error");
+               //[NSException raise:@"STREAM_ERROR" format:@"%@", [stream streamError]];
+               return;
+            }
+            swaptag(attrstruct);
+         } break;
+#pragma mark vll RFC3986
+         case UR://universal resource identifier/locator
+         {
+            attrstruct->l=RFC3986;
+
             if ([stream read:llbytes maxLength:4]!=4) {
                //NSLog(@"error");
                return;
@@ -542,14 +762,14 @@ void parse(
 #pragma mark SQ
          case SQ://sequence
          {
-            //register SA in rocksdb
+            //register SQ con vr 0000 in rocksdb
             keybytes[keydepth+0x8]=0xff;
             keybytes[keydepth+0x9]=0xff;
             keybytes[keydepth+0xA]=0xff;
             keybytes[keydepth+0xB]=0xff;
             NSData *SQdata=[NSData dataWithBytes:keybytes+keydepth length:12];
             attrstruct->r=SA;
-            attrstruct->l=0x0;
+            attrstruct->l=REPERTOIRE_GL;
             [db
              setData:SQdata
              forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
@@ -561,6 +781,14 @@ void parse(
             }
             if (*ll==0)
             {
+               attrstruct->r=SZ;
+               attrstruct->l=0x0;
+               [db
+                setData:SZdata
+                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
+                error:&error
+               ];
+
                //read nextattr
                *idx += 12;//do not add *ll !
                if ([stream read:attrbytes maxLength:8]!=8) {
@@ -613,7 +841,7 @@ void parse(
                   itemstruct->u=0x0;
                   itemstruct->U=0x0;
                   itemstruct->r=IA;
-                  itemstruct->l=0x0;
+                  itemstruct->l=REPERTOIRE_GL;
                   [db
                    setData:IAdata
                    forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
@@ -740,13 +968,6 @@ void parse(
                   attrstruct->l=itemstruct->l;
                }
             }
- 
-#pragma mark test db (to be eliminated)
-            /*
-            RocksDBIterator *iterator = [db iterator];
-            [iterator enumerateKeysUsingBlock:^(NSData *k, BOOL *stop) {NSLog(@"%@", k.description);}];
-            [iterator close];
-             */
          } break;
             
          default:
@@ -777,6 +998,7 @@ int main(int argc, const char * argv[]) {
       
       //https://stackoverflow.com/questions/19165134/correct-portable-way-to-interpret-buffer-as-a-struct
       uint8_t *keybytes = malloc(144);
+      char keydepth=0;
       uint8_t *valbytes = malloc(0xFFFF);//max vl
       //additional ll and llvaluedata read ll attrs of the stream
       uint8_t *llbytes = malloc(4);
@@ -795,8 +1017,8 @@ int main(int argc, const char * argv[]) {
       {
          parse(
             keybytes,
-            0,
-            0,
+            keydepth,
+            ISO_IR100,
             valbytes,
             llbytes,
             ll,
@@ -820,8 +1042,8 @@ int main(int argc, const char * argv[]) {
       else {
          parse(
                keybytes,
-               0,
-               0,
+               keydepth,
+               ISO_IR100,
                valbytes,
                llbytes,
                ll,
