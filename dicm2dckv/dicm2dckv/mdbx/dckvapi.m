@@ -10,9 +10,9 @@
 #include "os_log.h"
 
 #pragma mark tx
-bool foldertx(NSString* localPath)
+bool urltx(NSURL* url)
 {
-   //directorio en sistema de archivos local para todos los kv. Abre una tx.
+   //url para todos los kv. Abre una tx.
    return false;
 }
 
@@ -44,7 +44,7 @@ bool createdb(enum kvCategory kv)
 bool reopendb(enum kvCategory kv)
 {
    //0 -> no estaba abierto o no se pudo reabrir
-return false;
+   return false;
 }
 
 
@@ -57,27 +57,32 @@ bool existsdb(enum kvCategory kv)
 #pragma mark - cw
 //operaciones exclusivas para primera creación
 //requiere que todas las enmiendas este clasificadas por key ascendientes
-bool appendkv(enum kvCategory    kv,
+bool appendkv(
               uint8_t            *kbuf,
-              unsigned long long klen,
-              uint8_t            *vbuf,
-              unsigned long long vlen
+              int                klen,
+              NSString           *vsource,
+              unsigned long long vloc,
+              unsigned long      vlen,
+              NSInputStream      *vstream,
+              uint8_t            *vbuf
               )
 {
    return false;
 }
 
-bool appendk8v(enum kvCategory    kv,
+bool appendk8v(
                uint64             k8,
-               uint8_t            *vbuf,
-               unsigned long long vlen
-              )
+               NSString           *vsource,
+               unsigned long long vloc,
+               unsigned long      vlen,
+               NSInputStream      *vStream,
+               uint8_t            *vbuf
+               )
 {
    NSLog(@"%016llX",CFSwapInt64(k8));
    NSData *vData=[NSData dataWithBytes:vbuf length:vlen];
    NSLog(@"%@",[[NSString alloc]initWithData:vData encoding:NSASCIIStringEncoding]);
    return true;
-
 }
 
 #pragma mark - ow
@@ -85,9 +90,10 @@ bool appendk8v(enum kvCategory    kv,
 
 
 
-bool coercekv(enum kvCategory    kv,
+bool coercekv(
+              enum kvCategory    kv,
               uint8_t            *kbuf,
-              unsigned long long klen,
+              int                klen,
               uint8_t            *vbuf,
               unsigned long long vlen
               )
@@ -95,7 +101,8 @@ bool coercekv(enum kvCategory    kv,
    return false;
 }
 
-bool coercek8v(enum kvCategory    kv,
+bool coercek8v(
+               enum kvCategory    kv,
                uint64             k8,
                uint8_t            *vbuf,
                unsigned long long vlen
@@ -105,9 +112,10 @@ bool coercek8v(enum kvCategory    kv,
 }
 
 
-bool supplementkv(enum kvCategory    kv,
+bool supplementkv(
+                  enum kvCategory    kv,
                   uint8_t            *kbuf,
-                  unsigned long long klen,
+                  int                klen,
                   uint8_t            *vbuf,
                   unsigned long long vlen
                  )
@@ -116,7 +124,8 @@ bool supplementkv(enum kvCategory    kv,
 }
 
 
-bool supplementk8v(enum kvCategory    kv,
+bool supplementk8v(
+                   enum kvCategory    kv,
                    uint64             k8,
                    uint8_t            *vbuf,
                    unsigned long long vlen
@@ -131,18 +140,27 @@ bool supplementk8v(enum kvCategory    kv,
 //requieren vbuf de 0xFFFFFFFF length,
 //en el cual se escribe el valor borrado
 //vlen máx 0xFFFFFFFF indica que el key no existía
-bool removetkv(enum kvCategory   kv,
-              uint8_t            *kbuf,
-              unsigned long long klen,
-              uint8_t            *vbuf,
-              unsigned long long *vlen
-              );
+bool removetkv(
+               enum kvCategory    kv,
+               uint8_t            *kbuf,
+               int                klen,
+               uint8_t            *vbuf,
+               unsigned long long *vlen
+              )
+{
+   return false;
+}
 
-bool removek8v(enum kvCategory    kv,
+
+bool removek8v(
+               enum kvCategory    kv,
                uint64             k8,
                uint8_t            *vbuf,
                unsigned long long *vlen
-               );
+               )
+{
+   return false;
+}
 
 /*
 id env

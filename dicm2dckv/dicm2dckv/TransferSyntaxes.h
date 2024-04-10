@@ -135,6 +135,6 @@ ts_7_3
 
 uint8 tsidx( uint8_t *valbytes, uint16 vallength );
 
-NSString *tsname( uint8 tsidx);
+NSString *tsname( uint16 tsidx);
 
 #endif /* TransferSyntaxes_h */

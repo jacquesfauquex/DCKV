@@ -330,8 +330,7 @@ const char *scstr[]={
 uint16 scidx( uint8_t *valbytes, uint16 vallength )
 {
    uint16 idx=0x0;//verification / error
-   
-   switch (vallength){
+   switch (vallength-(valbytes[vallength-1]==0)){
          
       case 17: {
          switch (valbytes[16]){
@@ -695,7 +694,6 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
          
       case 32:{
-         uint32 *cuatuors = (uint32*) valbytes+24;
          switch ((valbytes[31] << 24) | (valbytes[30]<<16) | (valbytes[29]<<8) | valbytes[28]) {
             case 0x312E312E: idx=sc_5_1_4_1_1_77_1_1_1;break;//VideoEndoscopicImageStorage
             case 0x312E322E: idx=sc_5_1_4_1_1_77_1_2_1;break;//VideoMicroscopicImageStorage

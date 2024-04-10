@@ -85,7 +85,7 @@ uint32 repertoireidx( uint8_t *valbytes, uint16 vallength )
    else return 0x9;//error
 }
 
-NSString *repertoirename( uint32 repertoireidx)
+NSString *repertoirename( uint16 repertoireidx)
 {
    return [NSString stringWithUTF8String:repertoirestr[repertoireidx]];
 }

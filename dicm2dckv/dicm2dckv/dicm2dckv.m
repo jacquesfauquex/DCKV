@@ -8,14 +8,21 @@
 #include "dicm2dckv.h"
 #include "os_log.h"
 
+#include "dckvapi.h"
+
+const uint32 tag00020002=0x02000200;
+const uint32 tag00020003=0x03000200;
+const uint32 tag00020010=0x10000200;
+
+const uint32 tag00081150=0x50110800;
 
 const uint64 SZbytes=0xDDE0FEFF;//FFFEE0DD00000000
 const uint64 IAbytes=0xFFFFFFFF00E0FEFF;//FFFEE000FFFFFFFF
 const uint64 IZbytes=0x0DE0FEFF;//FFFEE00D00000000
 const uint32 ffffffff=0xFFFFFFFF;
-const uint32 fffee000=0xFFFEE000;
-const uint32 fffee00d=0xFFFEE00D;
-const uint32 fffee0dd=0xFFFEE0DD;
+const uint32 fffee000=0xfffee000;
+const uint32 fffee00d=0xfffee00d;
+const uint32 fffee0dd=0xfffee0dd;
 
 //short length value vr
 const uint16 AE=0x4541;
@@ -64,42 +71,7 @@ const uint16 IA=0x2B2B;//++
 const uint16 IZ=0x5F5F;//__
 const uint16 SZ=0xFFFF;
 
-
-//-------------------------
-// subroutinas
-//-------------------------
-
-void swaptag(struct ele *a)
-{
-   unsigned char swap;
-   swap=a->g;
-   a->g=a->G;
-   a->G=swap;
-   swap=a->u;
-   a->u=a->U;
-   a->U=swap;
-}
-
-uint32 letag(uint32 t)
-{
-   return
-     ((t & 0xff) << 24)
-   + ((t & 0xff00) << 16)
-   + ((t & 0xff0000) >> 16)
-   + ((t & 0xff000000) >> 24)
-   ;
-}
-
-uint32 attrletag(struct ele *a)
-{
-   return (a->g << 24) + (a->G << 16) + (a->u << 8) + a->U;
-}
-
-NSString *hexauint64(uint64 *eightBytes)
-{
-   struct uint64lh *lh=(struct uint64lh*) eightBytes;
-   return [NSString stringWithFormat:@"%04x%04x",lh->h,lh->l];
-}
+uint8 swapchar;
 
 //-------------------------
 // blocking read actions
@@ -113,15 +85,31 @@ BOOL read8bytes(NSInputStream *stream, uint8_t *buffer, NSInteger *bytesReadRef)
 {
    *bytesReadRef=[stream read:buffer maxLength:8];
    switch (*bytesReadRef) {
-      case 8: return true;
+      case 8:
+      {
+         swapchar=*buffer;
+         *buffer=*(buffer+1);
+         *(buffer+1)=swapchar;
+         swapchar=*(buffer+2);
+         *(buffer+2)=*(buffer+3);
+         *(buffer+3)=swapchar;
+         return true;
+      }
       case -1://stream error
       {
-         os_log_error(dicm2mdbxLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+         os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
          return false;
       }
    }
-   os_log_error(dicm2mdbxLogger,"stream premature end (less than 8 bytes remaining)");
+   os_log_error(dicm2dckvLogger,"stream premature end (less than 8 bytes remaining)");
    return false;
+}
+
+//hexa representation of read8bytes
+NSString *hexa8bytes(uint64 *eightBytes)
+{
+   struct l4h4 *lh=(struct l4h4*) eightBytes;
+   return [NSString stringWithFormat:@"%04x%04x",lh->h,lh->l];
 }
 
 
@@ -143,6 +131,7 @@ BOOL read8bytes(NSInputStream *stream, uint8_t *buffer, NSInteger *bytesReadRef)
  
  */
 NSString *dicmuptosopts(
+   NSString *source,
    uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *valbytes,     // lectura del valor del atributo returns with sopiuid
    NSInputStream *stream, // input
@@ -161,13 +150,12 @@ NSString *dicmuptosopts(
    NSInteger bytescount;
    if (!read8bytes(stream, keybytes, &bytescount)) return nil;
 
-   struct ele *attrstruct=(struct ele*) keybytes;//corresponding struct
+   struct t4r2l2 *attrstruct=(struct t4r2l2*) keybytes;//corresponding struct
 
 #pragma mark dataset without preface ?
    uint64 *attruint64=(uint64*) keybytes;//first 8 bytes are not 0x00
    if (*attruint64 !=0)
    {
-      swaptag(attrstruct);
       switch (attrstruct->r) {
          case FD://floating point double
          case FL://floating point single
@@ -204,13 +192,13 @@ NSString *dicmuptosopts(
          case UN://unknown
          case SQ://sequence
          {
-            os_log_debug(dicm2mdbxLogger,"no DICM prolog. First 8 bytes: %@",hexauint64(attruint64));
+            os_log_debug(dicm2dckvLogger,"no DICM prolog. First 8 bytes: %@",hexa8bytes(attruint64));
             //first attr is loaded
             return @"";
          }
          default:
          {
-            os_log_error(dicm2mdbxLogger,"no DICM prolog. Not explicit little endian or derived. First 8 bytes: %@",hexauint64(attruint64));
+            os_log_error(dicm2dckvLogger,"no DICM prolog. Not explicit little endian or derived. First 8 bytes: %@",hexa8bytes(attruint64));
             return nil;
          }
       }
@@ -226,19 +214,19 @@ NSString *dicmuptosopts(
       case 150: break;
       case -1://stream error
       {
-         os_log_error(dicm2mdbxLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+         os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
          return false;
       }
       default://not enough bytes
       {
-         os_log_error(dicm2mdbxLogger,"stream premature end (less than 158 bytes)");
+         os_log_error(dicm2dckvLogger,"stream premature end (less than 158 bytes)");
          return nil;
       }
    }
 
    if ( (*(valbytes+128)!='D') || (*(valbytes+129)!='I') || (*(valbytes+130)!='C') || (*(valbytes+131)!='M') )
    {
-      os_log_error(dicm2mdbxLogger,"no DICM signature");
+      os_log_error(dicm2dckvLogger,"no DICM signature");
       return nil;
    }
    *inloc = 158;
@@ -247,9 +235,9 @@ NSString *dicmuptosopts(
    
 #pragma mark read sop object [so] (=sop class)
    if (!read8bytes(stream, keybytes, &bytescount)) return nil;
-   if ((*attruint64 % 0x100000000)!=0x00020002)
+   if ((*attruint64 % 0x100000000)!=tag00020002)
    {
-      os_log_error(dicm2mdbxLogger,"no 00020002");
+      os_log_error(dicm2dckvLogger,"no 00020002");
       return nil;
    }
    *inloc += 8;
@@ -258,12 +246,12 @@ NSString *dicmuptosopts(
    bytescount=[stream read:valbytes+*soloc maxLength:*solen];
    if (bytescount==-1)//stream error
    {
-      os_log_error(dicm2mdbxLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+      os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
       return false;
    }
    if  (bytescount!=*solen)//not enough bytes
    {
-      os_log_error(dicm2mdbxLogger,"stream premature end (sop class)");
+      os_log_error(dicm2dckvLogger,"stream premature end (sop class)");
       return nil;
    }
    *soidx=scidx( valbytes+*soloc, *solen - (valbytes[*soloc + *solen - 1]==0x0) );
@@ -273,9 +261,9 @@ NSString *dicmuptosopts(
    
 #pragma mark read sop instance uid [si]
    if (!read8bytes(stream, keybytes, &bytescount)) return nil;
-   if ((*attruint64 % 0x100000000)!=0x00030002)
+   if ((*attruint64 % 0x100000000)!=tag00020003)
    {
-      os_log_error(dicm2mdbxLogger,"no 00020003");
+      os_log_error(dicm2dckvLogger,"no 00020003");
       return nil;
    }
    *inloc += 8;
@@ -284,12 +272,12 @@ NSString *dicmuptosopts(
    bytescount=[stream read:valbytes+*siloc maxLength:*silen];
    if (bytescount==-1)//stream error
    {
-      os_log_error(dicm2mdbxLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+      os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
       return false;
    }
    if  (bytescount!=*silen)//not enough bytes
    {
-      os_log_error(dicm2mdbxLogger,"stream premature end (sop instance)");
+      os_log_error(dicm2dckvLogger,"stream premature end (sop instance)");
       return nil;
    }
    NSString *sopiuid=[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes+*siloc length:*silen - (valbytes[*siloc + *silen - 1]==0x0)] encoding:NSASCIIStringEncoding];
@@ -299,9 +287,9 @@ NSString *dicmuptosopts(
    
 #pragma mark read transfer syntax
    if (!read8bytes(stream, keybytes, &bytescount)) return nil;
-   if ((*attruint64 % 0x100000000)!=0x00100002)
+   if ((*attruint64 % 0x100000000)!=tag00020010)
    {
-      os_log_error(dicm2mdbxLogger,"no 00020010");
+      os_log_error(dicm2dckvLogger,"no 00020010");
       return nil;
    }
    *inloc += 8;
@@ -310,12 +298,12 @@ NSString *dicmuptosopts(
    bytescount=[stream read:valbytes+*stloc maxLength:*stlen];
    if (bytescount==-1)//stream error
    {
-      os_log_error(dicm2mdbxLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+      os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
       return false;
    }
    if  (bytescount!=*stlen)//not enough bytes
    {
-      os_log_error(dicm2mdbxLogger,"stream premature end (transfert syntax)");
+      os_log_error(dicm2dckvLogger,"stream premature end (transfert syntax)");
       return nil;
    }
    *stidx=tsidx( valbytes+*stloc, *stlen - (valbytes[*stloc + *stlen - 1]==0x0) );
@@ -326,373 +314,31 @@ NSString *dicmuptosopts(
 }
 
 
-/*log attributes tags to stdout
-BOOL dicm2null(
-           uint8_t *keybytes,
-           BOOL readfirstattr,
-           uint8_t *valbytes,
-           NSInputStream *stream,
-           uint64 *idx,
-           BOOL basetag,
-           uint32 beforebyte,
-           uint32 beforetag,
-           NSError *error
-           )
-{
-   uint16 vl=0;//keeps vl while overwritting it in keybytes
-   uint8 *attrbytes=keybytes;//subbuffer for attr reading
-   struct trl *attrstruct=(struct trl*) attrbytes;//corresponding struct
-   NSInteger attrbytesread=0;
-   uint8 *llbytes=keybytes+8;//subbuffer for ll reading
-   uint32 *ll=(uint32*)llbytes;//corresponding uin32
-   if (readfirstattr) {
-      attrbytesread=[stream read:attrbytes maxLength:8];
-      switch (attrbytesread) {
-         case 8:
-         {
-            if (basetag && (attrstruct->t==beforetag)) return true;
-         };break;
-         case 0: return false;//no more attrs
-         case -1://stream error
-         {
-            NSLog(@"stream error: %@", [stream streamError]);
-            return false;
-         }
-         default://less than 8 bytes
-         {
-            NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-            NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-            return false;
-         }
-      }
-   }
-   while ((*idx < beforebyte) &&  ( attrstruct->t != beforetag))
-   {
-      NSLog(@"%04x%04x",attrstruct->t & 0xFFFF,attrstruct->t >> 16);
-      switch (attrstruct->r) {
-#pragma mark vl
-         case FD://floating point double
-         case FL://floating point single
-         case SL://signed long
-         case SS://signed short
-         case UL://unsigned long
-         case US://unsigned short
-         case AT://attribute tag
-         case CS://coded string
-         case UI://unique ID
-         case AE://application entity
-         case AS://age string
-         case DA://date
-         case DS://decimal string
-         case DT://date time
-         case IS://integer string
-         case TM://time
-         case LO://long string
-         case LT://long text
-         case SH://short string
-         case ST://short text
-         case PN://person name
-         {
-            vl=attrstruct->l;
-            if (vl > 0){
-               if ([stream read:valbytes maxLength:vl]!=vl) {
-                  //NSLog(@"error");
-                  return false;
-               }
-               
-            }
-            *idx += 8 + vl;
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8:
-               {
-                  if (basetag && (attrstruct->t==beforetag)) return true;
-               };break;
-               case 0: return false;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
-            }
-         } break;
-            
-#pragma mark vll
-         case OB://other byte
-         case OD://other double
-         case OF://other float
-         case OL://other long
-         case OV://other 64-bit very long
-         case OW://other word
-         case SV://signed 64-bit very long
-         case UV://unsigned 64-bit very long
-         case UC://unlimited characters
-         case UT://unlimited text
-         case UR://universal resource identifier/locator
-         case UN://unknown
-         {
-            if ([stream read:llbytes maxLength:4]!=4) {
-               //NSLog(@"error");
-               return false;
-            }
-            *idx += 12 + *ll;
-
-            if (*ll < 0x10000){
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               }
-            } else {
-               //loop read into NSMutableData
-               while (*ll>0xFFFF)
-               {
-                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
-                     //NSLog(@"error");
-                     return false;
-                  }
-                  *ll-=0xFFFF;
-               }
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               }
-            }
-               
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8:
-               {
-                  if (basetag && (attrstruct->t==beforetag)) return true;
-               };break;
-               case 0: return false;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
-            }
-         } break;
-
-#pragma mark SQ
-         case SQ://sequence
-         {
-            if ([stream read:llbytes maxLength:4]!=4) {
-               //NSLog(@"error");
-               return false;
-            }
-            if (*ll==0)
-            {
-               *idx += 12;//do not add *ll !
-               attrbytesread=[stream read:attrbytes maxLength:8];
-               switch (attrbytesread) {
-                  case 8:
-                  {
-                     if (attrstruct->t==beforetag) return true;
-                  };break;
-                  case 0: return false;//no more attrs
-                  case -1://stream error
-                  {
-                     NSLog(@"stream error: %@", [stream streamError]);
-                     return false;
-                  }
-                  default://less than 8 bytes
-                  {
-                     NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                     NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                     return false;
-                  }
-               }
-            }
-            else //SQ *ll!=0
-            {
-               //SQ length
-               uint64 beforebyteSQ;
-               if (*ll==ffffffff) beforebyteSQ=beforebyte;
-               else if (beforebyte==ffffffff) beforebyteSQ= *idx + *ll;
-               else if (*idx + *ll > beforebyte) {
-                  NSLog(@"incomplete input");
-                  return false;
-               }
-               else beforebyteSQ=*idx + *ll;
-
-               *idx += 12;//do not add *ll !
-
-               
-#pragma mark item level
-               attrbytesread=[stream read:attrbytes maxLength:8];
-               switch (attrbytesread) {
-                  case 8:
-                  {
-                     if (basetag && (attrstruct->t==beforetag)) return true;
-                  };break;
-                  case 0: return false;//no more attrs
-                  case -1://stream error
-                  {
-                     NSLog(@"stream error: %@", [stream streamError]);
-                     return false;
-                  }
-                  default://less than 8 bytes
-                  {
-                     NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                     NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                     return false;
-                  }
-               }
-
-               //for each first attr fffee000 of any new item
-               while ((*idx < beforebyteSQ) && (attrstruct->t==0xe000fffe)) //itemstart
-               {
-                  uint32 IQll = (attrstruct->l << 16) | attrstruct->r;
-                  uint64 beforebyteIT;//to be computed from after item start
-                  *idx+=8;
-                  if (IQll==ffffffff) beforebyteIT=beforebyteSQ;
-                  else if (beforebyteSQ==ffffffff) beforebyteIT=*idx + *ll;
-                  else if (*idx + *ll > beforebyteSQ) {
-                     NSLog(@"incomplete input");
-                     return false;
-                  }
-                  else beforebyteIT=*idx + *ll;
-
-                  dicm2null(
-                        keybytes,
-                        true,
-                        valbytes,
-                        stream,
-                        idx,
-                        false,
-                        (uint32)beforebyteIT,
-                        0xE00DFFFE,
-                        error
-                        );
-                  //Atención!!! attr still is the first attr of the first item
-                  //the attr of the recursion is not available
-                  //keybytes kept the last attr read one level deeper than current attr
-
-                  
-                  //write IZ to db feff0de0
-                  if (attrstruct->t==0xe00dfffe)
-                  {
-                     *idx+=8;
-                     attrbytesread=[stream read:attrbytes maxLength:8];
-                     switch (attrbytesread) {
-                        case 8:
-                        {
-                           if (basetag && (attrstruct->t==beforetag)) return true;
-                        };break;
-                        case 0: return false;//no more attrs
-                        case -1://stream error
-                        {
-                           NSLog(@"stream error: %@", [stream streamError]);
-                           return false;
-                        }
-                        default://less than 8 bytes
-                        {
-                           NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                           NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                           return false;
-                        }
-                     }
-
-                  }
-               }//end while item
-#pragma mark item level end
-               
-               //itemstruct may be SZ or post SQ feffdde0
-               if (attrstruct->t==0xe0ddfffe)
-               {
-                  *idx+=8;
-                  attrbytesread=[stream read:attrbytes maxLength:8];
-                  switch (attrbytesread) {
-                     case 8:
-                     {
-                        if (basetag && (attrstruct->t==beforetag)) return true;
-                     };break;
-                     case 0: return false;//no more attrs
-                     case -1://stream error
-                     {
-                        NSLog(@"stream error: %@", [stream streamError]);
-                        return false;
-                     }
-                     default://less than 8 bytes
-                     {
-                        NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                        NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                        return false;
-                     }
-                  }
-               }
-            }
-         } break;
-
-#pragma mark unknown VR
-         default:
-         {
-            NSLog(@"error unknown vr");
-            return false;
-         }
-      }//end switch
-   }//end while (*index < beforebyte)
-
-   return false;
-}
-*/
-
-/*
 BOOL dicm2kvdb(
+   NSString *source,
    uint8_t *keybytes,
    uint8 keydepth,
    BOOL readfirstattr,
    uint16 keycs,
    uint8_t *valbytes,
    NSInputStream *stream,
-   uint64 *idx,
+   uint64 *loc,
    uint32 beforebyte,
-   uint32 beforetag,           
-   id *db,
-   NSError *error
+   uint32 beforetag
 )
 {
+   //inits
+   NSInteger bytescount=0;
    uint16 vl=0;//keeps vl while overwritting it in keybytes
    uint8 *attrbytes=keybytes+keydepth;//subbuffer for attr reading
-   struct ele *attrstruct=(struct ele*) attrbytes;//corresponding struct
-   NSInteger attrbytesread=0;
+   struct t4r2l2 *attrstruct=(struct t4r2l2*) attrbytes;//corresponding struct
    uint8 *llbytes=keybytes+keydepth+8;//subbuffer for ll reading
    uint32 *ll=(uint32*)llbytes;//corresponding uin32
 
-   if (readfirstattr)
+   if (readfirstattr && (! read8bytes(stream, attrbytes, &bytescount))) return false;
+   while ((*loc < beforebyte) &&  ( CFSwapInt32(attrstruct->t) < beforetag))
    {
-      attrbytesread=[stream read:attrbytes maxLength:8];
-      switch (attrbytesread) {
-         case 8: swaptag(attrstruct); break;
-         case 0: return true ;//no more attrs
-         case -1://stream error
-         {
-            NSLog(@"stream error: %@", [stream streamError]);
-            return false;
-         }
-         default://less than 8 bytes
-         {
-            NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-            NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-            return false;
-         }
-      }
-   }
-
-   while ((*idx < beforebyte) &&  ( attrletag(attrstruct) < beforetag))
-   {
+      
       switch (attrstruct->r) {
 #pragma mark vl bin
          case FD://floating point double
@@ -702,174 +348,79 @@ BOOL dicm2kvdb(
          case UL://unsigned long
          case US://unsigned short
          {
-            vl=attrstruct->l;
-            if (vl > 0){
-               if ([stream read:valbytes maxLength:vl]!=vl) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  attrstruct->l=REPERTOIRE_GL;
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-             
-            *idx += 8 + vl;
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+            else {
+               attrstruct->l=REPERTOIRE_GL;
+               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
             }
-
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
+
 #pragma mark vl tag code
          case AT://attribute tag
          {
-            vl=attrstruct->l;
-            if (vl > 0){
-               if ([stream read:valbytes maxLength:vl]!=vl) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  attrstruct->l=REPERTOIRE_GL;
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-             
-            *idx += 8 + vl;
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+            else {
+               attrstruct->l=REPERTOIRE_GL;
+               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
             }
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
+            
 #pragma mark vl ascii code
          case CS://coded string
          {
             vl=attrstruct->l;
-            if (vl > 0){
-               if ([stream read:valbytes maxLength:vl]!=vl) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  attrstruct->l=REPERTOIRE_GL;
-
-                  if ( (attrstruct->U ==0x05) && (attrstruct->g ==0x00) && (attrstruct->G ==0x08) && (attrstruct->u ==0x00) ){
-                     uint16 repidxs=repertoireidx(valbytes,vl);
-                     if (repidxs==0x09) NSLog(@"BAD REPERTOIRE");
-                     else keycs=(keycs & 0x8000) | repidxs;
+            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+            else {
+               attrstruct->l=REPERTOIRE_GL;
+               //charset
+               if ( attrstruct->t ==0x05000800 ){
+                  uint16 repidxs=repertoireidx(valbytes,vl);
+                  if (repidxs==0x09)
+                  {
+                     os_log_error(dicm2dckvLogger,"bad repertoire %@",[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]);
+                     return false;
                   }
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
+                  else
+                  {
+                     keycs=(keycs & 0x8000) | repidxs;
+                     attrstruct->l=repidxs;
+                  }
                }
-            } else
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-             
-            *idx += 8 + vl;
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
+               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
             }
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
+            
 #pragma mark vl oid code
          case UI://unique ID
          {
-            vl=attrstruct->l;
-            if (vl > 0){
-               if ([stream read:valbytes maxLength:vl]!=vl) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  attrstruct->l=REPERTOIRE_GL;
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+            else {
+               attrstruct->l=REPERTOIRE_GL;
+               //referenced sop class (0008,1150)
+               if ( attrstruct->t==tag00081150 ){//0x50110800
+                  uint16 sopclassidx=scidx( valbytes, vl );
+                  if (sopclassidx==0x00)
+                  {
+                     os_log_error(dicm2dckvLogger,"bad sop class %@",[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]);
+                     return false;
+                  }
+                  else attrstruct->l=sopclassidx;
                }
-            } else
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-             
-            *idx += 8 + vl;
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
+               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
             }
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
+
 #pragma mark vl ascii
          case AE://application entity
          case AS://age string
@@ -879,129 +430,45 @@ BOOL dicm2kvdb(
          case IS://integer string
          case TM://time
          {
-            vl=attrstruct->l;
-            if (vl > 0){
-               if ([stream read:valbytes maxLength:vl]!=vl) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  attrstruct->l=REPERTOIRE_GL;
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-             
-            *idx += 8 + vl;
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+            else {
+               attrstruct->l=REPERTOIRE_GL;
+               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
             }
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
+
 #pragma mark vl charset
          case LO://long string
          case LT://long text
          case SH://short string
          case ST://short text
          {
-            vl=attrstruct->l;
-            if (vl > 0){
-               if ([stream read:valbytes maxLength:vl]!=vl) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  attrstruct->l=keycs;
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-             
-            *idx += 8 + vl;
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+            else {
+               attrstruct->l=keycs;
+               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
             }
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
+            
 #pragma mark vl person
          case PN://person name
          {
-            vl=attrstruct->l;
-            if (vl > 0){
-               if ([stream read:valbytes maxLength:vl]!=vl) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  attrstruct->l=keycs;
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:vl freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-             
-            *idx += 8 + vl;
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+            else {
+               attrstruct->l=keycs;
+               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
             }
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
+            
 #pragma mark vll bin
          case OB://other byte
          case OD://other double
@@ -1013,20 +480,22 @@ BOOL dicm2kvdb(
          case UV://unsigned 64-bit very long
          {
             if ([stream read:llbytes maxLength:4]!=4) {
-               //NSLog(@"error");
+               os_log_error(dicm2dckvLogger,"stream end instead of vll");
                return false;
             }
-            *idx += 12 + *ll;
-
-            if (*ll==0) {
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
+            if (*ll && [stream read:valbytes maxLength:*ll]!=*ll)  {
+               os_log_error(dicm2dckvLogger,"stream end in the middle of vll bytes");
+               return false;
             }
-            else if (*ll < 0x10000){
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
+            else if (!appendkv(keybytes,keydepth,source,*loc,*ll,stream,valbytes)) return false;
+            
+            *loc += 12 + *ll;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            
+#pragma mark progressive reading of vll data... not implemented yet in dicm2dckv
+/*
+            if (*ll < 0x10000){
+               if (*ll && [stream read:valbytes maxLength:*ll]!=*ll) {
                   //NSLog(@"error");
                   return false;
                } else {
@@ -1048,7 +517,7 @@ BOOL dicm2kvdb(
                   [lldata appendBytes:valbytes length: 0xFFFF];
                   *ll-=0xFFFF;
                }
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
+               if (*ll && [stream read:valbytes maxLength:*ll]!=*ll) {
                   //NSLog(@"error");
                   return false;
                }
@@ -1059,25 +528,9 @@ BOOL dicm2kvdb(
                 error:&error
                ];
             }
-               
-             
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
-            }
+*/
          } break;
+
 #pragma mark vll charset
          case UC://unlimited characters
          case UT://unlimited text
@@ -1085,348 +538,144 @@ BOOL dicm2kvdb(
             attrstruct->l=keycs;
 
             if ([stream read:llbytes maxLength:4]!=4) {
-               //NSLog(@"error");
+               os_log_error(dicm2dckvLogger,"stream end instead of vll");
                return false;
             }
-            *idx += 12 + *ll;
-
-            if (*ll==0) {
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
+            if (*ll && [stream read:valbytes maxLength:*ll]!=*ll)  {
+               os_log_error(dicm2dckvLogger,"stream end in the middle of vll bytes");
+               return false;
             }
-            else if (*ll < 0x10000){
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:*ll freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else {
-               //loop read into NSMutableData
-               NSMutableData *lldata=[NSMutableData dataWithLength:*ll];
-               while (*ll>0xFFFF)
-               {
-                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
-                     //NSLog(@"error");
-                     return false;
-                  }
-                  [lldata appendBytes:valbytes length: 0xFFFF];
-                  *ll-=0xFFFF;
-               }
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               }
-               [lldata appendBytes:valbytes length: *ll];
-               [db
-                setData:lldata
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-            }
+            else if (!appendkv(keybytes,keydepth,source,*loc,*ll,stream,valbytes)) return false;
             
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
-            }
+            *loc += 12 + *ll;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
+            
 #pragma mark vll RFC3986
          case UR://universal resource identifier/locator
          {
             attrstruct->l=RFC3986;
 
             if ([stream read:llbytes maxLength:4]!=4) {
-               //NSLog(@"error");
+               os_log_error(dicm2dckvLogger,"stream end instead of vll");
                return false;
             }
-            *idx += 12 + *ll;
-
-            if (*ll==0) {
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
+            if (*ll && [stream read:valbytes maxLength:*ll]!=*ll)  {
+               os_log_error(dicm2dckvLogger,"stream end in the middle of vll bytes");
+               return false;
             }
-            else if (*ll < 0x10000){
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:*ll freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else {
-               //loop read into NSMutableData
-               NSMutableData *lldata=[NSMutableData dataWithLength:*ll];
-               while (*ll>0xFFFF)
-               {
-                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
-                     //NSLog(@"error");
-                     return false;
-                  }
-                  [lldata appendBytes:valbytes length: 0xFFFF];
-                  *ll-=0xFFFF;
-               }
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               }
-               [lldata appendBytes:valbytes length: *ll];
-               [db
-                setData:lldata
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-            }
+            else if (!appendkv(keybytes,keydepth,source,*loc,*ll,stream,valbytes)) return false;
             
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
-            }
+            *loc += 12 + *ll;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
 
       //---------
 #pragma mark UN
          case UN://unknown
             // https://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2.2
-             
              //5. The Value Length Field of VR UN may contain Undefined Length (FFFFFFFFH), in which case the contents can be assumed to be encoded with Implicit VR. See Section 7.5.1 to determine how to parse Data Elements with an Undefined Length.
-             
-
          {
             if ([stream read:llbytes maxLength:4]!=4) {
-               //NSLog(@"error");
+               os_log_error(dicm2dckvLogger,"stream end instead of vll");
                return false;
             }
-            *idx += 12 + *ll;
-
-            if (*ll==0) {
-               [db
-                setData:[NSData data]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
+            if (*ll && [stream read:valbytes maxLength:*ll]!=*ll)  {
+               os_log_error(dicm2dckvLogger,"stream end in the middle of vll bytes");
+               return false;
             }
-            else if (*ll < 0x10000){
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:*ll freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else {
-               //loop read into NSMutableData
-               NSMutableData *lldata=[NSMutableData dataWithLength:*ll];
-               while (*ll>0xFFFF)
-               {
-                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
-                     //NSLog(@"error");
-                     return false;
-                  }
-                  [lldata appendBytes:valbytes length: 0xFFFF];
-                  *ll-=0xFFFF;
-               }
-               if ([stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               }
-               [lldata appendBytes:valbytes length: *ll];
-               [db
-                setData:lldata
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-            }
-            attrbytesread=[stream read:attrbytes maxLength:8];
-            switch (attrbytesread) {
-               case 8: swaptag(attrstruct); break;
-               case 0: return true;//no more attrs
-               case -1://stream error
-               {
-                  NSLog(@"stream error: %@", [stream streamError]);
-                  return false;
-               }
-               default://less than 8 bytes
-               {
-                  NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                  NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                  return false;
-               }
-            }
+            else if (!appendkv(keybytes,keydepth,source,*loc,*ll,stream,valbytes)) return false;
+            
+            *loc += 12 + *ll;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
             
       //---------
 #pragma mark SQ
          case SQ://sequence
          {
-            //register SQ con vr 0000 in rocksdb
+            //register SQ con vr 0000 y length undefined
             keybytes[keydepth+0x8]=0xff;
             keybytes[keydepth+0x9]=0xff;
             keybytes[keydepth+0xA]=0xff;
             keybytes[keydepth+0xB]=0xff;
-            NSData *SQdata=[NSData dataWithBytes:keybytes+keydepth length:12];
             attrstruct->r=SA;
             attrstruct->l=REPERTOIRE_GL;
-            [db
-             setData:SQdata
-             forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-             error:&error
-            ];
+            if (!appendkv(keybytes,keydepth,source,*loc,12,stream,keybytes+keydepth)) return false;
+                     
+            //read length
             if ([stream read:llbytes maxLength:4]!=4) {
-               //NSLog(@"error");
+               os_log_error(dicm2dckvLogger,"stream end instead of SQ vll");
                return false;
             }
             if (*ll==0)
             {
                attrstruct->r=SZ;
-               attrstruct->l=0x0;
-               [db
-                setData:[NSData dataWithBytesNoCopy:(void*)&SZbytes length:8]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
+               attrstruct->l=0xFFFF;
+               if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&SZbytes)) return false;
 
                //read nextattr
-               *idx += 12;//do not add *ll !
-               attrbytesread=[stream read:attrbytes maxLength:8];
-               switch (attrbytesread) {
-                  case 8: swaptag(attrstruct); break;
-                  case 0: return true;//no more attrs
-                  case -1://stream error
-                  {
-                     NSLog(@"stream error: %@", [stream streamError]);
-                     return false;
-                  }
-                  default://less than 8 bytes
-                  {
-                     NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                     NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                     return false;
-                  }
-               }
+               *loc += 12;//do not add *ll !
+               if (! read8bytes(stream, attrbytes, &bytescount)) return false;
             }
             else //SQ *ll!=0
             {
                //SQ length
                uint64 beforebyteSQ;
                if (*ll==ffffffff) beforebyteSQ=beforebyte;
-               else if (beforebyte==ffffffff) beforebyteSQ= *idx + *ll;
-               else if (*idx + *ll > beforebyte) {
-                  NSLog(@"incomplete input");
+               else if (beforebyte==ffffffff) beforebyteSQ= *loc + *ll;
+               else if (*loc + *ll > beforebyte) {
+                  os_log_error(dicm2dckvLogger,"SQ incomplete input");
                   return false;
                }
-               else beforebyteSQ=*idx + *ll;
+               else beforebyteSQ=*loc + *ll;
 
                
                //replace vr and vl of SQ by itemnumber
                uint32 itemnumber=1;
-               uint8_t *inb=(uint8_t*)&itemnumber;
-               attrstruct->r= (*(inb+2) << 8) + *(inb+3);
-               attrstruct->l= (*(inb+0) << 8) + *(inb+1);
+               attrstruct->r=CFSwapInt16(itemnumber/0x10000);
+               attrstruct->l=CFSwapInt16(itemnumber%0x10000);
 
-               *idx += 12;//do not add *ll !
+               *loc += 12;//do not add *ll !
 
                
 #pragma mark item level
                keydepth+=8;
                uint8 *itembytes=keybytes+keydepth;
-               struct ele *itemstruct=(struct ele*) itembytes;
-               attrbytesread=[stream read:itembytes maxLength:8];
-               switch (attrbytesread) {
-                  case 8: swaptag(itemstruct); break;
-                  case 0: return true;//no more attrs
-                  case -1://stream error
-                  {
-                     NSLog(@"stream error: %@", [stream streamError]);
-                     return false;
-                  }
-                  default://less than 8 bytes
-                  {
-                     NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                     NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                     return false;
-                  }
-               }
+               struct t4r2l2 *itemstruct=(struct t4r2l2*) itembytes;
+               if (! read8bytes(stream, itembytes, &bytescount)) return false;
 
-               uint32 itemtag=attrletag(itemstruct);
+               
                //for each first attr fffee000 of any new item
-               while ((*idx < beforebyteSQ) && (itemtag==fffee000)) //itemstart compulsory
+              while ((*loc < beforebyteSQ) && (CFSwapInt32(itemstruct->t)==fffee000)) //itemstart compulsory
                {
                   uint32 IQll = (itemstruct->l << 16) | itemstruct->r;
-                  itemstruct->g=0x0;
-                  itemstruct->G=0x0;
-                  itemstruct->u=0x0;
-                  itemstruct->U=0x0;
+                  itemstruct->t=0x00000000;
                   itemstruct->r=IA;
                   itemstruct->l=REPERTOIRE_GL;
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:(void*)&IAbytes length:8]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
+                  if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&IAbytes)) return false;
 
-                  //
                   uint64 beforebyteIT;//to be computed from after item start
-                  *idx+=8;
+                  *loc+=8;
                   if (IQll==ffffffff) beforebyteIT=beforebyteSQ;
-                  else if (beforebyteSQ==ffffffff) beforebyteIT=*idx + *ll;
-                  else if (*idx + *ll > beforebyteSQ) {
-                     NSLog(@"incomplete input");
+                  else if (beforebyteSQ==ffffffff) beforebyteIT=*loc + *ll;
+                  else if (*loc + *ll > beforebyteSQ) {
+                     os_log_error(dicm2dckvLogger,"IT incomplete input");
                      return false;
                   }
-                  else beforebyteIT=*idx + *ll;
+                  else beforebyteIT=*loc + *ll;
 
                   dicm2kvdb(
+                        source,
                         keybytes,
                         keydepth,
                         true,
                         keycs,
                         valbytes,
                         stream,
-                        idx,
+                        loc,
                         (uint32)beforebyteIT,
-                        0xFFFEE00D,
-                        db,
-                        error
+                        fffee00d
                         );
                   //Atención!!! attr still is the first attr of the first item
                   //the attr of the recursion is not available
@@ -1434,111 +683,53 @@ BOOL dicm2kvdb(
 
                   
                   //write IZ to db
-                  if (attrletag(itemstruct)==fffee00d)
+                  if (CFSwapInt32(itemstruct->t)==fffee00d)
                   {
-                     itemstruct->g=0xff;
-                     itemstruct->G=0xff;
-                     itemstruct->u=0xff;
-                     itemstruct->U=0xff;
+                     itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x00;
-                     [db
-                      setData:[NSData dataWithBytesNoCopy:(void*)&IAbytes length:8]
-                      forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                      error:&error
-                     ];
-                     *idx+=8;
-                     attrbytesread=[stream read:itembytes maxLength:8];
-                     switch (attrbytesread) {
-                        case 8: swaptag(itemstruct); break;
-                        case 0: return true;//no more attrs
-                        case -1://stream error
-                        {
-                           NSLog(@"stream error: %@", [stream streamError]);
-                           return false;
-                        }
-                        default://less than 8 bytes
-                        {
-                           NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                           NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                           return false;
-                        }
-                     }
+                     if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&IAbytes)) return false;
+                     *loc+=8;
                   }
                   else
                   {
-                     struct ele copyattr;
-                     copyattr.g=itemstruct->g;
-                     copyattr.G=itemstruct->G;
-                     copyattr.u=itemstruct->u;
-                     copyattr.U=itemstruct->U;
+                     struct t4r2l2 copyattr;
+                     copyattr.t=itemstruct->t;
                      copyattr.r=itemstruct->r;
                      copyattr.l=itemstruct->l;
-                     itemstruct->g=0xff;
-                     itemstruct->G=0xff;
-                     itemstruct->u=0xff;
-                     itemstruct->U=0xff;
+                     itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x0;
-                     [db
-                      setData:[NSData dataWithBytesNoCopy:(void*)&IAbytes length:8]
-                      forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                      error:&error
-                     ];
-                     itemstruct->g=copyattr.g;
-                     itemstruct->G=copyattr.G;
-                     itemstruct->u=copyattr.u;
-                     itemstruct->U=copyattr.U;
+                     if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&IAbytes)) return false;
+                     itemstruct->t=copyattr.t;
                      itemstruct->r=copyattr.r;
                      itemstruct->l=copyattr.l;
                   }
                   
                   //new item number
                   itemnumber+=1;
-                  attrstruct->r= (*(inb+2) << 8) + *(inb+3);
-                  attrstruct->l= (*(inb+0) << 8) + *(inb+1);
+                  attrstruct->r=CFSwapInt16(itemnumber/0x10000);
+                  attrstruct->l=CFSwapInt16(itemnumber%0x10000);
 
-                  itemtag=attrletag(itemstruct);
                }//end while item
                keydepth-=8;
 #pragma mark item level end
 
                attrstruct->r=SZ;
-               attrstruct->l=0x0;
-               [db
-                setData:[NSData dataWithBytesNoCopy:(void*)&SZbytes length:8]
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
+               attrstruct->l=0xFFFF;
+               if (!read8bytes(stream, itembytes, &bytescount)) return false;
+               if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&SZbytes)) return false;
 
                
                //itemstruct may be SZ or post SQ
-               if (attrletag(itemstruct)==fffee0dd)
+               if (CFSwapInt32(itemstruct->t)==fffee0dd)
                {
-                  *idx+=8;
-                  attrbytesread=[stream read:attrbytes maxLength:8];
-                  switch (attrbytesread) {
-                     case 8: swaptag(attrstruct); break;
-                     case 0: return true;//no more attrs
-                     case -1://stream error
-                     {
-                        NSLog(@"stream error: %@", [stream streamError]);
-                        return false;
-                     }
-                     default://less than 8 bytes
-                     {
-                        NSData *readdata=[NSData dataWithBytesNoCopy:attrstruct length:attrbytesread ];
-                        NSLog(@"read %ld bytes. Should be 8 for tag vr vl %@", (long)attrbytesread, readdata.description);
-                        return false;
-                     }
-                  }
+                  *loc+=8;
+                  if (! read8bytes(stream, attrbytes, &bytescount)) return false;
                }
                else
                {
-                  attrstruct->g=itemstruct->g;
-                  attrstruct->G=itemstruct->G;
-                  attrstruct->u=itemstruct->u;
-                  attrstruct->U=itemstruct->U;
+                  attrstruct->t=itemstruct->t;
                   attrstruct->r=itemstruct->r;
                   attrstruct->l=itemstruct->l;
                }
@@ -1556,4 +747,4 @@ BOOL dicm2kvdb(
    }//end while (*index < beforebyte)
    return false;
 }
-*/
+

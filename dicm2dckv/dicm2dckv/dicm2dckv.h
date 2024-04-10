@@ -21,22 +21,13 @@ enum dicm2mdbxArgs{
 
 static NSArray *args=nil;
 
-struct trl {
+struct t4r2l2 {
    uint32 t;
    uint16 r;
    uint16 l;
 };
 
-struct ele {
-   uint8 g;
-   uint8 G;
-   uint8 u;
-   uint8 U;
-   uint16 r;
-   uint16 l;
-};
-
-struct uint64lh {
+struct l4h4 {
    uint32 l;
    uint32 h;
 };
@@ -59,6 +50,7 @@ BOOL read8bytes(
  returns true if next attribute is already loaded in keybytes
  */
 NSString *dicmuptosopts(
+  NSString *source,
   uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
   uint8_t *valbytes,     // lectura del valor del atributo returns with sopiuid
   NSInputStream *stream, // input
@@ -78,58 +70,19 @@ NSString *dicmuptosopts(
  parser
  */
 BOOL dicm2kvdb(
+   NSString *source,
    uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
    uint8 keydepth,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
    BOOL readfirstattr,    // true:read desde stream. false:ya está en keybytes
    uint16 keycs,          // key charset
    uint8_t *valbytes,     // lectura del valor del atributo
    NSInputStream *stream, // input
-   uint64 *idx,           // offstet en stream
+   uint64 *loc,           // offstet en stream
    uint32 beforebyte,     // limite superior de lectura
-   uint32 beforetag,      // limite superior attr. Al salir, el attr se encuentra leido y guardado en keybytes
-   id *db,                // referencia a db, o nil si no se guarda el resultado del parseo
-   NSError *error         // nil o instancia de NSError creada por la subrutina
+   uint32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en keybytes
 );
 
 
-
-/*
- parseo con bitacora de tags y posiciones en stdout
- */
-BOOL dicm2null(
-   uint8_t *keybytes,
-   BOOL readfirstattr,
-   uint8_t *valbytes,
-   NSInputStream *stream,
-   uint64 *idx,
-   BOOL basetag,
-   uint32 beforebyte,
-   uint32 beforetag,
-   NSError *error
-);
-
-
-//----------------------------------
-// subroutinas
-//-----------------------------------
-
-
-/*
- LE>BE de grupo y unidad dentro del buffer
- */
-void swaptag(struct ele *a);
-
-
-/*
- devuelve swap LE>BE de uint32
- */
-uint32 letag(uint32 t);
-
-
-/*
- devuelve LE>BE de uint 16 grupo y unidad por referencia dentro de la estructura attributo
- */
-uint32 attrletag(struct ele *a);
 
 
 #endif /* parseDICM_h */

@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4A8097B32BC41B430042CAC1 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A8097AF2BC4079A0042CAC1 /* dckvapi.m */; };
 		4ACCC9E82BBDC40A00670A7F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
 		4ACCC9F72BBE2ACF00670A7F /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
 		4ACCC9F82BBE2ACF00670A7F /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
 		4ACCC9F92BBE2ACF00670A7F /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
 		4ACCC9FA2BBE2ACF00670A7F /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
-		4ACCCA052BBF3F1900670A7F /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCCA042BBF3F1900670A7F /* dckvapi.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +30,8 @@
 /* Begin PBXFileReference section */
 		4A80979F2BC034720042CAC1 /* seriesk8tags.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = seriesk8tags.h; sourceTree = "<group>"; };
 		4A8097AA2BC189A20042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A8097AF2BC4079A0042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
+		4A8097B12BC4079A0042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
 		4ACCC9E42BBDC40A00670A7F /* dicm2dckv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicm2dckv; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACCC9E72BBDC40A00670A7F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SopClasses.m; sourceTree = "<group>"; };
@@ -42,7 +44,6 @@
 		4ACCC9F62BBE2ACF00670A7F /* SopClasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SopClasses.h; sourceTree = "<group>"; };
 		4ACCCA002BBF098900670A7F /* os_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = os_log.h; sourceTree = "<group>"; };
 		4ACCCA032BBF3F1900670A7F /* dckvapi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dckvapi.h; sourceTree = "<group>"; };
-		4ACCCA042BBF3F1900670A7F /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,9 +60,26 @@
 		4A8097A22BC181380042CAC1 /* dckvvapi */ = {
 			isa = PBXGroup;
 			children = (
-				4ACCCA072BBF3F5600670A7F /* mdbx */,
+				4A8097AE2BC4079A0042CAC1 /* logKstringVloclen */,
+				4A8097B02BC4079A0042CAC1 /* mdbx */,
 			);
 			name = dckvvapi;
+			sourceTree = "<group>";
+		};
+		4A8097AE2BC4079A0042CAC1 /* logKstringVloclen */ = {
+			isa = PBXGroup;
+			children = (
+				4A8097AF2BC4079A0042CAC1 /* dckvapi.m */,
+			);
+			path = logKstringVloclen;
+			sourceTree = "<group>";
+		};
+		4A8097B02BC4079A0042CAC1 /* mdbx */ = {
+			isa = PBXGroup;
+			children = (
+				4A8097B12BC4079A0042CAC1 /* dckvapi.m */,
+			);
+			path = mdbx;
 			sourceTree = "<group>";
 		};
 		4ACCC9DB2BBDC40A00670A7F = {
@@ -93,14 +111,6 @@
 				4ACCC9E72BBDC40A00670A7F /* main.m */,
 			);
 			path = dicm2dckv;
-			sourceTree = "<group>";
-		};
-		4ACCCA072BBF3F5600670A7F /* mdbx */ = {
-			isa = PBXGroup;
-			children = (
-				4ACCCA042BBF3F1900670A7F /* dckvapi.m */,
-			);
-			name = mdbx;
 			sourceTree = "<group>";
 		};
 		4ACCCA0B2BC024B900670A7F /* dicm */ = {
@@ -173,12 +183,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4ACCC9F92BBE2ACF00670A7F /* dicm2dckv.m in Sources */,
 				4ACCC9E82BBDC40A00670A7F /* main.m in Sources */,
 				4ACCC9F82BBE2ACF00670A7F /* Repertoires.m in Sources */,
-				4ACCCA052BBF3F1900670A7F /* dckvapi.m in Sources */,
 				4ACCC9FA2BBE2ACF00670A7F /* TransferSyntaxes.m in Sources */,
 				4ACCC9F72BBE2ACF00670A7F /* SopClasses.m in Sources */,
+				4ACCC9F92BBE2ACF00670A7F /* dicm2dckv.m in Sources */,
+				4A8097B32BC41B430042CAC1 /* dckvapi.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

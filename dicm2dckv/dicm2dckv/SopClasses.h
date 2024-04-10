@@ -8,10 +8,11 @@
 #ifndef SopClasses_h
 #define SopClasses_h
 
+//referenced SOP class
 
 //sc_=1.2.840.10008
 enum sc_uidenum{
-sc_1_1,
+sc_1_1=0,
 sc_1_3_10,
 sc_1_9,
 sc_1_20_1,

@@ -9,7 +9,7 @@
 #include "dckvapi.h"
 #include "seriesk8tags.h"
 int main(int argc, const char * argv[]) {
-   dicm2mdbxLogger = os_log_create("com.opendicom.dicm2mdbx", "dicm2mdbx");
+   dicm2dckvLogger = os_log_create("com.opendicom.dicm2mdbx", "dicm2mdbx");
    @autoreleasepool {
       NSDate *startDate=[NSDate date];
       NSFileManager *fileManager=[NSFileManager defaultManager];
@@ -18,12 +18,13 @@ int main(int argc, const char * argv[]) {
       args=[processInfo arguments];
       if (args.count!=3)
       {
-         os_log_error(dicm2mdbxLogger,"requires 3 args (command, source, dest). args count %lu",(unsigned long)args.count);
+         os_log_error(dicm2dckvLogger,"requires 3 args (command, source, dest). args count %lu",(unsigned long)args.count);
          return errorArgs;
       }
 
 #pragma mark input stream
       NSInputStream *stream=nil;
+      NSString *source=nil;
       if ([args[1] isEqualToString:@"-"])//stdin
          stream=[NSInputStream inputStreamWithFileAtPath:@"/dev/stdin"];
          /*
@@ -32,20 +33,28 @@ int main(int argc, const char * argv[]) {
          while ((moreData=[readingFileHandle availableData]) && moreData.length) [inputData appendData:moreData];
          [readingFileHandle closeFile];
           */
-      else if ([[args[1] componentsSeparatedByString:@"://"]count]==2)//url
-         stream=[NSInputStream inputStreamWithURL:args[1]];
-      else //path
+      else if ([[args[1] componentsSeparatedByString:@"://"]count]==2)
+      {
+         //url
+         source=args[1];
+         stream=[NSInputStream inputStreamWithURL:[NSURL URLWithString:args[1]]];
+      }
+      else
+      {
+         //path
+         source=args[1];
          stream=[NSInputStream inputStreamWithFileAtPath:[args[1] stringByExpandingTildeInPath]];
+      }
       
       if (!stream)
       {
-         os_log_error(dicm2mdbxLogger,"bad source path %@",args[1]);
+         os_log_error(dicm2dckvLogger,"bad source path %@",args[1]);
          return errorIn;
       }
       [stream open];
       if (![stream hasBytesAvailable])
       {
-         os_log_error(dicm2mdbxLogger,"bad source path %@",args[1]);
+         os_log_error(dicm2dckvLogger,"bad source path %@",args[1]);
          return errorIn;
       }
       
@@ -53,7 +62,7 @@ int main(int argc, const char * argv[]) {
       BOOL isDir=false;
       if (![fileManager fileExistsAtPath:args[2] isDirectory:&isDir] || !isDir)
       {
-         os_log_error(dicm2mdbxLogger,"bad out folder path %@",args[2]);
+         os_log_error(dicm2dckvLogger,"bad out folder path %@",args[2]);
          return errorOutPath;
       }
 
@@ -63,16 +72,12 @@ int main(int argc, const char * argv[]) {
       uint8_t *keybytes = malloc(0xFF);//max use 16 bytes x 10 encapsulation levels
       uint8_t *valbytes = malloc(0xFFFF);//max size of vl attribute values
       uint64 inloc=0;//inputstream index
-      uint64 soloc;
-      uint16 solen;
-      uint16 soidx;
-      uint64 siloc;
-      uint16 silen;
-      uint8  stidx;
-      uint64 stloc;
-      uint16 stlen;
+      uint64 soloc,siloc,stloc;
+      uint16 solen,silen,stlen;
+      uint16 soidx,stidx;
       
       NSString *sopiuid=dicmuptosopts(
+                         source,
                          keybytes,
                          valbytes,
                          stream,
@@ -102,7 +107,7 @@ int main(int argc, const char * argv[]) {
             bytesWritten=write(1,valbytes,bytesRead);
             if (bytesWritten!=bytesRead)
             {
-               os_log_error(dicm2mdbxLogger,"write %@",path);
+               os_log_error(dicm2dckvLogger,"write %@",path);
                fclose(fp);
                return errorWrite;
             }
@@ -110,23 +115,39 @@ int main(int argc, const char * argv[]) {
             inloc+=bytesRead;
          }
          fclose(fp);
-         os_log_error(dicm2mdbxLogger, "written %llu bytes to %@",inloc,path);
+         os_log_error(dicm2dckvLogger, "written %llu bytes to %@",inloc,path);
       }
       else
       {
 #pragma mark ele
          if (!createdb(kvDEFAULT)) return errorCreateKV;
-         appendk8v(kvDEFAULT, tag00020002, valbytes+soloc, solen);
-         appendk8v(kvDEFAULT, tag00020003, valbytes+siloc, silen);
-         appendk8v(kvDEFAULT, tag00020010, valbytes+stloc, stlen);
+
+         appendk8v(key00020002, source, soloc, solen, nil, valbytes+soloc);
+         appendk8v(key00020003, source, siloc, silen, nil, valbytes+siloc);
+         appendk8v(key00020010, source, stloc, stlen, nil, valbytes+stloc);
 
          /*
          char keydepth=0;//base level of the DICM dataset
          uint32 beforetag=0x0;
           */
-      
+         uint8 keydepth=0;
+         uint64 streamindex=stloc+stlen;
+         uint64 *loc=&streamindex;
+         uint32 beforetag=0xFFFFFFFF;
+         if (!dicm2kvdb(
+                        source,
+                        keybytes,
+                        keydepth,
+                        true,
+                        0,
+                        valbytes,
+                        stream,
+                        loc,
+                        0xFFFFFFFF,
+                        beforetag
+                        )) os_log_error(dicm2dckvLogger, "dicm2dckv error");
       }
-      os_log(dicm2mdbxLogger,"elapsed %F",-[startDate timeIntervalSinceNow]);
+      os_log(dicm2dckvLogger,"elapsed %F",-[startDate timeIntervalSinceNow]);
    }
    return exitOK;
 }

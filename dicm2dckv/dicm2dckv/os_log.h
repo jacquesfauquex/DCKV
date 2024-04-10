@@ -10,7 +10,7 @@
 
 //required 10.11+
 #import <os/log.h>
-static os_log_t dicm2mdbxLogger;
+static os_log_t dicm2dckvLogger;
 //https://developer.apple.com/documentation/os/logging/generating_log_messages_from_your_code?language=objc
 
 
