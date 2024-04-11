@@ -14,8 +14,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "686"
-            endingLineNumber = "686"
+            startingLineNumber = "659"
+            endingLineNumber = "659"
             landmarkName = "dicm2kvdb(source, keybytes, keydepth, readfirstattr, keycs, valbytes, stream, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "725"
-            endingLineNumber = "725"
+            startingLineNumber = "698"
+            endingLineNumber = "698"
             landmarkName = "dicm2kvdb(source, keybytes, keydepth, readfirstattr, keycs, valbytes, stream, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "696"
-            endingLineNumber = "696"
+            startingLineNumber = "669"
+            endingLineNumber = "669"
             landmarkName = "dicm2kvdb(source, keybytes, keydepth, readfirstattr, keycs, valbytes, stream, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -55,15 +55,79 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "FF78F3F0-2EBA-45DE-BF51-BF66DCF7B681"
-            shouldBeEnabled = "Yes"
+            uuid = "FB0E7AC7-7D2B-42A4-BC75-65BE3EEDFA0F"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "482"
-            endingLineNumber = "482"
+            startingLineNumber = "406"
+            endingLineNumber = "406"
+            landmarkName = "dicm2kvdb(source, keybytes, keydepth, readfirstattr, keycs, valbytes, stream, loc, beforebyte, beforetag)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "304C71E6-7D50-426B-B92C-1DFDDAFFA197"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/dicm2dckv.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "436"
+            endingLineNumber = "436"
+            landmarkName = "dicm2kvdb(source, keybytes, keydepth, readfirstattr, keycs, valbytes, stream, loc, beforebyte, beforetag)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B7C9492E-BCF5-4A0E-AD41-08A4B6CD0E06"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/dicm2dckv.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "480"
+            endingLineNumber = "480"
+            landmarkName = "dicm2kvdb(source, keybytes, keydepth, readfirstattr, keycs, valbytes, stream, loc, beforebyte, beforetag)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9D85864B-F260-4782-98AA-9C599FA31C0E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/dicm2dckv.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "577"
+            endingLineNumber = "577"
+            landmarkName = "dicm2kvdb(source, keybytes, keydepth, readfirstattr, keycs, valbytes, stream, loc, beforebyte, beforetag)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B92105EC-58DA-4B2D-BE4C-214F88F5601D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/dicm2dckv.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "629"
+            endingLineNumber = "629"
             landmarkName = "dicm2kvdb(source, keybytes, keydepth, readfirstattr, keycs, valbytes, stream, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>

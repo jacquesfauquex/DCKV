@@ -15,12 +15,30 @@
 //#include "stdbool.h"
 
 
-enum kvCategory{
+enum kvDBcategory{
    kvDEFAULT=0,//requisito, recibe todo lo que no este en otra categoria
    kvPRIVATE,  //opcional, separa atributos de grupo impar, privados
    kvSERIES,   //opcional, separa atributos de nivel paciente estudio y serie, comunes a todas las instancias. Agregamos en esta categoria los atributos de nivel instancia de objectos SR y encapsulatedCDA, de tal forma que dichos objetos esten completamente accesibles desde una sola column family.
    kvNATIVE,   //opcional, atributos específicos de la representación nativa (bitmap) de la imagen, y también transfer syntax y atributos relativos
    kvFRAGMENTS //opcional, alternativa a NATIVE para las imágenes en sintaxis de transferencia comprimida y también transfer syntax y atributos relativos
+};
+
+enum kvVRcategory{
+kvFD,//floating point double
+kvFL,//floating point single
+kvSL,//signed long
+kvSS,//signed short
+kvUL,//unsigned long
+kvUS,//unsigned short
+kvAT,//attribute tag, 2 uint16 hexa
+kvUI,//unique ID eventualmente terminado por 0x00
+kvTXT,//texts ascii or charset or url-encoded
+kvURL,//not equal to vr UR. Refers to file or url origin of the stream. nil = unregistered
+kvBIN,//binary, not textually represented
+kvSA,//SQ head
+kvIA,//item head
+kvIZ,//item tail
+kvSZ//SQ tail
 };
 
 
@@ -33,40 +51,47 @@ bool canceltx(void);//aplica a todos los kv
 
 #pragma mark - db
 
-bool createdb(enum kvCategory kv);//0 -> no se creó, o ya existe, always kvCoerce mode
-bool reopendb(enum kvCategory kv);//0 -> no estaba abierto o no se pudo reabrir
-bool existsdb(enum kvCategory kv);
+bool createdb(enum kvDBcategory kvdb);//0 -> no se creó, o ya existe, always kvCoerce mode
+bool reopendb(enum kvDBcategory kvdb);//0 -> no estaba abierto o no se pudo reabrir
+bool existsdb(enum kvDBcategory kvdb);
 
 
-#pragma mark - cw
-//operaciones exclusivas para primera creación
+#pragma mark - cw (create write)
+//operaciones exclusivas para creación no categorizada
 //requiere que todas las enmiendas este clasificadas por key ascendientes
-//vsource vloc es informativo
-//uses vStream (may be from url) or vbuf
+
+
+//appendkv uses vStream y puede cargarlo directamente en el buffer de la db
+//buFFFF es un búfer de 0xFFFF bytes útil para la lectura del stream en otros tipos de implementaciones. Su dimensión corresponde al tamaño máximo de atributos de tipo vl. si vStream is nil, buFFFF contains the data of v
 bool appendkv(
               uint8_t            *kbuf,
               int                klen,
-              NSString           *vsource,
+              BOOL               vll,
+              enum kvVRcategory  vrcat,
+              NSString           *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
               NSInputStream      *vstream,
-              uint8_t            *vbuf
+              uint8_t            *buFFFF
               );
+
+
 bool appendk8v(
                uint64             k8,
-               NSString           *vsource,
+               BOOL               vll,
+               enum kvVRcategory  vrcat,
+               NSString           *vurl,
                unsigned long long vloc,
                unsigned long      vlen,
-               NSInputStream      *vStream,
                uint8_t            *vbuf
                );
 
 
-#pragma mark - ow
-//operaciones de escritura sobre db preexistente reabierta
+#pragma mark - ow ((re)opened write)
+//operaciones de escritura sobre db categorizada
 
 bool coercekv(
-              enum kvCategory    kv,
+              enum kvDBcategory  kvdb,
               uint8_t            *kbuf,
               int                klen,
               uint8_t            *vbuf,
@@ -74,7 +99,7 @@ bool coercekv(
               );
 
 bool coercek8v(
-               enum kvCategory    kv,
+               enum kvDBcategory  kvdb,
                uint64             k8,
                uint8_t            *vbuf,
                unsigned long long vlen
@@ -82,14 +107,14 @@ bool coercek8v(
 
 
 bool supplementkv(
-                  enum kvCategory    kv,
+                  enum kvDBcategory  kvdb,
                   uint8_t            *kbuf,
                   int                klen,
                   uint8_t            *vbuf,
                   unsigned long long vlen
                  );
 
-bool supplementk8v(enum kvCategory    kv,
+bool supplementk8v(enum kvDBcategory  kvdb,
                    uint64             k8,
                    uint8_t            *vbuf,
                    unsigned long long vlen
@@ -101,7 +126,7 @@ bool supplementk8v(enum kvCategory    kv,
 //en el cual se escribe el valor borrado
 //vlen máx 0xFFFFFFFF indica que el key no existía
 bool removetkv(
-               enum kvCategory    kv,
+               enum kvDBcategory  kvdb,
                uint8_t            *kbuf,
                int                klen,
                uint8_t            *vbuf,
@@ -109,7 +134,7 @@ bool removetkv(
               );
 
 bool removek8v(
-               enum kvCategory    kv,
+               enum kvDBcategory  kvdb,
                uint64             k8,
                uint8_t            *vbuf,
                unsigned long long *vlen

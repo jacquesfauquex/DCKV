@@ -340,20 +340,52 @@ BOOL dicm2kvdb(
    {
       
       switch (attrstruct->r) {
-#pragma mark vl bin
+#pragma mark vl num
          case FD://floating point double
-         case FL://floating point single
-         case SL://signed long
-         case SS://signed short
-         case UL://unsigned long
-         case US://unsigned short
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
-            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
-            else {
-               attrstruct->l=REPERTOIRE_GL;
-               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
-            }
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvFD,source,*loc,vl,stream,valbytes)) return false;
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+         } break;
+         case FL://floating point single
+         {
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvFL,source,*loc,vl,stream,valbytes)) return false;
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+         } break;
+         case SL://signed long
+         {
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvSL,source,*loc,vl,stream,valbytes)) return false;
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+         } break;
+         case SS://signed short
+         {
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvSS,source,*loc,vl,stream,valbytes)) return false;
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+         } break;
+         case UL://unsigned long
+         {
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvUL,source,*loc,vl,stream,valbytes)) return false;
+            *loc += 8 + vl;
+            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+         } break;
+        case US://unsigned short
+         {
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvUS,source,*loc,vl,stream,valbytes)) return false;
             *loc += 8 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
@@ -362,37 +394,37 @@ BOOL dicm2kvdb(
          case AT://attribute tag
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
-            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
-            else {
-               attrstruct->l=REPERTOIRE_GL;
-               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
-            }
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvAT,source,*loc,vl,stream,valbytes)) return false;
             *loc += 8 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
-            
+
 #pragma mark vl ascii code
          case CS://coded string
          {
-            vl=attrstruct->l;
-            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
-            else {
-               attrstruct->l=REPERTOIRE_GL;
-               //charset
-               if ( attrstruct->t ==0x05000800 ){
-                  uint16 repidxs=repertoireidx(valbytes,vl);
-                  if (repidxs==0x09)
-                  {
-                     os_log_error(dicm2dckvLogger,"bad repertoire %@",[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]);
-                     return false;
-                  }
-                  else
-                  {
-                     keycs=(keycs & 0x8000) | repidxs;
-                     attrstruct->l=repidxs;
-                  }
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            //charset
+            
+            if ( attrstruct->t ==0x05000800 ){
+               if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+               uint16 repidxs=repertoireidx(valbytes,vl);
+               if (repidxs==0x09)
+               {
+                  os_log_error(dicm2dckvLogger,"bad repertoire %@",[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]);
+                  return false;
                }
-               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
+               else
+               {
+                  keycs=(keycs & 0x8000) | repidxs;
+                  attrstruct->l=repidxs;
+               }
+               if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,nil,valbytes)) return false;
+            }
+            else
+            {
+              if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,stream,valbytes)) return false;
             }
             *loc += 8 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
@@ -402,20 +434,22 @@ BOOL dicm2kvdb(
          case UI://unique ID
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
-            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
-            else {
-               attrstruct->l=REPERTOIRE_GL;
-               //referenced sop class (0008,1150)
-               if ( attrstruct->t==tag00081150 ){//0x50110800
-                  uint16 sopclassidx=scidx( valbytes, vl );
-                  if (sopclassidx==0x00)
-                  {
-                     os_log_error(dicm2dckvLogger,"bad sop class %@",[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]);
-                     return false;
-                  }
-                  else attrstruct->l=sopclassidx;
+            attrstruct->l=REPERTOIRE_GL;
+            
+            if ( attrstruct->t==tag00081150 ){//0x50110800
+               if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+               uint16 sopclassidx=scidx( valbytes, vl );
+               if (sopclassidx==0x00)
+               {
+                  os_log_error(dicm2dckvLogger,"bad sop class %@",[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]);
+                  return false;
                }
-               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
+               else attrstruct->l=sopclassidx;
+               if (!appendkv(keybytes,keydepth,false,kvUI,source,*loc,vl,nil,valbytes)) return false;
+            }
+            else
+            {
+               if (!appendkv(keybytes,keydepth,false,kvUI,source,*loc,vl,stream,valbytes)) return false;
             }
             *loc += 8 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
@@ -431,11 +465,8 @@ BOOL dicm2kvdb(
          case TM://time
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
-            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
-            else {
-               attrstruct->l=REPERTOIRE_GL;
-               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
-            }
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,stream,valbytes)) return false;
             *loc += 8 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
@@ -447,11 +478,8 @@ BOOL dicm2kvdb(
          case ST://short text
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
-            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
-            else {
-               attrstruct->l=keycs;
-               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
-            }
+            attrstruct->l=keycs;
+            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,stream,valbytes)) return false;
             *loc += 8 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
@@ -460,15 +488,12 @@ BOOL dicm2kvdb(
          case PN://person name
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
-            if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
-            else {
-               attrstruct->l=keycs;
-               if (!appendkv(keybytes,keydepth,source,*loc,vl,stream,valbytes)) return false;
-            }
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,stream,valbytes)) return false;
             *loc += 8 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
-            
+
 #pragma mark vll bin
          case OB://other byte
          case OD://other double
@@ -479,94 +504,43 @@ BOOL dicm2kvdb(
          case SV://signed 64-bit very long
          case UV://unsigned 64-bit very long
          {
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
             if ([stream read:llbytes maxLength:4]!=4) {
                os_log_error(dicm2dckvLogger,"stream end instead of vll");
                return false;
             }
-            if (*ll && [stream read:valbytes maxLength:*ll]!=*ll)  {
-               os_log_error(dicm2dckvLogger,"stream end in the middle of vll bytes");
-               return false;
-            }
-            else if (!appendkv(keybytes,keydepth,source,*loc,*ll,stream,valbytes)) return false;
-            
-            *loc += 12 + *ll;
+            if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,stream,valbytes)) return false;
+            *loc += 12 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
-            
-#pragma mark progressive reading of vll data... not implemented yet in dicm2dckv
-/*
-            if (*ll < 0x10000){
-               if (*ll && [stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               } else {
-                  [db
-                   setData:[NSData dataWithBytesNoCopy:valbytes length:*ll freeWhenDone:false]
-                   forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                   error:&error
-                  ];
-               }
-            } else {
-               //loop read into NSMutableData
-               NSMutableData *lldata=[NSMutableData dataWithLength:*ll];
-               while (*ll>0xFFFF)
-               {
-                  if ([stream read:valbytes maxLength:0xFFFF]!=0xFFFF) {
-                     //NSLog(@"error");
-                     return false;
-                  }
-                  [lldata appendBytes:valbytes length: 0xFFFF];
-                  *ll-=0xFFFF;
-               }
-               if (*ll && [stream read:valbytes maxLength:*ll]!=*ll) {
-                  //NSLog(@"error");
-                  return false;
-               }
-               [lldata appendBytes:valbytes length: *ll];
-               [db
-                setData:lldata
-                forKey:[NSData dataWithBytesNoCopy:keybytes length:keydepth+8 freeWhenDone:false]
-                error:&error
-               ];
-            }
-*/
          } break;
 
 #pragma mark vll charset
          case UC://unlimited characters
          case UT://unlimited text
          {
-            attrstruct->l=keycs;
-
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
             if ([stream read:llbytes maxLength:4]!=4) {
                os_log_error(dicm2dckvLogger,"stream end instead of vll");
                return false;
             }
-            if (*ll && [stream read:valbytes maxLength:*ll]!=*ll)  {
-               os_log_error(dicm2dckvLogger,"stream end in the middle of vll bytes");
-               return false;
-            }
-            else if (!appendkv(keybytes,keydepth,source,*loc,*ll,stream,valbytes)) return false;
-            
-            *loc += 12 + *ll;
+            if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,stream,valbytes)) return false;
+            *loc += 12 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
-            
+
 #pragma mark vll RFC3986
          case UR://universal resource identifier/locator
          {
-            attrstruct->l=RFC3986;
-
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
             if ([stream read:llbytes maxLength:4]!=4) {
                os_log_error(dicm2dckvLogger,"stream end instead of vll");
                return false;
             }
-            if (*ll && [stream read:valbytes maxLength:*ll]!=*ll)  {
-               os_log_error(dicm2dckvLogger,"stream end in the middle of vll bytes");
-               return false;
-            }
-            else if (!appendkv(keybytes,keydepth,source,*loc,*ll,stream,valbytes)) return false;
-            
-            *loc += 12 + *ll;
+            if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,stream,valbytes)) return false;
+            *loc += 12 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
 
@@ -576,20 +550,17 @@ BOOL dicm2kvdb(
             // https://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2.2
              //5. The Value Length Field of VR UN may contain Undefined Length (FFFFFFFFH), in which case the contents can be assumed to be encoded with Implicit VR. See Section 7.5.1 to determine how to parse Data Elements with an Undefined Length.
          {
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
             if ([stream read:llbytes maxLength:4]!=4) {
                os_log_error(dicm2dckvLogger,"stream end instead of vll");
                return false;
             }
-            if (*ll && [stream read:valbytes maxLength:*ll]!=*ll)  {
-               os_log_error(dicm2dckvLogger,"stream end in the middle of vll bytes");
-               return false;
-            }
-            else if (!appendkv(keybytes,keydepth,source,*loc,*ll,stream,valbytes)) return false;
-            
-            *loc += 12 + *ll;
+            if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,stream,valbytes)) return false;
+            *loc += 12 + vl;
             if (! read8bytes(stream, attrbytes, &bytescount)) return false;
          } break;
-            
+
       //---------
 #pragma mark SQ
          case SQ://sequence
@@ -601,8 +572,10 @@ BOOL dicm2kvdb(
             keybytes[keydepth+0xB]=0xff;
             attrstruct->r=SA;
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,source,*loc,12,stream,keybytes+keydepth)) return false;
-                     
+
+
+            if (!appendkv(keybytes,keydepth,true,kvSA,source,*loc,12,nil,valbytes)) return false;
+
             //read length
             if ([stream read:llbytes maxLength:4]!=4) {
                os_log_error(dicm2dckvLogger,"stream end instead of SQ vll");
@@ -612,7 +585,7 @@ BOOL dicm2kvdb(
             {
                attrstruct->r=SZ;
                attrstruct->l=0xFFFF;
-               if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&SZbytes)) return false;
+               if (!appendkv(keybytes,keydepth,true,kvSZ,source,*loc,8,stream,(void*)&SZbytes)) return false;
 
                //read nextattr
                *loc += 12;//do not add *ll !
@@ -653,7 +626,7 @@ BOOL dicm2kvdb(
                   itemstruct->t=0x00000000;
                   itemstruct->r=IA;
                   itemstruct->l=REPERTOIRE_GL;
-                  if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&IAbytes)) return false;
+                  if (!appendkv(keybytes,keydepth,false,kvIA,source,*loc,8,nil,(void*)&IAbytes)) return false;
 
                   uint64 beforebyteIT;//to be computed from after item start
                   *loc+=8;
@@ -688,7 +661,7 @@ BOOL dicm2kvdb(
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x00;
-                     if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&IAbytes)) return false;
+                     if (!appendkv(keybytes,keydepth,false,kvIZ,source,*loc,8,nil,(void*)&IZbytes)) return false;
                      *loc+=8;
                   }
                   else
@@ -700,7 +673,7 @@ BOOL dicm2kvdb(
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x0;
-                     if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&IAbytes)) return false;
+                     if (!appendkv(keybytes,keydepth,false,kvIZ,source,*loc,8,nil,(void*)&IZbytes)) return false;
                      itemstruct->t=copyattr.t;
                      itemstruct->r=copyattr.r;
                      itemstruct->l=copyattr.l;
@@ -718,7 +691,7 @@ BOOL dicm2kvdb(
                attrstruct->r=SZ;
                attrstruct->l=0xFFFF;
                if (!read8bytes(stream, itembytes, &bytescount)) return false;
-               if (!appendkv(keybytes,keydepth,source,*loc,8,stream,(void*)&SZbytes)) return false;
+               if (!appendkv(keybytes,keydepth,false,kvSZ,source,*loc,8,nil,(void*)&SZbytes)) return false;
 
                
                //itemstruct may be SZ or post SQ

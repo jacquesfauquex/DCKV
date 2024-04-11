@@ -12,7 +12,7 @@
 #pragma mark tx
 bool urltx(NSURL* url)
 {
-   //url para todos los kv. Abre una tx.
+   //url para todos los db kv. Abre una tx.
    return false;
 }
 
@@ -34,21 +34,21 @@ bool canceltx(void)
 #pragma mark - db
 
 //apertura kv
-bool createdb(enum kvCategory kv)
+bool createdb(enum kvDBcategory kvdb)
 {
    //0 -> no se creó, o ya existe, always kvCoerce mode
    return true;
 }
 
 
-bool reopendb(enum kvCategory kv)
+bool reopendb(enum kvDBcategory kvdb)
 {
    //0 -> no estaba abierto o no se pudo reabrir
    return false;
 }
 
 
-bool existsdb(enum kvCategory kv)
+bool existsdb(enum kvDBcategory kvdb)
 {
    return false;
 }
@@ -58,24 +58,29 @@ bool existsdb(enum kvCategory kv)
 //operaciones exclusivas para primera creación
 //requiere que todas las enmiendas este clasificadas por key ascendientes
 bool appendkv(
+              enum kvDBcategory  kvdb,
               uint8_t            *kbuf,
               int                klen,
-              NSString           *vsource,
+              BOOL               vll,
+              enum kvVRcategory  vrcat,
+              NSString           *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
               NSInputStream      *vstream,
-              uint8_t            *vbuf
+              uint8_t            *buFFFF
               )
 {
    return false;
 }
 
 bool appendk8v(
+               enum kvDBcategory  kvdb,
                uint64             k8,
-               NSString           *vsource,
+               BOOL               vll,
+               enum kvVRcategory  vrcat,
+               NSString           *vurl,
                unsigned long long vloc,
                unsigned long      vlen,
-               NSInputStream      *vStream,
                uint8_t            *vbuf
                )
 {
@@ -91,7 +96,7 @@ bool appendk8v(
 
 
 bool coercekv(
-              enum kvCategory    kv,
+              enum kvDBcategory  kvdb,
               uint8_t            *kbuf,
               int                klen,
               uint8_t            *vbuf,
@@ -102,7 +107,7 @@ bool coercekv(
 }
 
 bool coercek8v(
-               enum kvCategory    kv,
+               enum kvDBcategory  kvdb,
                uint64             k8,
                uint8_t            *vbuf,
                unsigned long long vlen
@@ -113,7 +118,7 @@ bool coercek8v(
 
 
 bool supplementkv(
-                  enum kvCategory    kv,
+                  enum kvDBcategory  kvdb,
                   uint8_t            *kbuf,
                   int                klen,
                   uint8_t            *vbuf,
@@ -125,7 +130,7 @@ bool supplementkv(
 
 
 bool supplementk8v(
-                   enum kvCategory    kv,
+                   enum kvDBcategory  kvdb,
                    uint64             k8,
                    uint8_t            *vbuf,
                    unsigned long long vlen
@@ -141,7 +146,7 @@ bool supplementk8v(
 //en el cual se escribe el valor borrado
 //vlen máx 0xFFFFFFFF indica que el key no existía
 bool removetkv(
-               enum kvCategory    kv,
+               enum kvDBcategory  kvdb,
                uint8_t            *kbuf,
                int                klen,
                uint8_t            *vbuf,
@@ -153,7 +158,7 @@ bool removetkv(
 
 
 bool removek8v(
-               enum kvCategory    kv,
+               enum kvDBcategory  kvdb,
                uint64             k8,
                uint8_t            *vbuf,
                unsigned long long *vlen
