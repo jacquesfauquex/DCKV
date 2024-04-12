@@ -121,10 +121,9 @@ int main(int argc, const char * argv[]) {
       {
 #pragma mark ele
          if (!createdb(kvDEFAULT)) return errorCreateKV;
-
-         appendk8v(key00020002, false, kvUI, source, soloc, solen,valbytes+soloc);
-         appendk8v(key00020003, false, kvUI, source, siloc, silen, valbytes+siloc);
-         appendk8v(key00020010, false, kvUI, source, stloc, stlen, valbytes+stloc);
+         if(!appendkv((uint8_t*)&key00020002,0,false,kvUI,source, soloc, solen,nil,valbytes+soloc)) return false;
+         if(!appendkv((uint8_t*)&key00020003,0,false,kvUI,source, siloc, silen,nil,valbytes+siloc)) return false;
+         if(!appendkv((uint8_t*)&key00020010,0,false,kvUI,source, stloc, stlen,nil,valbytes+stloc)) return false;
 
          /*
          char keydepth=0;//base level of the DICM dataset

@@ -62,7 +62,7 @@ NSString *dicmuptosopts(
   uint16 *silen,         // length in valbyes for sop instance uid
   uint64 *stloc,         // offset in valbyes for transfer syntax
   uint16 *stlen,         // length in valbyes for transfer syntax
-  uint8  *stidx          // index in const char *csstr[]
+  uint16 *stidx          // index in const char *csstr[]
 );
 
 /*

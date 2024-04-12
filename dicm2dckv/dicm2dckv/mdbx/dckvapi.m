@@ -39,6 +39,7 @@ bool createdb(enum kvDBcategory kvdb)
    //0 -> no se creó, o ya existe, always kvCoerce mode
    return true;
 }
+#pragma mark todo (void*)&SZbytes)
 
 
 bool reopendb(enum kvDBcategory kvdb)
@@ -71,23 +72,6 @@ bool appendkv(
               )
 {
    return false;
-}
-
-bool appendk8v(
-               enum kvDBcategory  kvdb,
-               uint64             k8,
-               BOOL               vll,
-               enum kvVRcategory  vrcat,
-               NSString           *vurl,
-               unsigned long long vloc,
-               unsigned long      vlen,
-               uint8_t            *vbuf
-               )
-{
-   NSLog(@"%016llX",CFSwapInt64(k8));
-   NSData *vData=[NSData dataWithBytes:vbuf length:vlen];
-   NSLog(@"%@",[[NSString alloc]initWithData:vData encoding:NSASCIIStringEncoding]);
-   return true;
 }
 
 #pragma mark - ow

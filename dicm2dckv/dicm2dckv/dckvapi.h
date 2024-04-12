@@ -56,7 +56,7 @@ bool reopendb(enum kvDBcategory kvdb);//0 -> no estaba abierto o no se pudo reab
 bool existsdb(enum kvDBcategory kvdb);
 
 
-#pragma mark - cw (create write)
+#pragma mark - cw (create write) obligatorio
 //operaciones exclusivas para creación no categorizada
 //requiere que todas las enmiendas este clasificadas por key ascendientes
 
@@ -75,19 +75,7 @@ bool appendkv(
               uint8_t            *buFFFF
               );
 
-
-bool appendk8v(
-               uint64             k8,
-               BOOL               vll,
-               enum kvVRcategory  vrcat,
-               NSString           *vurl,
-               unsigned long long vloc,
-               unsigned long      vlen,
-               uint8_t            *vbuf
-               );
-
-
-#pragma mark - ow ((re)opened write)
+#pragma mark - ow ((re)opened write) opcional
 //operaciones de escritura sobre db categorizada
 
 bool coercekv(

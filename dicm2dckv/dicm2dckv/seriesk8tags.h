@@ -10,9 +10,9 @@
 
 #pragma mark base dataset level sop
 
-const uint64 key00020002=0x495502000200;//
-const uint64 key00020003=0x495503000200;//
-const uint64 key00020010=0x495510000200;//
+const uint64 key00020002=0x0000554900020002;
+const uint64 key00020003=0x0000554900030002;
+const uint64 key00020010=0x0000554900100002;
 
 #pragma mark base dataset level patient
 const uint64 tag00081120=0x20110800;//SQ Referenced Patient Sequence
