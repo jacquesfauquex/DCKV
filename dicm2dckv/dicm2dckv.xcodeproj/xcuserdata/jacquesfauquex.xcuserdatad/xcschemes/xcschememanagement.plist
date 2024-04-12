@@ -4,12 +4,22 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>dicm2json.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 		<key>dicm2mdbx.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>dicmdump.xcscheme_^#shared#^_</key>
+		<key>dicm2xml.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
+		<key>dicmstructdump.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>1</integer>
@@ -18,6 +28,11 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>4A8097B82BC8C6260042CAC1</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>4A8097F82BC90A370042CAC1</key>
 		<dict>
 			<key>primary</key>
 			<true/>

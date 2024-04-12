@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4ACCC9E32BBDC40A00670A7F"
-               BuildableName = "dicm2dckv"
-               BlueprintName = "dicm2dckv"
+               BlueprintIdentifier = "4A8097F82BC90A370042CAC1"
+               BuildableName = "dicmstructdump"
+               BlueprintName = "dicmstructdump"
                ReferencedContainer = "container:dicm2dckv.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,16 +44,48 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4ACCC9E32BBDC40A00670A7F"
-            BuildableName = "dicm2dckv"
-            BlueprintName = "dicm2dckv"
+            BlueprintIdentifier = "4A8097F82BC90A370042CAC1"
+            BuildableName = "dicmstructdump"
+            BlueprintName = "dicmstructdump"
             ReferencedContainer = "container:dicm2dckv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
             argument = "/Users/Shared/TESTING/52861890@-^2.16.858.2.10001442.67430.20230312223752.5567013.8/1.3.12.2.1107.5.1.7.111639.30000023031222110008300000101/CT.1.3.12.2.1107.5.1.7.111639.30000023031222110008300000131.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jacquesfauquex/Desktop/MGgigante/IM-0001-1001.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG-large.ele.dcm"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/j2kr/US-icon.j2kr.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG1.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/horos/GDCM/Testing/Data/GE_DLX-8-MONO2-Multiframe.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/VL4.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/horos/GDCM/Testing/Data/D_CLUNIE_RG1_RLE.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/j2kr/VL4.j2kr.dcm"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jacquesfauquex/mdbx"
@@ -71,9 +103,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4ACCC9E32BBDC40A00670A7F"
-            BuildableName = "dicm2dckv"
-            BlueprintName = "dicm2dckv"
+            BlueprintIdentifier = "4A8097F82BC90A370042CAC1"
+            BuildableName = "dicmstructdump"
+            BlueprintName = "dicmstructdump"
             ReferencedContainer = "container:dicm2dckv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -7,7 +7,7 @@
 #include "dicm2dckv.h"
 #include "os_log.h"
 #include "dckvapi.h"
-#include "seriesk8tags.h"
+//#include "seriesk8tags.h"
 int main(int argc, const char * argv[]) {
    dicm2dckvLogger = os_log_create("com.opendicom.dicm2mdbx", "dicm2mdbx");
    @autoreleasepool {
@@ -121,8 +121,12 @@ int main(int argc, const char * argv[]) {
       {
 #pragma mark ele
          if (!createdb(kvDEFAULT)) return errorCreateKV;
+         
+         const uint64 key00020002=0x0000554900020002;
          if(!appendkv((uint8_t*)&key00020002,0,false,kvUI,source, soloc, solen,nil,valbytes+soloc)) return false;
+         const uint64 key00020003=0x0000554900030002;
          if(!appendkv((uint8_t*)&key00020003,0,false,kvUI,source, siloc, silen,nil,valbytes+siloc)) return false;
+         const uint64 key00020010=0x0000554900100002;
          if(!appendkv((uint8_t*)&key00020010,0,false,kvUI,source, stloc, stlen,nil,valbytes+stloc)) return false;
 
          /*

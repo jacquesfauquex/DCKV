@@ -8,11 +8,6 @@
 #ifndef seriesk8tags
 #define seriesk8tags
 
-#pragma mark base dataset level sop
-
-const uint64 key00020002=0x0000554900020002;
-const uint64 key00020003=0x0000554900030002;
-const uint64 key00020010=0x0000554900100002;
 
 #pragma mark base dataset level patient
 const uint64 tag00081120=0x20110800;//SQ Referenced Patient Sequence
@@ -63,8 +58,9 @@ const uint64 tag00120064=0x64001200;//SQ Deidentification​Method​Code​Sequ
 const uint64 tag00120081=0x81001200;//LO Clinical​Trial​Protocol​Ethics​Committee​Name
 const uint64 tag00120082=0x82001200;//LO Clinical​Trial​Protocol​Ethics​Committee​Approval​Number
 
+
 #pragma mark base dataset level study
-;//
+
 const uint64 tag00080020=0x20000800;//DA Study​Date
 const uint64 tag00080030=0x30000800;//
 const uint64 tag00080050=0x50000800;//
@@ -117,9 +113,9 @@ const uint64 tag00380064=0x64003800;//
 const uint64 tag00385000=0x00053800;//
 const uint64 tag00401012=0x12104000;//
 
+
 #pragma mark base dataset level series root
 
-;//
 const uint64 tag00080021=0x21000800;//
 const uint64 tag00080031=0x31000800;//
 const uint64 tag00080060=0x60000800;//
@@ -227,8 +223,8 @@ const uint64 tag00400261=0x61024000;//
 const uint64 tag00400275=0x75024000;//
 const uint64 tag00400280=0x80024000;//
 
-#pragma mark base dataset series modality specific
 
+#pragma mark base dataset series modality specific
 
 const uint64 tag00540013=0x13005400;//
 const uint64 tag00540014=0x14005400;//
