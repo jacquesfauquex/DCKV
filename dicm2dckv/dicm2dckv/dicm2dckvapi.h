@@ -1,6 +1,6 @@
 //
-//  dicm2mdbx.h
-//  dicm2mdbx
+//  dicm2dckvapi.h
+//  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-02-28.
 //#import "Repertoires.h"
@@ -13,10 +13,12 @@
 #import "SopClasses.h"
 #import "TransferSyntaxes.h"
 
-enum dicm2mdbxArgs{
-   dicm2mdbxCmd=0,
-   dicm2mdbxIn, //path or http url(://) or - (=stdin)
-   dicm2mdbxOut //path to writeable dir in which shall be written uuid.bin sopuid.dcm or sopuid.dat (+ sopuid.lck)
+enum dicm2dckvArgs{
+   dicm2dckvCmd=0,
+   dicm2dckvIn, //path or http url(://) or - (=stdin)
+   dicm2dckvOut,//writeable dir for uuid.bin sopuid.dcm or sopuid.dat (+ sopuid.lck) o -
+   dicm2dckvErr,//writeable dir for dicm2dckv.log
+   dicm2dckvLogLevel,//
 };
 
 static NSArray *args=nil;

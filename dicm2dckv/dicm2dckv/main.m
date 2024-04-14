@@ -1,31 +1,35 @@
 //
 //  main.m
-//  dicm2mdbx
+//  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-04-03.
 //
-#include "dicm2dckv.h"
-#include "os_log.h"
+#include "dicm2dckvapi.h"
+#include "log.h"
 #include "dckvapi.h"
 //#include "seriesk8tags.h"
+
+/*
+ main administra el control de dicm2dckvapi para procesar el input.
+ dicm2dckv puede incorporarse en otra aplicación, que reemplaza la gestión realizada en main por otra gestión propia
+ */
+
 int main(int argc, const char * argv[]) {
-   dicm2dckvLogger = os_log_create("com.opendicom.dicm2mdbx", "dicm2mdbx");
    @autoreleasepool {
       NSDate *startDate=[NSDate date];
       NSFileManager *fileManager=[NSFileManager defaultManager];
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
-      //NSDictionary *environment=processInfo.environment;
       args=[processInfo arguments];
-      if (args.count!=3)
+      if (argc!=5)
       {
-         os_log_error(dicm2dckvLogger,"requires 3 args (command, source, dest). args count %lu",(unsigned long)args.count);
+         E("requires 5 args (command, DIWEF, err, out, in ). args count %d",argc);
          return errorArgs;
       }
 
 #pragma mark input stream
       NSInputStream *stream=nil;
       NSString *source=nil;
-      if ([args[1] isEqualToString:@"-"])//stdin
+      if ([args[4] isEqualToString:@"-"])//stdin
          stream=[NSInputStream inputStreamWithFileAtPath:@"/dev/stdin"];
          /*
          NSFileHandle *readingFileHandle=[NSFileHandle fileHandleWithStandardInput];
@@ -33,36 +37,36 @@ int main(int argc, const char * argv[]) {
          while ((moreData=[readingFileHandle availableData]) && moreData.length) [inputData appendData:moreData];
          [readingFileHandle closeFile];
           */
-      else if ([[args[1] componentsSeparatedByString:@"://"]count]==2)
+      else if ([[args[4] componentsSeparatedByString:@"://"]count]==2)
       {
          //url
-         source=args[1];
-         stream=[NSInputStream inputStreamWithURL:[NSURL URLWithString:args[1]]];
+         source=args[4];
+         stream=[NSInputStream inputStreamWithURL:[NSURL URLWithString:args[4]]];
       }
       else
       {
          //path
-         source=args[1];
-         stream=[NSInputStream inputStreamWithFileAtPath:[args[1] stringByExpandingTildeInPath]];
+         source=args[4];
+         stream=[NSInputStream inputStreamWithFileAtPath:[args[4] stringByExpandingTildeInPath]];
       }
       
       if (!stream)
       {
-         os_log_error(dicm2dckvLogger,"bad source path %@",args[1]);
+         E("bad in %s",argv[4]);
          return errorIn;
       }
       [stream open];
       if (![stream hasBytesAvailable])
       {
-         os_log_error(dicm2dckvLogger,"bad source path %@",args[1]);
+         E("bad source path %s",argv[4]);
          return errorIn;
       }
       
 #pragma mark output folder
       BOOL isDir=false;
-      if (![fileManager fileExistsAtPath:args[2] isDirectory:&isDir] || !isDir)
+      if (![fileManager fileExistsAtPath:args[3] isDirectory:&isDir] || !isDir)
       {
-         os_log_error(dicm2dckvLogger,"bad out folder path %@",args[2]);
+         E("bad out folder path %s",argv[3]);
          return errorOutPath;
       }
 
@@ -93,9 +97,9 @@ int main(int argc, const char * argv[]) {
                         );
       NSString *path=nil;
       if (sopiuid==nil) //not DICM
-         path=[NSString stringWithFormat:@"%@/%@.bin",args[2],[[NSUUID UUID]UUIDString]];
+         path=[NSString stringWithFormat:@"%@/%@.bin",args[3],[[NSUUID UUID]UUIDString]];
       else if (stidx==1) //DICM ile
-         path=[NSString stringWithFormat:@"%@/%@.ile.dcm",args[2],sopiuid];
+         path=[NSString stringWithFormat:@"%@/%@.ile.dcm",args[3],sopiuid];
       if (path!=nil)
       {
          FILE *fp;
@@ -107,7 +111,7 @@ int main(int argc, const char * argv[]) {
             bytesWritten=write(1,valbytes,bytesRead);
             if (bytesWritten!=bytesRead)
             {
-               os_log_error(dicm2dckvLogger,"write %@",path);
+               E("write %s",[path cStringUsingEncoding:NSASCIIStringEncoding]);
                fclose(fp);
                return errorWrite;
             }
@@ -115,7 +119,7 @@ int main(int argc, const char * argv[]) {
             inloc+=bytesRead;
          }
          fclose(fp);
-         os_log_error(dicm2dckvLogger, "written %llu bytes to %@",inloc,path);
+         E("written %llu bytes to %s",inloc,[path cStringUsingEncoding:NSASCIIStringEncoding]);
       }
       else
       {
@@ -148,9 +152,9 @@ int main(int argc, const char * argv[]) {
                         loc,
                         0xFFFFFFFF,
                         beforetag
-                        )) os_log_error(dicm2dckvLogger, "dicm2dckv error");
+                        )) E("%s", "dicm2dckv error");
       }
-      os_log(dicm2dckvLogger,"elapsed %F",-[startDate timeIntervalSinceNow]);
+      E("elapsed %F",-[startDate timeIntervalSinceNow]);
    }
    return exitOK;
 }

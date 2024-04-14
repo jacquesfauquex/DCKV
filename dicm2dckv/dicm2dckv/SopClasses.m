@@ -1,6 +1,6 @@
 //
 //  SopClasses.m
-//  dicm2mdbx
+//  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-02-29.
 //

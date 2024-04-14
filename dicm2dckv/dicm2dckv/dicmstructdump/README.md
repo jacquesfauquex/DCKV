@@ -18,9 +18,10 @@
   - el contenido de los values hasta 0xFFFF bytes
   - incluyendo la separación de los multivalues en sus componentes
   - indica offset y largo para valores de tipo vll
-  - no copia el nombre de los atributos desde un diccionario
+  - no copia el nombre de los atributos desde un diccionario. Contiene exclusivamente diccionarios de sop class, transfer syntax y repertoire
 
-- el ejecutable pesa 147 KB y no tiene dependencias
+- el ejecutable pesa 129 KB
+- tiene dependencia a NSInputStream de Objective-c (a reeemplazar por zmq)
 - usa 7 MB de memoria para su ejecución, independientemente del tamaño del objeto dicom
 
 RESULTADO
@@ -85,9 +86,9 @@ sys    0m0.154s
 
 | ejecutable      | tamaño KB |       | velocidad ms |       |
 | --------------- | --------- | ----- | ------------ | ----- |
-| dicmstructdump  | 147       | mejor | 0.015        | mejor |
-| dcmtk dcmdump   | 4600      | x 30  | 0.063        | x 4   |
-| dcm4che dcmdump | 2500      | x 17  | 0.840        | x 56  |
+| dicmstructdump  | 129       | mejor | 0.015        | mejor |
+| dcmtk dcmdump   | 4600      | x 35  | 0.063        | x 4   |
+| dcm4che dcmdump | 2500      | x 19  | 0.840        | x 56  |
 
 ¡¡¡ Resultado muy prometedor para dicm2dckv !!! 
 

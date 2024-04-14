@@ -1,6 +1,6 @@
 //
 //  DCKVseriesrootkeys.h
-//  dicm2mdbx
+//  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-04-05.
 //

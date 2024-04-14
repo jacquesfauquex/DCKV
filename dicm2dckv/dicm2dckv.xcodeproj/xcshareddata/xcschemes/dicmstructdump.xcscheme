@@ -52,6 +52,18 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "D"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "- "
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jacquesfauquex/mdbx"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "/Users/Shared/TESTING/52861890@-^2.16.858.2.10001442.67430.20230312223752.5567013.8/1.3.12.2.1107.5.1.7.111639.30000023031222110008300000101/CT.1.3.12.2.1107.5.1.7.111639.30000023031222110008300000131.dcm"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -86,10 +98,6 @@
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/j2kr/VL4.j2kr.dcm"
             isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/jacquesfauquex/mdbx"
-            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

@@ -1,12 +1,12 @@
 //
-//  dicm2mdbx.m
-//  dicm2mdbx
+//  dicm2dckvapi.m
+//  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-02-28.
 //
 
-#include "dicm2dckv.h"
-#include "os_log.h"
+#include "dicm2dckvapi.h"
+#include "log.h"
 
 #include "dckvapi.h"
 
@@ -97,11 +97,11 @@ BOOL read8bytes(NSInputStream *stream, uint8_t *buffer, NSInteger *bytesReadRef)
       }
       case -1://stream error
       {
-         os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+         E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding] );
          return false;
       }
    }
-   os_log_error(dicm2dckvLogger,"stream premature end (less than 8 bytes remaining)");
+   E("%s","stream premature end (less than 8 bytes remaining)");
    return false;
 }
 
@@ -192,13 +192,13 @@ NSString *dicmuptosopts(
          case UN://unknown
          case SQ://sequence
          {
-            os_log_debug(dicm2dckvLogger,"no DICM prolog. First 8 bytes: %@",hexa8bytes(attruint64));
+            D("no DICM prolog. First 8 bytes: %s",[hexa8bytes(attruint64)  cStringUsingEncoding:NSASCIIStringEncoding]);
             //first attr is loaded
             return @"";
          }
          default:
          {
-            os_log_error(dicm2dckvLogger,"no DICM prolog. Not explicit little endian or derived. First 8 bytes: %@",hexa8bytes(attruint64));
+            E("no DICM prolog. Not explicit little endian or derived. First 8 bytes: %s",[hexa8bytes(attruint64)  cStringUsingEncoding:NSASCIIStringEncoding]);
             return nil;
          }
       }
@@ -214,19 +214,19 @@ NSString *dicmuptosopts(
       case 150: break;
       case -1://stream error
       {
-         os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+         E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding]);
          return false;
       }
       default://not enough bytes
       {
-         os_log_error(dicm2dckvLogger,"stream premature end (less than 158 bytes)");
+         E("%s","stream premature end (less than 158 bytes)");
          return nil;
       }
    }
 
    if ( (*(valbytes+128)!='D') || (*(valbytes+129)!='I') || (*(valbytes+130)!='C') || (*(valbytes+131)!='M') )
    {
-      os_log_error(dicm2dckvLogger,"no DICM signature");
+      E("%s","no DICM signature");
       return nil;
    }
    *inloc = 158;
@@ -237,7 +237,7 @@ NSString *dicmuptosopts(
    if (!read8bytes(stream, keybytes, &bytescount)) return nil;
    if ((*attruint64 % 0x100000000)!=tag00020002)
    {
-      os_log_error(dicm2dckvLogger,"no 00020002");
+      E("%s","no 00020002");
       return nil;
    }
    *inloc += 8;
@@ -246,12 +246,12 @@ NSString *dicmuptosopts(
    bytescount=[stream read:valbytes+*soloc maxLength:*solen];
    if (bytescount==-1)//stream error
    {
-      os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+      E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding]);
       return false;
    }
    if  (bytescount!=*solen)//not enough bytes
    {
-      os_log_error(dicm2dckvLogger,"stream premature end (sop class)");
+      E("%s","stream premature end (sop class)");
       return nil;
    }
    *soidx=scidx( valbytes+*soloc, *solen - (valbytes[*soloc + *solen - 1]==0x0) );
@@ -263,7 +263,7 @@ NSString *dicmuptosopts(
    if (!read8bytes(stream, keybytes, &bytescount)) return nil;
    if ((*attruint64 % 0x100000000)!=tag00020003)
    {
-      os_log_error(dicm2dckvLogger,"no 00020003");
+      E("%s","no 00020003");
       return nil;
    }
    *inloc += 8;
@@ -272,12 +272,12 @@ NSString *dicmuptosopts(
    bytescount=[stream read:valbytes+*siloc maxLength:*silen];
    if (bytescount==-1)//stream error
    {
-      os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+      E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding]);
       return false;
    }
    if  (bytescount!=*silen)//not enough bytes
    {
-      os_log_error(dicm2dckvLogger,"stream premature end (sop instance)");
+      E("%s","stream premature end (sop instance)");
       return nil;
    }
    NSString *sopiuid=[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes+*siloc length:*silen - (valbytes[*siloc + *silen - 1]==0x0)] encoding:NSASCIIStringEncoding];
@@ -289,7 +289,7 @@ NSString *dicmuptosopts(
    if (!read8bytes(stream, keybytes, &bytescount)) return nil;
    if ((*attruint64 % 0x100000000)!=tag00020010)
    {
-      os_log_error(dicm2dckvLogger,"no 00020010");
+      E("%s","no 00020010");
       return nil;
    }
    *inloc += 8;
@@ -298,12 +298,12 @@ NSString *dicmuptosopts(
    bytescount=[stream read:valbytes+*stloc maxLength:*stlen];
    if (bytescount==-1)//stream error
    {
-      os_log_error(dicm2dckvLogger,"error code %ld: %@",(long)[[stream streamError]code],[[[stream streamError]userInfo]debugDescription]);
+      E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding]);
       return false;
    }
    if  (bytescount!=*stlen)//not enough bytes
    {
-      os_log_error(dicm2dckvLogger,"stream premature end (transfert syntax)");
+      E("%s","stream premature end (transfert syntax)");
       return nil;
    }
    *stidx=tsidx( valbytes+*stloc, *stlen - (valbytes[*stloc + *stlen - 1]==0x0) );
@@ -412,7 +412,7 @@ BOOL dicm2kvdb(
                uint16 repidxs=repertoireidx(valbytes,vl);
                if (repidxs==0x09)
                {
-                  os_log_error(dicm2dckvLogger,"bad repertoire %@",[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]);
+                  E("bad repertoire %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
                   return false;
                }
                else
@@ -441,7 +441,7 @@ BOOL dicm2kvdb(
                uint16 sopclassidx=scidx( valbytes, vl );
                if (sopclassidx==0x00)
                {
-                  os_log_error(dicm2dckvLogger,"bad sop class %@",[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]);
+                  E("bad sop class %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes length:vl] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
                   return false;
                }
                else attrstruct->l=sopclassidx;
@@ -507,7 +507,7 @@ BOOL dicm2kvdb(
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if ([stream read:llbytes maxLength:4]!=4) {
-               os_log_error(dicm2dckvLogger,"stream end instead of vll");
+               E("%s","stream end instead of vll");
                return false;
             }
             if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,stream,valbytes)) return false;
@@ -522,7 +522,7 @@ BOOL dicm2kvdb(
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if ([stream read:llbytes maxLength:4]!=4) {
-               os_log_error(dicm2dckvLogger,"stream end instead of vll");
+               E("%s","stream end instead of vll");
                return false;
             }
             if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,stream,valbytes)) return false;
@@ -536,7 +536,7 @@ BOOL dicm2kvdb(
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if ([stream read:llbytes maxLength:4]!=4) {
-               os_log_error(dicm2dckvLogger,"stream end instead of vll");
+               E("%s","stream end instead of vll");
                return false;
             }
             if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,stream,valbytes)) return false;
@@ -553,7 +553,7 @@ BOOL dicm2kvdb(
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if ([stream read:llbytes maxLength:4]!=4) {
-               os_log_error(dicm2dckvLogger,"stream end instead of vll");
+               E("%s","stream end instead of vll");
                return false;
             }
             if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,stream,valbytes)) return false;
@@ -578,7 +578,7 @@ BOOL dicm2kvdb(
 
             //read length
             if ([stream read:llbytes maxLength:4]!=4) {
-               os_log_error(dicm2dckvLogger,"stream end instead of SQ vll");
+               E("%s","stream end instead of SQ vll");
                return false;
             }
             if (*ll==0)
@@ -598,7 +598,7 @@ BOOL dicm2kvdb(
                if (*ll==ffffffff) beforebyteSQ=beforebyte;
                else if (beforebyte==ffffffff) beforebyteSQ= *loc + *ll;
                else if (*loc + *ll > beforebyte) {
-                  os_log_error(dicm2dckvLogger,"SQ incomplete input");
+                  E("%s","SQ incomplete input");
                   return false;
                }
                else beforebyteSQ=*loc + *ll;
@@ -633,7 +633,7 @@ BOOL dicm2kvdb(
                   if (IQll==ffffffff) beforebyteIT=beforebyteSQ;
                   else if (beforebyteSQ==ffffffff) beforebyteIT=*loc + *ll;
                   else if (*loc + *ll > beforebyteSQ) {
-                     os_log_error(dicm2dckvLogger,"IT incomplete input");
+                     E("%s","IT incomplete input");
                      return false;
                   }
                   else beforebyteIT=*loc + *ll;

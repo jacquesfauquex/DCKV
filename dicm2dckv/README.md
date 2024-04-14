@@ -10,7 +10,21 @@
 
 - the documentation is found in the wiki part of the github
 
+## comando
+Seguimos el modelo natural de streaming de linux
+```
+command loglevel errDest outDest inSource [ inSource ...]
+```
+- El nombre del comando difiere dependiendo el nombre de la implementación de dckvapi
+- loglevel es uno de [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
+- errDest [ - | filePath ]  (stderr o archivo dentro del cual se escribe el log )
+- outDest [ - | dirPath ]  (stdout o directorio de output )
+- inSource [ - | filePath ]  (stdin o archivo a parsear. Soporta también lista de archivos )
 
+Para procesar un dicom obtenido desde url:
+```
+curl | command loglevel errDest outDest -
+```
 
 ## dckvapi
 
@@ -48,6 +62,6 @@
     
     - transfert syntax index
   
-  - repertoire index
+    - repertoire index
   
   - conveniant exhaustive list of uint64 key representations for patient, study and series level attributes found in the ground dataset

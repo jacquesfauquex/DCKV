@@ -1,6 +1,6 @@
 //
 //  dckvapi.m
-//  dicm2mdbx
+//  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-04-04.
 //
@@ -10,7 +10,7 @@
 #include <Foundation/Foundation.h>
 
 #include "dckvapi.h"
-#include "os_log.h"
+#include "log.h"
 
 const char *space=" ";
 const char *backslash = "\\";
