@@ -6,7 +6,6 @@
 //
 
 /*potencialmente multivalue: AE AS AT CS DA DS DT FD FL IS LO OW PN SH SV TM UC UI UV*/
-/* done SL SS US UL*/
 #include <Foundation/Foundation.h>
 
 #include "dckvapi.h"
@@ -29,7 +28,7 @@ bool appendkv(
               int                klen,
               BOOL               vll,
               enum kvVRcategory  vrcat,
-              NSString           *vurl,
+              const char         *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
               NSInputStream      *vstream,

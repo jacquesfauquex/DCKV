@@ -84,11 +84,11 @@ sys    0m0.154s
 
 ### Resultado
 
-| ejecutable      | tamaño KB |       | velocidad ms |       |
-| --------------- | --------- | ----- | ------------ | ----- |
-| dicmstructdump  | 129       | mejor | 0.015        | mejor |
-| dcmtk dcmdump   | 4600      | x 35  | 0.063        | x 4   |
-| dcm4che dcmdump | 2500      | x 19  | 0.840        | x 56  |
+| ejecutable                 | KB    |           | ms     |           |
+| ----------------------- | ------ | ------ | ------- | ------ |
+| dicmstructdump       | 129   | mejor | 0.015 | mejor |
+| dcmtk dcmdump      | 4600 | x 35   | 0.063 | x 4     |
+| dcm4che dcmdump | 2500 | x 19   | 0.840 | x 56   |
 
 ¡¡¡ Resultado muy prometedor para dicm2dckv !!! 
 

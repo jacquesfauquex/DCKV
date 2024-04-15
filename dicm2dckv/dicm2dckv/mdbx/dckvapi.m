@@ -64,7 +64,7 @@ bool appendkv(
               int                klen,
               BOOL               vll,
               enum kvVRcategory  vrcat,
-              NSString           *vurl,
+              char               *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
               NSInputStream      *vstream,

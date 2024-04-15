@@ -99,7 +99,16 @@ BOOL read8bytes(NSInputStream *stream, uint8_t *buffer, NSInteger *bytesReadRef)
       {
          E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding] );
          return false;
+         
       }
+   }
+   if (![stream hasBytesAvailable])
+   {
+      *buffer=0xFF;
+      *(buffer+1)=0xFF;
+      *(buffer+2)=0xFF;
+      *(buffer+3)=0xFF;
+      return true;
    }
    E("%s","stream premature end (less than 8 bytes remaining)");
    return false;
@@ -131,7 +140,7 @@ NSString *hexa8bytes(uint64 *eightBytes)
  
  */
 NSString *dicmuptosopts(
-   NSString *source,
+   const char * source,
    uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *valbytes,     // lectura del valor del atributo returns with sopiuid
    NSInputStream *stream, // input
@@ -315,7 +324,7 @@ NSString *dicmuptosopts(
 
 
 BOOL dicm2kvdb(
-   NSString *source,
+   const char * source,
    uint8_t *keybytes,
    uint8 keydepth,
    BOOL readfirstattr,
@@ -709,6 +718,8 @@ BOOL dicm2kvdb(
             }
          } break;
             
+         case 0xFFFF:return true;//end of buffer
+            
          default:
          {
             NSLog(@"error unknown vr");
@@ -718,6 +729,6 @@ BOOL dicm2kvdb(
       //---------
       }//end switch
    }//end while (*index < beforebyte)
-   return false;
+   return true;
 }
 

@@ -52,7 +52,7 @@ BOOL read8bytes(
  returns true if next attribute is already loaded in keybytes
  */
 NSString *dicmuptosopts(
-  NSString *source,
+  const char * source,
   uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
   uint8_t *valbytes,     // lectura del valor del atributo returns with sopiuid
   NSInputStream *stream, // input
@@ -72,7 +72,7 @@ NSString *dicmuptosopts(
  parser
  */
 BOOL dicm2kvdb(
-   NSString *source,
+   const char * source,
    uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
    uint8 keydepth,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
    BOOL readfirstattr,    // true:read desde stream. false:ya está en keybytes

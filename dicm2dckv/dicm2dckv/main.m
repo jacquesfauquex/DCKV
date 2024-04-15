@@ -4,6 +4,11 @@
 //
 //  Created by jacquesfauquex on 2024-04-03.
 //
+
+//C
+#include <stdio.h>
+
+//propietario
 #include "dicm2dckvapi.h"
 #include "log.h"
 #include "dckvapi.h"
@@ -18,50 +23,41 @@ int main(int argc, const char * argv[]) {
    @autoreleasepool {
       NSDate *startDate=[NSDate date];
       NSFileManager *fileManager=[NSFileManager defaultManager];
-      NSProcessInfo *processInfo=[NSProcessInfo processInfo];
-      args=[processInfo arguments];
-      if (argc!=5)
-      {
+      
+      if (argc < 5){
          E("requires 5 args (command, DIWEF, err, out, in ). args count %d",argc);
          return errorArgs;
       }
 
 #pragma mark input stream
+      NSProcessInfo *processInfo=[NSProcessInfo processInfo];
+      args=[processInfo arguments];
       NSInputStream *stream=nil;
-      NSString *source=nil;
-      if ([args[4] isEqualToString:@"-"])//stdin
-         stream=[NSInputStream inputStreamWithFileAtPath:@"/dev/stdin"];
-         /*
-         NSFileHandle *readingFileHandle=[NSFileHandle fileHandleWithStandardInput];
-         NSData *moreData;
-         while ((moreData=[readingFileHandle availableData]) && moreData.length) [inputData appendData:moreData];
-         [readingFileHandle closeFile];
-          */
-      else if ([[args[4] componentsSeparatedByString:@"://"]count]==2)
-      {
-         //url
-         source=args[4];
-         stream=[NSInputStream inputStreamWithURL:[NSURL URLWithString:args[4]]];
-      }
-      else
-      {
-         //path
-         source=args[4];
-         stream=[NSInputStream inputStreamWithFileAtPath:[args[4] stringByExpandingTildeInPath]];
-      }
+      const char *source;
       
-      if (!stream)
-      {
-         E("bad in %s",argv[4]);
-         return errorIn;
+      if ([args[4] isEqualToString:@"-"]){//stdin
+         freopen(NULL, "rb", stdin);
+      } else {
+         if ([[args[4] componentsSeparatedByString:@"://"]count]==2){//url
+             source=argv[4];
+             stream=[NSInputStream inputStreamWithURL:[NSURL URLWithString:args[4]]];
+         } else {
+             //path
+             source=argv[4];
+             stream=[NSInputStream inputStreamWithFileAtPath:[args[4] stringByExpandingTildeInPath]];
+            /*
+            if (freopen("path/name","rb",stdin)==NULL){
+               E("freopen error %d: %s",errno,argv[4]);
+               EXIT_FAILURE;
+            }
+             */
+         }
       }
+      setvbuf(stdin, NULL, _IOFBF, 0xFFFF);//This allocates the buffer space dynamically.
+      
       [stream open];
-      if (![stream hasBytesAvailable])
-      {
-         E("bad source path %s",argv[4]);
-         return errorIn;
-      }
-      
+
+         
 #pragma mark output folder
       BOOL isDir=false;
       if (![fileManager fileExistsAtPath:args[3] isDirectory:&isDir] || !isDir)
@@ -74,7 +70,20 @@ int main(int argc, const char * argv[]) {
       
       //https://stackoverflow.com/questions/19165134/correct-portable-way-to-interpret-buffer-as-a-struct
       uint8_t *keybytes = malloc(0xFF);//max use 16 bytes x 10 encapsulation levels
+      //use    size_t fread(valbytes, 2, 4, stdin);
       uint8_t *valbytes = malloc(0xFFFF);//max size of vl attribute values
+      //use    size_t fread(valbytes, size_t size, size_t count, stdin);
+
+      /*
+       fread() function itself does not provide a way to distinguish between end-of-file and error, feof and ferror can be used to determine which occurred.
+ 
+       while (!feof(filePointer)) {
+               fread(buffer, sizeof(buffer), 1, filePointer);
+               // Print the read data
+               printf("%s", buffer);
+           }
+       */
+         
       uint64 inloc=0;//inputstream index
       uint64 soloc,siloc,stloc;
       uint16 solen,silen,stlen;

@@ -12,7 +12,7 @@ freopen() returns a filehandle, but it's the previous value (before we put it in
 As to your concerns, however, you may not be reading in "32 bits" but if you use fread() you will be reading in 4 chars (which is the best you can do in C - char is guaranteed to be at least 8 bits but some historical and embedded platforms have 16 bit chars (some even have 18 or worse)). If you use fgets() you will never read in 4 bytes. You will read in at least 3 (depending on whether any of them are newlines), and the 4th byte will be '\0' because C strings are nul-terminated and fgets() nul-terminates what it reads (like a good function). Obviously, this is not what you want, so you should use fread().
 
 
--- path: si el primer argumento de dicm2dckv es un path, main aplica freopen para transformarlo en stdin
+-- path: si el cuarto argumento de dicm2dckv es un path, main aplica freopen para transformarlo en stdin
 https://www.w3resource.com/c-programming/stdio/c_library_method_freopen.php
 
 #include <stdio.h>
@@ -117,15 +117,10 @@ setvbuf(stdin, mybuffer, _IOFBF, sizeof(mybuffer));
 
 ----------------------------------------------------------------------
 
-- args: stdin stdout stderr [D,I,E,N,F] (Debug,Info,Notice,Error,Fault)
-- return error at the end of the parsing
+- refactor main in C and processing code to dckvapi
 - vloc update in  dckvapi (y dicom2dckv)
-- encontrar forma de leer bytes desde el stream sin almacenarlos dentro de un búfer
 - agregar más log
-- probar arg url wado
-- probar pipe desde terminal
 - más pruebas con diversos objetos DICM ELE
 - directorio de archivos prueba
-- proxying log messages de tal forma a poder reemplazar os_log con una implementación de distinta del mismo header
 
 
