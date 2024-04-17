@@ -1,11 +1,11 @@
 //
-//  dicm2dckvapi.m
+//  dicm2dckv.m
 //  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-02-28.
 //
 
-#include "dicm2dckvapi.h"
+#include "dicm2dckv.h"
 #include "log.h"
 
 #include "dckvapi.h"
@@ -70,12 +70,6 @@ const uint16 SZ=0xFFFF;
 
 uint8 swapchar;
 
-//-------------------------
-// blocking read actions
-//-------------------------
-
-//reescribir NSInputStream en base a ZeroMQ
-//https://zeromq.org/download/
 
 //returns true when 8 bytes were read
 BOOL read8(uint8_t *buffer, unsigned long *bytesReadRef)
@@ -286,8 +280,51 @@ char *dicmuptosopts(
    return (char*)valbytes+*siloc;
 }
 
+BOOL dicm2dckvInstance(
+   const char * source,
+   uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
+   uint8_t *valbytes,     // lectura del valor del atributo
+   uint64 *inloc,           // offstet en stream
+   uint32 beforebyte,     // limite superior de lectura
+   uint32 beforetag,       // limite superior attr. Al salir, el attr se encuentra leido y guardado en keybytes
+   uint64 *soloc,         // offset in valbyes for sop class
+   uint16 *solen,         // length in valbyes for sop class
+   uint16 *soidx,         // index in const char *scstr[]
+   uint64 *siloc,         // offset in valbyes for sop instance uid
+   uint16 *silen,         // length in valbyes for sop instance uid
+   uint64 *stloc,         // offset in valbyes for transfer syntax
+   uint16 *stlen,         // length in valbyes for transfer syntax
+   uint16 *stidx          // index in const char *csstr[]
+)
+{
+   if (!createdb(kvDEFAULT)) return false;
+   
+   const uint64 key00020002=0x0000554902000200;
+   if(!appendkv((uint8_t*)&key00020002,0,false,kvUI,source, *soloc, *solen,false,valbytes+*soloc)) return false;
+   const uint64 key00020003=0x0000554903000200;
+   if(!appendkv((uint8_t*)&key00020003,0,false,kvUI,source, *siloc, *silen,false,valbytes+*siloc)) return false;
+   const uint64 key00020010=0x0000554910000200;
+   if(!appendkv((uint8_t*)&key00020010,0,false,kvUI,source, *stloc, *stlen,false,valbytes+*stloc)) return false;
 
-BOOL dicm2kvdb(
+   if (dicm2dckvDataset(
+                  source,
+                  keybytes,
+                  0,          //keydepth
+                  true,       //readfirstattr
+                  0,          //keycs
+                  valbytes,
+                  true,       //fromStdin
+                  inloc,
+                  beforebyte, //beforebyte
+                  beforetag  //beforetag
+                 )) return true;
+   E("%s", "dicm2dckv error");
+   return false;
+}
+
+
+
+BOOL dicm2dckvDataset(
    const char * source,
    uint8_t *keybytes,
    uint8 keydepth,
@@ -473,7 +510,7 @@ BOOL dicm2kvdb(
          case OF://other float
          case OL://other long
          case OV://other 64-bit very long
-         //case OW://other word
+         case OW://other word
          case SV://signed 64-bit very long
          case UV://unsigned 64-bit very long
          {
@@ -488,18 +525,6 @@ BOOL dicm2kvdb(
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
-         case OW://other word
-         {
-            vl=attrstruct->l;//length is then replaced in K by encoding
-            attrstruct->l=REPERTOIRE_GL;
-            if (fread(llbytes, 1,4,stdin)!=4) {
-               E("%s","stream end instead of vll");
-               return false;
-            }
-            if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,true,valbytes)) return false;
-            *loc += 12 + *ll;
-            if (! read8(attrbytes, &bytescount)) return false;
-         } break;
 
 #pragma mark vll charset
          case UC://unlimited characters
@@ -512,7 +537,7 @@ BOOL dicm2kvdb(
                return false;
             }
             if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,true,valbytes)) return false;
-            *loc += 12 + vl;
+            *loc += 12 + *ll;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
@@ -526,7 +551,7 @@ BOOL dicm2kvdb(
                return false;
             }
             if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,true,valbytes)) return false;
-            *loc += 12 + vl;
+            *loc += 12 + *ll;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
@@ -543,7 +568,7 @@ BOOL dicm2kvdb(
                return false;
             }
             if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,true,valbytes)) return false;
-            *loc += 12 + vl;
+            *loc += 12 + *ll;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
@@ -624,7 +649,7 @@ BOOL dicm2kvdb(
                   }
                   else beforebyteIT=*loc + *ll;
 
-                  dicm2kvdb(
+                  dicm2dckvDataset(
                         source,
                         keybytes,
                         keydepth,

@@ -11,7 +11,7 @@
 		4A80980A2BC90AB50042CAC1 /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
 		4A80980B2BC90AB50042CAC1 /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
 		4A80980C2BC90AB50042CAC1 /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
-		4A80980D2BC90AB50042CAC1 /* dicm2dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckvapi.m */; };
+		4A80980D2BC90AB50042CAC1 /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
 		4A80980E2BC90AB50042CAC1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
 		4A80981F2BC931D80042CAC1 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A80981E2BC931D80042CAC1 /* dckvapi.m */; };
 		4A80982D2BC931FE0042CAC1 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A80982C2BC931FE0042CAC1 /* dckvapi.m */; };
@@ -21,7 +21,7 @@
 		4ACCC9E82BBDC40A00670A7F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
 		4ACCC9F72BBE2ACF00670A7F /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
 		4ACCC9F82BBE2ACF00670A7F /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
-		4ACCC9F92BBE2ACF00670A7F /* dicm2dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckvapi.m */; };
+		4ACCC9F92BBE2ACF00670A7F /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
 		4ACCC9FA2BBE2ACF00670A7F /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
 /* End PBXBuildFile section */
 
@@ -91,9 +91,9 @@
 		4ACCC9E42BBDC40A00670A7F /* dicm2dckv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicm2dckv; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACCC9E72BBDC40A00670A7F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SopClasses.m; sourceTree = "<group>"; };
-		4ACCC9F02BBE2ACF00670A7F /* dicm2dckvapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dicm2dckvapi.h; sourceTree = "<group>"; };
+		4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dicm2dckv.h; sourceTree = "<group>"; };
 		4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Repertoires.m; sourceTree = "<group>"; };
-		4ACCC9F22BBE2ACF00670A7F /* dicm2dckvapi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dicm2dckvapi.m; sourceTree = "<group>"; };
+		4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dicm2dckv.m; sourceTree = "<group>"; };
 		4ACCC9F32BBE2ACF00670A7F /* Repertoires.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Repertoires.h; sourceTree = "<group>"; };
 		4ACCC9F42BBE2ACF00670A7F /* TransferSyntaxes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransferSyntaxes.h; sourceTree = "<group>"; };
 		4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TransferSyntaxes.m; sourceTree = "<group>"; };
@@ -238,8 +238,8 @@
 				4ACCCA032BBF3F1900670A7F /* dckvapi.h */,
 				4A8097A22BC181380042CAC1 /* dckvvapi */,
 				4ACCCA002BBF098900670A7F /* log.h */,
-				4ACCC9F02BBE2ACF00670A7F /* dicm2dckvapi.h */,
-				4ACCC9F22BBE2ACF00670A7F /* dicm2dckvapi.m */,
+				4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */,
+				4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */,
 				4ACCC9E72BBDC40A00670A7F /* main.m */,
 			);
 			path = dicm2dckv;
@@ -388,7 +388,7 @@
 				4A80980A2BC90AB50042CAC1 /* Repertoires.m in Sources */,
 				4A80980B2BC90AB50042CAC1 /* SopClasses.m in Sources */,
 				4A80980C2BC90AB50042CAC1 /* TransferSyntaxes.m in Sources */,
-				4A80980D2BC90AB50042CAC1 /* dicm2dckvapi.m in Sources */,
+				4A80980D2BC90AB50042CAC1 /* dicm2dckv.m in Sources */,
 				4A80980E2BC90AB50042CAC1 /* main.m in Sources */,
 				4A8098032BC90A540042CAC1 /* dckvapi.m in Sources */,
 			);
@@ -427,7 +427,7 @@
 				4ACCC9F82BBE2ACF00670A7F /* Repertoires.m in Sources */,
 				4ACCC9FA2BBE2ACF00670A7F /* TransferSyntaxes.m in Sources */,
 				4ACCC9F72BBE2ACF00670A7F /* SopClasses.m in Sources */,
-				4ACCC9F92BBE2ACF00670A7F /* dicm2dckvapi.m in Sources */,
+				4ACCC9F92BBE2ACF00670A7F /* dicm2dckv.m in Sources */,
 				4A8099362BCE91B90042CAC1 /* dckvapi.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

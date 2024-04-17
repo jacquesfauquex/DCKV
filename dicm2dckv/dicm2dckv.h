@@ -1,5 +1,5 @@
 //
-//  dicm2dckvapi.h
+//  dicm2dckv.h
 //  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-02-28.
@@ -47,11 +47,28 @@ char *dicmuptosopts(
   uint16 *stidx          // index in const char *csstr[]
 );
 
+BOOL dicm2dckvInstance(
+   const char * source,
+   uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
+   uint8_t *valbytes,     // lectura del valor del atributo
+   uint64 *inloc,           // offstet en stream
+   uint32 beforebyte,     // limite superior de lectura
+   uint32 beforetag,       // limite superior attr. Al salir, el attr se encuentra leido y guardado en keybytes
+   uint64 *soloc,         // offset in valbyes for sop class
+   uint16 *solen,         // length in valbyes for sop class
+   uint16 *soidx,         // index in const char *scstr[]
+   uint64 *siloc,         // offset in valbyes for sop instance uid
+   uint16 *silen,         // length in valbyes for sop instance uid
+   uint64 *stloc,         // offset in valbyes for transfer syntax
+   uint16 *stlen,         // length in valbyes for transfer syntax
+   uint16 *stidx          // index in const char *csstr[]
+);
+
 /*
  RECURSIVE
  parser
  */
-BOOL dicm2kvdb(
+BOOL dicm2dckvDataset(
    const char * source,
    uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
    uint8 keydepth,        // offset actual en el búfer matriz (cambia con el nivel de recursión)

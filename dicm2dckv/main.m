@@ -14,13 +14,13 @@
 #include <uuid/uuid.h>*/
 
 //propietario
-#include "dicm2dckvapi.h"
+#include "dicm2dckv.h"
 #include "log.h"
 #include "dckvapi.h"
 //#include "seriesk8tags.h"
 
 /*
- main administra el control de dicm2dckvapi para procesar el input.
+ main administra el control de dicm2dckv para procesar el input.
  dicm2dckv puede incorporarse en otra aplicación, que reemplaza la gestión realizada en main por otra gestión propia
  */
 
@@ -108,32 +108,25 @@ int main(int argc, const char * argv[]) {
          fclose(fp);
          W("written %llu bytes to %s",inloc,path );
       }
-      else
-      {
-#pragma mark ele
-         if (!createdb(kvDEFAULT)) return errorCreateKV;
+      else if (dicm2dckvInstance(
+                  source,
+                  keybytes,
+                  valbytes,
+                  &inloc,
+                  0xFFFFFFFF, //beforebyte
+                  0xFFFFFFFF,  //beforetag
+                  &soloc,
+                  &solen,
+                  &soidx,
+                  &siloc,
+                  &silen,
+                  &stloc,
+                  &stlen,
+                  &stidx
+             )) I("%s", "dicm2dckv OK");
+      else E("%s", "dicm2dckv error");
          
-         const uint64 key00020002=0x0000554902000200;
-         if(!appendkv((uint8_t*)&key00020002,0,false,kvUI,source, soloc, solen,false,valbytes+soloc)) return false;
-         const uint64 key00020003=0x0000554903000200;
-         if(!appendkv((uint8_t*)&key00020003,0,false,kvUI,source, siloc, silen,false,valbytes+siloc)) return false;
-         const uint64 key00020010=0x0000554910000200;
-         if(!appendkv((uint8_t*)&key00020010,0,false,kvUI,source, stloc, stlen,false,valbytes+stloc)) return false;
-
-         if (!dicm2kvdb(
-                        source,
-                        keybytes,
-                        0,          //keydepth
-                        true,       //readfirstattr
-                        0,          //keycs
-                        valbytes,
-                        true,       //fromStdin
-                        &inloc,
-                        0xFFFFFFFF, //beforebyte
-                        0xFFFFFFFF  //beforetag
-                        )) E("%s", "dicm2dckv error");
-      }
-      E("elapsed %F",-[startDate timeIntervalSinceNow]);
+      I("elapsed %F",-[startDate timeIntervalSinceNow]);
    }
    return exitOK;
 }
