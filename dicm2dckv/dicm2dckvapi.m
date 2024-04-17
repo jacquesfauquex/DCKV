@@ -10,9 +10,6 @@
 
 #include "dckvapi.h"
 
-const uint32 tag00020002=0x02000200;
-const uint32 tag00020003=0x03000200;
-const uint32 tag00020010=0x10000200;
 
 const uint32 tag00081150=0x50110800;
 
@@ -81,45 +78,33 @@ uint8 swapchar;
 //https://zeromq.org/download/
 
 //returns true when 8 bytes were read
-BOOL read8bytes(NSInputStream *stream, uint8_t *buffer, NSInteger *bytesReadRef)
+BOOL read8(uint8_t *buffer, unsigned long *bytesReadRef)
 {
-   *bytesReadRef=[stream read:buffer maxLength:8];
-   switch (*bytesReadRef) {
-      case 8:
-      {
-         swapchar=*buffer;
-         *buffer=*(buffer+1);
-         *(buffer+1)=swapchar;
-         swapchar=*(buffer+2);
-         *(buffer+2)=*(buffer+3);
-         *(buffer+3)=swapchar;
-         return true;
-      }
-      case -1://stream error
-      {
-         E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding] );
-         return false;
-         
-      }
+   *bytesReadRef=fread(buffer, 1, 8, stdin);
+   if (ferror(stdin)){
+      E("%s","stdin error");
+      return false;
    }
-   if (![stream hasBytesAvailable])
+   
+   if (*bytesReadRef==8){
+      swapchar=*buffer;
+      *buffer=*(buffer+1);
+      *(buffer+1)=swapchar;
+      swapchar=*(buffer+2);
+      *(buffer+2)=*(buffer+3);
+      *(buffer+3)=swapchar;
+   }
+   else
    {
       *buffer=0xFF;
       *(buffer+1)=0xFF;
       *(buffer+2)=0xFF;
       *(buffer+3)=0xFF;
-      return true;
    }
-   E("%s","stream premature end (less than 8 bytes remaining)");
-   return false;
+   return true;
 }
 
-//hexa representation of read8bytes
-NSString *hexa8bytes(uint64 *eightBytes)
-{
-   struct l4h4 *lh=(struct l4h4*) eightBytes;
-   return [NSString stringWithFormat:@"%04x%04x",lh->h,lh->l];
-}
+
 
 
 //-------------------------
@@ -139,12 +124,10 @@ NSString *hexa8bytes(uint64 *eightBytes)
  - sopiuid (0002,0003)
  
  */
-NSString *dicmuptosopts(
-   const char * source,
+char *dicmuptosopts(
    uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *valbytes,     // lectura del valor del atributo returns with sopiuid
-   NSInputStream *stream, // input
-   uint64 *inloc,         // current stream byte index
+   uint64 *inloc,         // current stdin byte index
    uint64 *soloc,         // offset in valbyes for sop class
    uint16 *solen,         // length in valbyes for sop class
    uint16 *soidx,         // index in const char *scstr[]
@@ -155,10 +138,11 @@ NSString *dicmuptosopts(
    uint16 *stidx          // index in const char *csstr[]
 )
 {
+   if (feof(stdin)) return "";
    //read first 8 bytes
-   NSInteger bytescount;
-   if (!read8bytes(stream, keybytes, &bytescount)) return nil;
-
+   *inloc=fread(valbytes, 1, 8, stdin);
+   if (*inloc<8) return "";
+   memcpy(keybytes, valbytes, *inloc);
    struct t4r2l2 *attrstruct=(struct t4r2l2*) keybytes;//corresponding struct
 
 #pragma mark dataset without preface ?
@@ -201,14 +185,14 @@ NSString *dicmuptosopts(
          case UN://unknown
          case SQ://sequence
          {
-            D("no DICM prolog. First 8 bytes: %s",[hexa8bytes(attruint64)  cStringUsingEncoding:NSASCIIStringEncoding]);
+            D("%s","no DICM prolog");
             //first attr is loaded
-            return @"";
+            return "";
          }
          default:
          {
-            E("no DICM prolog. Not explicit little endian or derived. First 8 bytes: %s",[hexa8bytes(attruint64)  cStringUsingEncoding:NSASCIIStringEncoding]);
-            return nil;
+            E("%s","not explicit little endian or derived");
+            return "";
          }
       }
    }
@@ -217,109 +201,89 @@ NSString *dicmuptosopts(
 #pragma mark dataset with preface ?
    //check if 128-131 = DICM
    //read up to dicom version 0002001 (8+150 bytes)
-   memcpy(valbytes, keybytes, 8);
-   bytescount=[stream read:valbytes+8 maxLength:150];
-   switch (bytescount) {
-      case 150: break;
-      case -1://stream error
-      {
-         E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding]);
-         return false;
-      }
-      default://not enough bytes
-      {
-         E("%s","stream premature end (less than 158 bytes)");
-         return nil;
-      }
+   
+   *inloc+=fread(valbytes+8, 1, 150, stdin);
+   if (*inloc != 158){
+      E("%s","stream premature end (less than 158 bytes)");
+      return "";
    }
-
+   
    if ( (*(valbytes+128)!='D') || (*(valbytes+129)!='I') || (*(valbytes+130)!='C') || (*(valbytes+131)!='M') )
    {
       E("%s","no DICM signature");
-      return nil;
+      return "";
    }
-   *inloc = 158;
-
    
-   
+   uint16 bytescount;
 #pragma mark read sop object [so] (=sop class)
-   if (!read8bytes(stream, keybytes, &bytescount)) return nil;
-   if ((*attruint64 % 0x100000000)!=tag00020002)
+   bytescount=fread(valbytes+*inloc, 1, 8, stdin);
+   memcpy(keybytes, valbytes+*inloc, bytescount);
+   *inloc+=bytescount;
+   if (bytescount!=8) return "";
+   if ((*attruint64 % 0x100000000)!=0x00020002)
    {
       E("%s","no 00020002");
-      return nil;
+      return "";
    }
-   *inloc += 8;
    *soloc=*inloc;
    *solen=attrstruct->l;
-   bytescount=[stream read:valbytes+*soloc maxLength:*solen];
-   if (bytescount==-1)//stream error
-   {
-      E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding]);
-      return false;
-   }
+   bytescount=fread(valbytes+*soloc, 1, *solen, stdin);
+   *inloc += *solen;
    if  (bytescount!=*solen)//not enough bytes
    {
-      E("%s","stream premature end (sop class)");
-      return nil;
+      E("%s","bad 00020002");
+      return "";
    }
    *soidx=scidx( valbytes+*soloc, *solen - (valbytes[*soloc + *solen - 1]==0x0) );
-   *inloc += *solen;
+   if (*soidx==0) return "";//no valid sopclass
 
    
    
 #pragma mark read sop instance uid [si]
-   if (!read8bytes(stream, keybytes, &bytescount)) return nil;
-   if ((*attruint64 % 0x100000000)!=tag00020003)
+   bytescount=fread(valbytes+*inloc, 1, 8, stdin);
+   memcpy(keybytes, valbytes+*inloc, bytescount);
+   *inloc+=bytescount;
+   if (bytescount!=8) return "";
+   if ((*attruint64 % 0x100000000)!=0x00030002)
    {
       E("%s","no 00020003");
-      return nil;
+      return "";
    }
-   *inloc += 8;
    *siloc=*inloc;
    *silen=attrstruct->l;
-   bytescount=[stream read:valbytes+*siloc maxLength:*silen];
-   if (bytescount==-1)//stream error
-   {
-      E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding]);
-      return false;
-   }
+   bytescount=fread(valbytes+*siloc, 1, *silen, stdin);
+   *inloc += *silen;
    if  (bytescount!=*silen)//not enough bytes
    {
-      E("%s","stream premature end (sop instance)");
-      return nil;
+      E("%s","bad 00020003");
+      return "";
    }
-   NSString *sopiuid=[[NSString alloc]initWithData:[NSData dataWithBytes:valbytes+*siloc length:*silen - (valbytes[*siloc + *silen - 1]==0x0)] encoding:NSASCIIStringEncoding];
-   *inloc += *silen;
 
 
    
 #pragma mark read transfer syntax
-   if (!read8bytes(stream, keybytes, &bytescount)) return nil;
-   if ((*attruint64 % 0x100000000)!=tag00020010)
+   bytescount=fread(valbytes+*inloc, 1, 8, stdin);
+   memcpy(keybytes, valbytes+*inloc, bytescount);
+   *inloc+=bytescount;
+   if (bytescount!=8) return "";
+   if ((*attruint64 % 0x100000000)!=0x00100002)
    {
       E("%s","no 00020010");
-      return nil;
+      return "";
    }
-   *inloc += 8;
    *stloc=*inloc;
    *stlen=attrstruct->l;
-   bytescount=[stream read:valbytes+*stloc maxLength:*stlen];
-   if (bytescount==-1)//stream error
-   {
-      E("error code %ld: %s",(long)[[stream streamError]code],[[[[stream streamError]userInfo]debugDescription]  cStringUsingEncoding:NSASCIIStringEncoding]);
-      return false;
-   }
+   bytescount=fread(valbytes+*stloc, 1, *stlen, stdin);
+   *inloc += *stlen;
    if  (bytescount!=*stlen)//not enough bytes
    {
-      E("%s","stream premature end (transfert syntax)");
-      return nil;
+      E("%s","no 00020010");
+      return "";
    }
    *stidx=tsidx( valbytes+*stloc, *stlen - (valbytes[*stloc + *stlen - 1]==0x0) );
-   *inloc += *stlen;
+   if (*stidx==0) return "";
 
-
-   return sopiuid;
+   return (char*)valbytes+*siloc;
 }
 
 
@@ -330,21 +294,21 @@ BOOL dicm2kvdb(
    BOOL readfirstattr,
    uint16 keycs,
    uint8_t *valbytes,
-   NSInputStream *stream,
+   BOOL fromStdin,
    uint64 *loc,
    uint32 beforebyte,
    uint32 beforetag
 )
 {
    //inits
-   NSInteger bytescount=0;
+   unsigned long bytescount=0;
    uint16 vl=0;//keeps vl while overwritting it in keybytes
    uint8 *attrbytes=keybytes+keydepth;//subbuffer for attr reading
    struct t4r2l2 *attrstruct=(struct t4r2l2*) attrbytes;//corresponding struct
    uint8 *llbytes=keybytes+keydepth+8;//subbuffer for ll reading
    uint32 *ll=(uint32*)llbytes;//corresponding uin32
 
-   if (readfirstattr && (! read8bytes(stream, attrbytes, &bytescount))) return false;
+   if (readfirstattr && (! read8(attrbytes, &bytescount))) return false;
    while ((*loc < beforebyte) &&  ( CFSwapInt32(attrstruct->t) < beforetag))
    {
       
@@ -354,49 +318,49 @@ BOOL dicm2kvdb(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvFD,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvFD,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
          case FL://floating point single
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvFL,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvFL,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
          case SL://signed long
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvSL,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvSL,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
          case SS://signed short
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvSS,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvSS,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
          case UL://unsigned long
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvUL,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvUL,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
         case US://unsigned short
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvUS,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvUS,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
 #pragma mark vl tag code
@@ -404,9 +368,9 @@ BOOL dicm2kvdb(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvAT,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvAT,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
 #pragma mark vl ascii code
@@ -417,7 +381,7 @@ BOOL dicm2kvdb(
             //charset
             
             if ( attrstruct->t ==0x05000800 ){
-               if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+               if (vl && (fread(valbytes, 1,vl,stdin)!=vl)) return false;
                uint16 repidxs=repertoireidx(valbytes,vl);
                if (repidxs==0x09)
                {
@@ -429,14 +393,14 @@ BOOL dicm2kvdb(
                   keycs=(keycs & 0x8000) | repidxs;
                   attrstruct->l=repidxs;
                }
-               if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,nil,valbytes)) return false;
+               if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,false,valbytes)) return false;
             }
             else
             {
-              if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,stream,valbytes)) return false;
+              if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,true,valbytes)) return false;
             }
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
             
 #pragma mark vl oid code
@@ -446,7 +410,7 @@ BOOL dicm2kvdb(
             attrstruct->l=REPERTOIRE_GL;
             
             if ( attrstruct->t==tag00081150 ){//0x50110800
-               if (vl && [stream read:valbytes maxLength:vl]!=vl) return false;
+               if (vl && (fread(valbytes, 1,vl,stdin)!=vl)) return false;
                uint16 sopclassidx=scidx( valbytes, vl );
                if (sopclassidx==0x00)
                {
@@ -454,14 +418,14 @@ BOOL dicm2kvdb(
                   return false;
                }
                else attrstruct->l=sopclassidx;
-               if (!appendkv(keybytes,keydepth,false,kvUI,source,*loc,vl,nil,valbytes)) return false;
+               if (!appendkv(keybytes,keydepth,false,kvUI,source,*loc,(unsigned long)vl,false,valbytes)) return false;
             }
             else
             {
-               if (!appendkv(keybytes,keydepth,false,kvUI,source,*loc,vl,stream,valbytes)) return false;
+               if (!appendkv(keybytes,keydepth,false,kvUI,source,*loc,vl,true,valbytes)) return false;
             }
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
 #pragma mark vl ascii
@@ -475,9 +439,9 @@ BOOL dicm2kvdb(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
 #pragma mark vl charset
@@ -488,9 +452,9 @@ BOOL dicm2kvdb(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=keycs;
-            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
             
 #pragma mark vl person
@@ -498,9 +462,9 @@ BOOL dicm2kvdb(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,false,kvTXT,source,*loc,vl,true,valbytes)) return false;
             *loc += 8 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
 #pragma mark vll bin
@@ -509,19 +473,32 @@ BOOL dicm2kvdb(
          case OF://other float
          case OL://other long
          case OV://other 64-bit very long
-         case OW://other word
+         //case OW://other word
          case SV://signed 64-bit very long
          case UV://unsigned 64-bit very long
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if ([stream read:llbytes maxLength:4]!=4) {
+            if (fread(llbytes, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
-            if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,stream,valbytes)) return false;
-            *loc += 12 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,true,valbytes)) return false;
+            *loc += 12 + *ll;
+            if (! read8(attrbytes, &bytescount)) return false;
+         } break;
+
+         case OW://other word
+         {
+            vl=attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            if (fread(llbytes, 1,4,stdin)!=4) {
+               E("%s","stream end instead of vll");
+               return false;
+            }
+            if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,true,valbytes)) return false;
+            *loc += 12 + *ll;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
 #pragma mark vll charset
@@ -530,13 +507,13 @@ BOOL dicm2kvdb(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if ([stream read:llbytes maxLength:4]!=4) {
+            if (fread(llbytes, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
-            if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,true,valbytes)) return false;
             *loc += 12 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
 #pragma mark vll RFC3986
@@ -544,13 +521,13 @@ BOOL dicm2kvdb(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if ([stream read:llbytes maxLength:4]!=4) {
+            if (fread(llbytes, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
-            if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,true,kvTXT,source,*loc,*ll,true,valbytes)) return false;
             *loc += 12 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
       //---------
@@ -561,13 +538,13 @@ BOOL dicm2kvdb(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if ([stream read:llbytes maxLength:4]!=4) {
+            if (fread(llbytes, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
-            if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,stream,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,true,kvBIN,source,*loc,*ll,true,valbytes)) return false;
             *loc += 12 + vl;
-            if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+            if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
       //---------
@@ -583,22 +560,22 @@ BOOL dicm2kvdb(
             attrstruct->l=REPERTOIRE_GL;
 
 
-            if (!appendkv(keybytes,keydepth,true,kvSA,source,*loc,12,nil,valbytes)) return false;
+            if (!appendkv(keybytes,keydepth,true,kvSA,source,*loc,12,false,valbytes)) return false;
 
             //read length
-            if ([stream read:llbytes maxLength:4]!=4) {
-               E("%s","stream end instead of SQ vll");
+            if (fread(llbytes, 1,4,stdin)!=4) {
+               E("%s","eof instead of SQ vll");
                return false;
             }
             if (*ll==0)
             {
                attrstruct->r=SZ;
                attrstruct->l=0xFFFF;
-               if (!appendkv(keybytes,keydepth,true,kvSZ,source,*loc,8,stream,(void*)&SZbytes)) return false;
+               if (!appendkv(keybytes,keydepth,false,kvSZ,source,*loc,8,false,(void*)&SZbytes)) return false;
 
                //read nextattr
                *loc += 12;//do not add *ll !
-               if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+               if (! read8(attrbytes, &bytescount)) return false;
             }
             else //SQ *ll!=0
             {
@@ -625,7 +602,7 @@ BOOL dicm2kvdb(
                keydepth+=8;
                uint8 *itembytes=keybytes+keydepth;
                struct t4r2l2 *itemstruct=(struct t4r2l2*) itembytes;
-               if (! read8bytes(stream, itembytes, &bytescount)) return false;
+               if (! read8(itembytes, &bytescount)) return false;
 
                
                //for each first attr fffee000 of any new item
@@ -635,7 +612,7 @@ BOOL dicm2kvdb(
                   itemstruct->t=0x00000000;
                   itemstruct->r=IA;
                   itemstruct->l=REPERTOIRE_GL;
-                  if (!appendkv(keybytes,keydepth,false,kvIA,source,*loc,8,nil,(void*)&IAbytes)) return false;
+                  if (!appendkv(keybytes,keydepth,false,kvIA,source,*loc,8,false,(void*)&IAbytes)) return false;
 
                   uint64 beforebyteIT;//to be computed from after item start
                   *loc+=8;
@@ -654,7 +631,7 @@ BOOL dicm2kvdb(
                         true,
                         keycs,
                         valbytes,
-                        stream,
+                        fromStdin,
                         loc,
                         (uint32)beforebyteIT,
                         fffee00d
@@ -670,7 +647,7 @@ BOOL dicm2kvdb(
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x00;
-                     if (!appendkv(keybytes,keydepth,false,kvIZ,source,*loc,8,nil,(void*)&IZbytes)) return false;
+                     if (!appendkv(keybytes,keydepth,false,kvIZ,source,*loc,8,false,(void*)&IZbytes)) return false;
                      *loc+=8;
                   }
                   else
@@ -682,7 +659,7 @@ BOOL dicm2kvdb(
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x0;
-                     if (!appendkv(keybytes,keydepth,false,kvIZ,source,*loc,8,nil,(void*)&IZbytes)) return false;
+                     if (!appendkv(keybytes,keydepth,false,kvIZ,source,*loc,8,false,(void*)&IZbytes)) return false;
                      itemstruct->t=copyattr.t;
                      itemstruct->r=copyattr.r;
                      itemstruct->l=copyattr.l;
@@ -699,15 +676,15 @@ BOOL dicm2kvdb(
 
                attrstruct->r=SZ;
                attrstruct->l=0xFFFF;
-               if (!read8bytes(stream, itembytes, &bytescount)) return false;
-               if (!appendkv(keybytes,keydepth,false,kvSZ,source,*loc,8,nil,(void*)&SZbytes)) return false;
+               if (! read8(itembytes, &bytescount)) return false;
+               if (!appendkv(keybytes,keydepth,false,kvSZ,source,*loc,8,false,(void*)&SZbytes)) return false;
 
                
                //itemstruct may be SZ or post SQ
                if (CFSwapInt32(itemstruct->t)==fffee0dd)
                {
                   *loc+=8;
-                  if (! read8bytes(stream, attrbytes, &bytescount)) return false;
+                  if (! read8(attrbytes, &bytescount)) return false;
                }
                else
                {

@@ -69,11 +69,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jacquesfauquex/Desktop/MGgigante/IM-0001-1001.ele.dcm"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG-large.ele.dcm"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/j2kr/US-icon.j2kr.dcm"
@@ -97,6 +97,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/j2kr/VL4.j2kr.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/Shared/Sup223_DLB5_InventoryIODandServices.pdf"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

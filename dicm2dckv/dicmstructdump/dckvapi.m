@@ -31,7 +31,7 @@ bool appendkv(
               const char         *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
-              NSInputStream      *vstream,
+              BOOL               fromStdin,
               uint8_t            *buFFFF
               )
 {
@@ -44,15 +44,17 @@ bool appendkv(
       
    if (vll)
    {
-      if (vstream && vlen)
+      if (fromStdin && vlen)
       {
+#pragma mark ¿replace by seek?
+
          unsigned long ll=vlen;
          while (ll>0xFFFF)
          {
-            if ([vstream read:buFFFF maxLength:0xFFFF]!=0xFFFF) return false;
+            if (fread(buFFFF,1,0xFFFF,stdin)!=0xFFFF) return false;
             ll-=0xFFFF;
          }
-         if (ll && [vstream read:buFFFF maxLength:ll]!=ll) return false;
+         if (ll && (!feof(stdin)) && (fread(buFFFF,1,ll,stdin)!=ll)) return false;
       }
       switch (vrcat) {
             
@@ -100,7 +102,7 @@ bool appendkv(
    }
    else //vl
    {
-      if (vstream && vlen && [vstream read:buFFFF maxLength:vlen]!=vlen) return false;
+      if (fromStdin && vlen && (fread(buFFFF,1,vlen,stdin)!=vlen)) return false;
       
       switch (vrcat) {
          case kvFD://floating point double

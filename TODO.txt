@@ -118,9 +118,13 @@ setvbuf(stdin, mybuffer, _IOFBF, sizeof(mybuffer));
 ----------------------------------------------------------------------
 
 - refactor main in C and processing code to dckvapi
-- vloc update in  dckvapi (y dicom2dckv)
+- vloc update in  dckvapi (and dicom2dckv). It is incorrect for now
 - agregar más log
 - más pruebas con diversos objetos DICM ELE
 - directorio de archivos prueba
-
+- multi stdin
+- loc inloc
+- vll ll
+- all calls to api
+- dump first call with source and 00020001
 

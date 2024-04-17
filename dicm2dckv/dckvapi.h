@@ -71,7 +71,7 @@ bool appendkv(
               const char         *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
-              NSInputStream      *vstream,
+              BOOL               fromStdin,
               uint8_t            *buFFFF
               );
 
