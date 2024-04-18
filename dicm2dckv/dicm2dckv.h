@@ -48,7 +48,8 @@ char *dicmuptosopts(
 );
 
 BOOL dicm2dckvInstance(
-   const char * source,
+   const char * srcFile,
+   const char * dstDir,
    uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *valbytes,     // lectura del valor del atributo
    uint64 *inloc,           // offstet en stream

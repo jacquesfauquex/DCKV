@@ -44,7 +44,19 @@ kvSZ//SQ tail
 
 #pragma mark - tx
 
-bool urltx(NSURL* url);//url para todos los kv. Abre una tx.
+bool createtx(
+   const char * srcFile,
+   const char * dstDir,
+   uint8_t    * buFFFF,
+   uint64 *soloc,         // offset in valbyes for sop class
+   uint16 *solen,         // length in valbyes for sop class
+   uint16 *soidx,         // index in const char *scstr[]
+   uint64 *siloc,         // offset in valbyes for sop instance uid
+   uint16 *silen,         // length in valbyes for sop instance uid
+   uint64 *stloc,         // offset in valbyes for transfer syntax
+   uint16 *stlen,         // length in valbyes for transfer syntax
+   uint16 *stidx          // index in const char *csstr[]
+);
 bool committx(void);//aplica a todos los kv
 bool canceltx(void);//aplica a todos los kv
 

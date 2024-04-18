@@ -51,12 +51,11 @@ leemos hasta 0xFFFF bytes a la vez (max vl)
 fread()
 ----------------------------------------------------------------------
 
+      //https://stackoverflow.com/questions/19165134/correct-portable-way-to-interpret-buffer-as-a-struct
+
+----------------------------------------------------------------------
+
 - more calls to dckvapi
 - agregar más log
 - más pruebas con diversos objetos DICM ELE
-- directorio de archivos prueba
-- multi stdin
 - loc inloc
-- vll ll
-- all calls to api
-- dump first call with source and 00020001

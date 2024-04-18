@@ -77,7 +77,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/j2kr/US-icon.j2kr.dcm"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG1.ele.dcm"

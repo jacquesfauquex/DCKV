@@ -7,54 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9F07366E-8EF4-443B-8B69-E005D5DAAFA9"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/dicm2dckv.m"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "679"
-            endingLineNumber = "679"
-            landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "17AFDD34-28CD-4BCA-AC71-EF0848B62456"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/dicm2dckv.m"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "718"
-            endingLineNumber = "718"
-            landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "8A2AFF43-31A6-47F3-95A9-9B02CC3065D6"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/dicm2dckv.m"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "689"
-            endingLineNumber = "689"
-            landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "FB0E7AC7-7D2B-42A4-BC75-65BE3EEDFA0F"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -62,8 +14,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "426"
-            endingLineNumber = "426"
+            startingLineNumber = "462"
+            endingLineNumber = "462"
             landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -78,8 +30,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "456"
-            endingLineNumber = "456"
+            startingLineNumber = "492"
+            endingLineNumber = "492"
             landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -94,8 +46,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "500"
-            endingLineNumber = "500"
+            startingLineNumber = "536"
+            endingLineNumber = "536"
             landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -110,8 +62,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "597"
-            endingLineNumber = "597"
+            startingLineNumber = "633"
+            endingLineNumber = "633"
             landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -126,8 +78,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "649"
-            endingLineNumber = "649"
+            startingLineNumber = "685"
+            endingLineNumber = "685"
             landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -174,8 +126,8 @@
             filePath = "dicm2dckv/dicm2dckv.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "527"
-            endingLineNumber = "527"
+            startingLineNumber = "563"
+            endingLineNumber = "563"
             landmarkName = "dicm2dckvDataset(source, keybytes, keydepth, readfirstattr, keycs, valbytes, fromStdin, loc, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -206,8 +158,8 @@
             filePath = "dicm2dckv/dicmstructdump/dckvapi.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
             landmarkName = "appendkv(kbuf, klen, vll, vrcat, vurl, vloc, vlen, fromStdin, buFFFF)"
             landmarkType = "9">
          </BreakpointContent>

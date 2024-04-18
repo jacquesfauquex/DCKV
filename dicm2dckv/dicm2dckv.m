@@ -281,7 +281,8 @@ char *dicmuptosopts(
 }
 
 BOOL dicm2dckvInstance(
-   const char * source,
+   const char * srcFile,
+   const char * dstDir,
    uint8_t *keybytes,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *valbytes,     // lectura del valor del atributo
    uint64 *inloc,           // offstet en stream
@@ -297,17 +298,36 @@ BOOL dicm2dckvInstance(
    uint16 *stidx          // index in const char *csstr[]
 )
 {
-   if (!createdb(kvDEFAULT)) return false;
+   if (!createtx(
+                 srcFile,
+                 dstDir,
+                 valbytes,
+                 soloc,         // offset in valbyes for sop class
+                 solen,         // length in valbyes for sop class
+                 soidx,         // index in const char *scstr[]
+                 siloc,         // offset in valbyes for sop instance uid
+                 silen,         // length in valbyes for sop instance uid
+                 stloc,         // offset in valbyes for transfer syntax
+                 stlen,         // length in valbyes for transfer syntax
+                 stidx          // index in const char *csstr[]
+                 )) return false;
+   if (!createdb(kvDEFAULT))
+   {
+      if (!canceltx()) E("%s","cannot cancel tx");
+      return false;
+   }
    
-   const uint64 key00020002=0x0000554902000200;
-   if(!appendkv((uint8_t*)&key00020002,0,false,kvUI,source, *soloc, *solen,false,valbytes+*soloc)) return false;
-   const uint64 key00020003=0x0000554903000200;
-   if(!appendkv((uint8_t*)&key00020003,0,false,kvUI,source, *siloc, *silen,false,valbytes+*siloc)) return false;
-   const uint64 key00020010=0x0000554910000200;
-   if(!appendkv((uint8_t*)&key00020010,0,false,kvUI,source, *stloc, *stlen,false,valbytes+*stloc)) return false;
+   if (*soidx>0) //part 10
+   {
+      const uint64 key00020002=0x0000554902000200;
+      if(!appendkv((uint8_t*)&key00020002,0,false,kvUI,srcFile, *soloc, *solen,false,valbytes+*soloc)) return false;
+      const uint64 key00020003=0x0000554903000200;
+      if(!appendkv((uint8_t*)&key00020003,0,false,kvUI,srcFile, *siloc, *silen,false,valbytes+*siloc)) return false;
+      const uint64 key00020010=0x0000554910000200;
+      if(!appendkv((uint8_t*)&key00020010,0,false,kvUI,srcFile, *stloc, *stlen,false,valbytes+*stloc)) return false;
 
-   if (dicm2dckvDataset(
-                  source,
+      if (dicm2dckvDataset(
+                  srcFile,
                   keybytes,
                   0,          //keydepth
                   true,       //readfirstattr
@@ -317,8 +337,24 @@ BOOL dicm2dckvInstance(
                   inloc,
                   beforebyte, //beforebyte
                   beforetag  //beforetag
-                 )) return true;
-   E("%s", "dicm2dckv error");
+                 ) && committx()) return true;
+   }
+   else //pure dataset
+   {
+      if (dicm2dckvDataset(
+                     srcFile,
+                     keybytes,
+                     0,          //keydepth
+                     false,      //readfirstattr
+                     0,          //keycs
+                     valbytes,
+                     true,       //fromStdin
+                     inloc,
+                     beforebyte, //beforebyte
+                     beforetag  //beforetag
+                    ) && committx()) return true;
+   }
+   canceltx();
    return false;
 }
 

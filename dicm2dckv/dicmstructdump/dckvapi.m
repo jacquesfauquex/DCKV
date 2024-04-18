@@ -15,7 +15,23 @@ const char *space=" ";
 const char *backslash = "\\";
 
 #pragma mark obligatorios formales
-bool urltx(NSURL* url){return true;}
+bool createtx(
+   const char * srcFile,
+   const char * dstDir,
+   uint8_t    * buFFFF,
+   uint64 *soloc,         // offset in valbyes for sop class
+   uint16 *solen,         // length in valbyes for sop class
+   uint16 *soidx,         // index in const char *scstr[]
+   uint64 *siloc,         // offset in valbyes for sop instance uid
+   uint16 *silen,         // length in valbyes for sop instance uid
+   uint64 *stloc,         // offset in valbyes for transfer syntax
+   uint16 *stlen,         // length in valbyes for transfer syntax
+   uint16 *stidx          // index in const char *csstr[]
+){
+   printf("%s\n",srcFile);
+   printf("     144 %s\n","00020001 OB 0000 {156,2}");
+   return true;
+}
 bool committx(void){return true;}
 bool canceltx(void){return true;}
 bool createdb(enum kvDBcategory kvdb){return true;}

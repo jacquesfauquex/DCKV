@@ -10,7 +10,7 @@
 #include "ODLog.h"
 
 #pragma mark tx
-bool urltx(NSURL* url)
+bool createtx(const char* dstDir)
 {
    //url para todos los db kv. Abre una tx.
    return false;
@@ -59,15 +59,14 @@ bool existsdb(enum kvDBcategory kvdb)
 //operaciones exclusivas para primera creación
 //requiere que todas las enmiendas este clasificadas por key ascendientes
 bool appendkv(
-              enum kvDBcategory  kvdb,
               uint8_t            *kbuf,
               int                klen,
               BOOL               vll,
               enum kvVRcategory  vrcat,
-              char               *vurl,
+              const char         *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
-              NSInputStream      *vstream,
+              BOOL               fromStdin,
               uint8_t            *buFFFF
               )
 {
