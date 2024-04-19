@@ -26,7 +26,7 @@ bool createtx(
    uint16 *silen,         // length in valbyes for sop instance uid
    uint64 *stloc,         // offset in valbyes for transfer syntax
    uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,          // index in const char *csstr[]
+   uint16 *stidx,         // index in const char *csstr[]
    uint16 *siidx,         // SOPinstance index
    uint16 *sitot          // SOPinstance total
 ){

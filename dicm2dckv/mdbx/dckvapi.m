@@ -10,21 +10,35 @@
 #include "ODLog.h"
 
 #pragma mark tx
-bool createtx(const char* dstDir)
+bool createtx(
+   const char * srcurl,
+   const char * dstdir,
+   uint8_t    * buFFFF,
+   uint64 *soloc,         // offset in valbyes for sop class
+   uint16 *solen,         // length in valbyes for sop class
+   uint16 *soidx,         // index in const char *scstr[]
+   uint64 *siloc,         // offset in valbyes for sop instance uid
+   uint16 *silen,         // length in valbyes for sop instance uid
+   uint64 *stloc,         // offset in valbyes for transfer syntax
+   uint16 *stlen,         // length in valbyes for transfer syntax
+   uint16 *stidx,         // index in const char *csstr[]
+   uint16 *siidx,         // SOPinstance index
+   uint16 *sitot          // SOPinstance total
+)
 {
    //url para todos los db kv. Abre una tx.
    return false;
 }
 
 
-bool committx(void)
+bool committx(uint16 *siidx,uint16 *sitot)
 {
    //aplica a todos los kv
    return false;
 }
 
 
-bool canceltx(void)
+bool canceltx(uint16 *siidx,uint16 *sitot)
 {
    //aplica a todos los kv
    return false;

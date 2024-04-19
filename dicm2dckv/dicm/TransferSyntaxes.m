@@ -71,21 +71,21 @@ const char *tsstr[]={
 };
 
 //ts_papyrus3ile = 0 = código de error
-uint8 tsidx( uint8_t *valbytes, uint16 vallength )
+uint8 tsidx( uint8_t *vbuf, uint16 vallength )
 {
    uint8 idx=0x0;//verification / error
    
    switch (vallength){
       case 17: idx=ts_;break;//Implicit​VR​Little​Endian
       case 19:{
-         switch (valbytes[18]) {
+         switch (vbuf[18]) {
             case 0x31: idx=ts_1;break;//Explicit​VR​Little​Endian
             case 0x32: idx=ts_2;break;//Explicit​VR​Big​Endian     Retired
             case 0x35: idx=ts_5;break;//RLE​Lossless
             default : idx=ts_papyrus3ile;break;//error
          }};break;
       case 22:{
-         switch ((valbytes[20]<<8)+valbytes[21]) {
+         switch ((vbuf[20]<<8)+vbuf[21]) {
             case 0x3938: idx=ts_1_98;break;//Encapsulated​Uncompressed​Explicit​VR​Little​Endian
             case 0x3939: idx=ts_1_99;break;//Deflated​Explicit​VR​Little​Endian
             case 0x3035: idx=ts_4_50;break;//JPEG​Baseline​8​Bit
@@ -115,13 +115,13 @@ uint8 tsidx( uint8_t *valbytes, uint16 vallength )
             case 0x3439: idx=ts_4_94;break;//JPIP​Referenced
             case 0x3539: idx=ts_4_95;break;//JPIP​Referenced​Deflate
             case 0x2031:{
-               switch (valbytes[18]){
+               switch (vbuf[18]){
                   case 0x36: idx=ts_6_1;break;//RFC​2557​MIME​Encapsulation
                   case 0x37: idx=ts_7_1;break;//SMPTE​ST​211020​Uncompressed​Progressive​Active​Video
                   default: idx=ts_papyrus3ile;break;//error
                }};break;
             case 0x2032:{
-               switch (valbytes[18]){
+               switch (vbuf[18]){
                   case 0x36: idx=ts_6_2;break;//XML​Encoding
                   case 0x37: idx=ts_7_2;break;//SMPTE​ST​211020​Uncompressed​Interlaced​Active​Video
                   default: idx=ts_papyrus3ile;break;//error
@@ -130,9 +130,9 @@ uint8 tsidx( uint8_t *valbytes, uint16 vallength )
             default    : idx=ts_papyrus3ile;break;//error
          }};break;
       case 23:{
-         switch (valbytes[20]){
+         switch (vbuf[20]){
             case 31:{
-               switch (valbytes[22]){
+               switch (vbuf[22]){
                   case 0x30:idx=ts_4_100 ;break;//MPEG2​MPML
                   case 0x31:idx=ts_4_101 ;break;//MPEG2​MPHL
                   case 0x32:idx=ts_4_102 ;break;//MPEG4​HP41
@@ -145,7 +145,7 @@ uint8 tsidx( uint8_t *valbytes, uint16 vallength )
                   default: idx=ts_papyrus3ile;break;//error
                }};break;
             case 32:{
-               switch (valbytes[22]){
+               switch (vbuf[22]){
                   case 0x31:idx=ts_4_201 ;break;//HTJ2K​Lossless
                   case 0x32:idx=ts_4_202 ;break;//HTJ2K​Lossless​RPCL
                   case 0x33:idx=ts_4_203 ;break;//HTJ2K
@@ -156,7 +156,7 @@ uint8 tsidx( uint8_t *valbytes, uint16 vallength )
             default: idx=ts_papyrus3ile;break;//error
          }};break;
       case 25:{
-         switch (valbytes[22]){
+         switch (vbuf[22]){
             case 0x30:idx=ts_4_100_1 ;break;//MPEG2​MPMLF
             case 0x31:idx=ts_4_101_1 ;break;//MPEG2​MPHLF
             case 0x32:idx=ts_4_102_1 ;break;//MPEG4​HP41F
@@ -170,7 +170,7 @@ uint8 tsidx( uint8_t *valbytes, uint16 vallength )
       default: idx=ts_papyrus3ile;break;//error
    };
    
-   if (strncmp(tsstr[idx],(char*)valbytes,strlen(tsstr[idx]))) return idx;
+   if (strncmp(tsstr[idx],(char*)vbuf,strlen(tsstr[idx]))) return idx;
    else return 0;//error (verification)
 }
 

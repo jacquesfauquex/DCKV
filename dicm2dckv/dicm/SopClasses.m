@@ -327,19 +327,19 @@ const char *scstr[]={
 "1.2.840.10008.10.4"//RenditionSelectionDocumentRealTimeCommunication
 };
 
-uint16 scidx( uint8_t *valbytes, uint16 vallength )
+uint16 scidx( uint8_t *vbuf, uint16 vallength )
 {
    uint16 idx=0x0;//verification / error
-   switch (vallength-(valbytes[vallength-1]==0)){
+   switch (vallength-(vbuf[vallength-1]==0)){
          
       case 17: {
-         switch (valbytes[16]){
+         switch (vbuf[16]){
             case 0x31: idx=sc_1_1;break;//Verification
             case 0x39: idx=sc_1_9;break;//BasicStudyContentNotification
          }};break;
          
       case 18: {
-         switch ((valbytes[17]<<8) | valbytes[16]) {
+         switch ((vbuf[17]<<8) | vbuf[16]) {
             case 0x3034: idx=sc_1_40;break;//ProceduralEventLogging"
             case 0x3234: idx=sc_1_42;break;//SubstanceAdministrationLogging
             case 0x312E: idx=sc_10_1;break;//VideoEndoscopicImageRealTimeCommunication
@@ -349,14 +349,14 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
          
       case 20:{
-         switch (valbytes[19]){
+         switch (vbuf[19]){
             case 0x30: idx=sc_1_3_10;break;//MediaStorageDirectoryStorage
             case 0x31: idx=sc_1_20_1;break;//StorageCommitmentPushModel
             case 0x32: idx=sc_1_20_2;break;//StorageCommitmentPullModel (Retired)
          }};break;
          
       case 21:{
-         switch (valbytes[20]){
+         switch (vbuf[20]){
             case 0x31: idx=sc_5_1_1_1;break;//BasicFilmSession
             case 0x32: idx=sc_5_1_1_2;break;//BasicFilmBox
             case 0x34: idx=sc_5_1_1_4;break;//BasicGrayscaleImageBox
@@ -364,7 +364,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
         }};break;
          
       case 22:{
-         switch ((valbytes[21] << 24) | (valbytes[20]<<16) | (valbytes[19]<<8) | valbytes[18]) {
+         switch ((vbuf[21] << 24) | (vbuf[20]<<16) | (vbuf[19]<<8) | vbuf[18]) {
             case 0x34312E31: idx=sc_5_1_1_14;break;//PrintJob
             case 0x35312E31: idx=sc_5_1_1_15;break;//BasicAnnotationBox
             case 0x36312E31: idx=sc_5_1_1_16;break;//Printer
@@ -388,7 +388,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
          
       case 23:{
-         switch ((valbytes[22] << 24) | (valbytes[21]<<16) | (valbytes[20]<<8) | valbytes[19]) {
+         switch ((vbuf[22] << 24) | (vbuf[21]<<16) | (vbuf[20]<<8) | vbuf[19]) {
             case 0x312E312E: idx=sc_3_1_2_1_1;break;//DetachedPatientManagement (Retired)
             case 0x342E312E: idx=sc_3_1_2_1_4;break;//DetachedPatientManagementMeta (Retired)
             case 0x312E322E: idx=sc_3_1_2_2_1;break;//DetachedVisitManagement (Retired)
@@ -407,7 +407,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
          
       case 24:{
-         switch ((valbytes[23] << 24) | (valbytes[22]<<16) | (valbytes[21]<<8) | valbytes[20]) {
+         switch ((vbuf[23] << 24) | (vbuf[22]<<16) | (vbuf[21]<<8) | vbuf[20]) {
             case 0x312E3831: idx=sc_5_1_1_18_1;break;//ReferencedColorPrintManagementMeta (Retired)
             case 0x312E3432: idx=sc_5_1_1_24_1;break;//BasicPrintImageOverlayBox (Retired)
             case 0x312E3032: idx=sc_5_1_4_20_1;break;//DefinedProcedureProtocolInformationModelFind
@@ -451,7 +451,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
 
       case 25:{
-         switch (valbytes[24]){
+         switch (vbuf[24]){
             case 0x31: idx=sc_5_1_4_1_1_1;break;//ComputedRadiographyImageStorage
             case 0x32: idx=sc_5_1_4_1_1_2;break;//CTImageStorage
             case 0x33: idx=sc_5_1_4_1_1_3;break;//UltrasoundMultiFrameImageStorageRetired (Retired)
@@ -465,7 +465,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
 
       case 26:{
-         switch ((valbytes[25] << 24) | (valbytes[24]<<16) | (valbytes[23]<<8) | valbytes[22]) {
+         switch ((vbuf[25] << 24) | (vbuf[24]<<16) | (vbuf[23]<<8) | vbuf[22]) {
             case 0x3637332E: idx=sc_5_1_1_16_376;break;//PrinterConfigurationRetrieval
             case 0x30312E31: idx=sc_5_1_4_1_1_10;break;//StandaloneModalityLUTStorage (Retired)
             case 0x31312E31: idx=sc_5_1_4_1_1_11;break;//StandaloneVOILUTStorage (Retired)
@@ -487,7 +487,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
          
       case 27:{
-         switch ((valbytes[26] << 24) | (valbytes[25]<<16) | (valbytes[24]<<8) | valbytes[22]) {
+         switch ((vbuf[26] << 24) | (vbuf[25]<<16) | (vbuf[24]<<8) | vbuf[22]) {
             case 0x312E3131: idx=sc_5_1_4_1_1_1_1;break;//DigitalXRayImageStorageForPresentation
             case 0x322E3131: idx=sc_5_1_4_1_1_1_2;break;//DigitalMammographyXRayImageStorageForPresentation
             case 0x332E3131: idx=sc_5_1_4_1_1_1_3;break;//DigitalIntraOralXRayImageStorageForPresentation
@@ -525,7 +525,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
          
       case 28:{
-         switch ((valbytes[27] << 24) | (valbytes[26]<<16) | (valbytes[25]<<8) | valbytes[24]) {
+         switch ((vbuf[27] << 24) | (vbuf[26]<<16) | (vbuf[25]<<8) | vbuf[24]) {
             case 0x312E3131: idx=sc_5_1_4_1_1_11_1;break;//GrayscaleSoftcopyPresentationStateStorage
             case 0x322E3131: idx=sc_5_1_4_1_1_11_2;break;//ColorSoftcopyPresentationStateStorage
             case 0x332E3131: idx=sc_5_1_4_1_1_11_3;break;//PseudoColorSoftcopyPresentationStateStorage
@@ -571,7 +571,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
 
       case 29:{
-         switch ((valbytes[28] << 24) | (valbytes[27]<<16) | (valbytes[26]<<8) | valbytes[24]) {
+         switch ((vbuf[28] << 24) | (vbuf[27]<<16) | (vbuf[26]<<8) | vbuf[24]) {
             case 0x312E3131: idx=sc_5_1_4_1_1_1_1_1;break;//DigitalXRayImageStorageForProcessing
             case 0x312E3231: idx=sc_5_1_4_1_1_1_2_1;break;//DigitalMammographyXRayImageStorageForProcessing
             case 0x312E3331: idx=sc_5_1_4_1_1_1_3_1;break;//DigitalIntraOralXRayImageStorageForProcessing
@@ -653,7 +653,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
          
       case 30:{
-         switch ((valbytes[29] << 24) | (valbytes[28]<<16) | (valbytes[27]<<8) | valbytes[25]) {
+         switch ((vbuf[29] << 24) | (vbuf[28]<<16) | (vbuf[27]<<8) | vbuf[25]) {
             case 0x312E3132: idx=sc_5_1_4_1_1_12_1_1;break;//EnhancedXAImageStorage
             case 0x312E3232: idx=sc_5_1_4_1_1_12_2_1;break;//EnhancedXRFImageStorage
             case 0x312E3133: idx=sc_5_1_4_1_1_13_1_1;break;//XRay3DAngiographicImageStorage
@@ -688,13 +688,13 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
          }};break;
 
       case 31:{
-         switch (valbytes[30]){
+         switch (vbuf[30]){
             case 0x31: idx=sc_5_1_4_1_1_501_2_1;break;//DICOSDigitalXRayImageStorageForPresentation
             case 0x32: idx=sc_5_1_4_1_1_501_2_2;break;//DICOSDigitalXRayImageStorageForProcessing
          }};break;
          
       case 32:{
-         switch ((valbytes[31] << 24) | (valbytes[30]<<16) | (valbytes[29]<<8) | valbytes[28]) {
+         switch ((vbuf[31] << 24) | (vbuf[30]<<16) | (vbuf[29]<<8) | vbuf[28]) {
             case 0x312E312E: idx=sc_5_1_4_1_1_77_1_1_1;break;//VideoEndoscopicImageStorage
             case 0x312E322E: idx=sc_5_1_4_1_1_77_1_2_1;break;//VideoMicroscopicImageStorage
             case 0x312E342E: idx=sc_5_1_4_1_1_77_1_4_1;break;//VideoPhotographicImageStorage
@@ -712,7 +712,7 @@ uint16 scidx( uint8_t *valbytes, uint16 vallength )
       };break;//error
    };
    
-   if (strncmp(scstr[idx],(char*)valbytes,strlen(scstr[idx]))==0) return idx;
+   if (strncmp(scstr[idx],(char*)vbuf,strlen(scstr[idx]))==0) return idx;
    else return 0;//error (verification)
 }
 

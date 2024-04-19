@@ -48,7 +48,7 @@ enum repertoireenum{
 };
 
 
-uint32 repertoireidx( uint8_t *valbytes, uint16 vallength );
+uint32 repertoireidx( uint8_t *vbuf, uint16 vallength );
 NSString *repertoirename( uint16 repertoireidx);
 
 #endif /* Repertoires_h */

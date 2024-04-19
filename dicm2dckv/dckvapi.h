@@ -45,8 +45,8 @@ kvSZ//SQ tail
 #pragma mark - tx
 
 bool createtx(
-   const char * srcFile,
-   const char * dstDir,
+   const char * srcurl,
+   const char * dstdir,
    uint8_t    * buFFFF,
    uint64 *soloc,         // offset in valbyes for sop class
    uint16 *solen,         // length in valbyes for sop class
@@ -55,10 +55,12 @@ bool createtx(
    uint16 *silen,         // length in valbyes for sop instance uid
    uint64 *stloc,         // offset in valbyes for transfer syntax
    uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx          // index in const char *csstr[]
+   uint16 *stidx,          // index in const char *csstr[]
+   uint16 *siidx,         // SOPinstance index
+   uint16 *sitot          // SOPinstance total
 );
-bool committx(void);//aplica a todos los kv
-bool canceltx(void);//aplica a todos los kv
+bool committx(uint16 *siidx,uint16 *sitot);//aplica a todos los kv
+bool canceltx(uint16 *siidx,uint16 *sitot);//aplica a todos los kv
 
 
 #pragma mark - db

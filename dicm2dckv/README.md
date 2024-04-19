@@ -4,16 +4,16 @@
 
 - **dckv** refers to our dicom contextual-key value format of DICOM
 
-- These console apps in objective-c (but mainly c) transform dicm into dckv
+- These console apps in  c transform dicm into dckv and subproducts (xml,json,mdbx)
 
 - This is still a work in progress. A definitive rust version is worked out in another repository
 
 - the documentation is found in the wiki part of the github
 
 ## comando
-Seguimos el modelo natural de streaming de linux
+Seguimos el modelo natural de streaming de linux (stdin, stdout, stderr).
 ```
-command loglevel errDest outDest inSource [ inSource ...]
+command loglevel errdir outdir srcurl [ srcurl ...]
 ```
 - El nombre del comando difiere dependiendo el nombre de la implementación de dckvapi
 - loglevel es uno de [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
@@ -34,22 +34,17 @@ curl | command loglevel errDest outDest -
 
 - we define an api to which any destination implementation should conform
   
-  - mdbx key value database was chosen for the prototype implementation
+  - structdump was chosen for the prototype implementation
   
   - other implementations include 
     
-    - other key value database
-    
-    - in-memory ordered maps
-    
+    - mdbx
+        
     - xml
     
     - json
     
-    - edition process followed by dicm serialization
-    
-    - etc....
-
+- We use non seekable stdin stream, so that the apps can be piped
 
 
 ## dicm
@@ -64,4 +59,4 @@ curl | command loglevel errDest outDest -
   
     - repertoire index
   
-  - conveniant exhaustive list of uint64 key representations for patient, study and series level attributes found in the ground dataset
+  - convenient exhaustive list of uint64 key representations for patient, study and series level attributes found in the ground dataset

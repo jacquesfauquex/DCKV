@@ -650,7 +650,7 @@ RenditionSelectionDocumentRealTimeCommunication
 };
    
 
-uint16 scidx( uint8_t *valbytes, uint16 vallength );
+uint16 scidx( uint8_t *vbuf, uint16 vallength );
 NSString *scname( uint16 scidx);
 
 

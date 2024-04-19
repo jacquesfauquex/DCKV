@@ -14,6 +14,8 @@
 const char *space=" ";
 const char *backslash = "\\";
 
+char *coma=" ";
+
 #pragma mark obligatorios formales
 bool createtx(
    const char * srcurl,
@@ -30,11 +32,17 @@ bool createtx(
    uint16 *siidx,         // SOPinstance index
    uint16 *sitot          // SOPinstance total
 ){
-   printf("%s\n",srcurl);
-   printf("     144 %s\n","00020001 OB 0000 {156,2}");
+   if ((*sitot > 1) && (*siidx==1)) putchar('[');
+   if (*siidx>1) putchar(',');
+   printf("%s","{\"00020001\":{\"vr\":\"OB\",\"InlineBinary\":\"AAE=\"}");
    return true;
 }
-bool committx(uint16 *siidx,uint16 *sitot){return true;}
+
+bool committx(uint16 *siidx,uint16 *sitot){
+   putchar('}');
+   if ((*sitot > 1) && (*siidx==*sitot)) putchar(']');
+   return true;
+}
 bool canceltx(uint16 *siidx,uint16 *sitot){return true;}
 bool createdb(enum kvDBcategory kvdb){return true;}
 
@@ -53,19 +61,17 @@ bool appendkv(
               uint8_t            *buFFFF
               )
 {
-   //uint64* attruint64=(uint64*) kbuf+klen;
-   //printf("%*s%016llX\n",klen+klen+1,space, CFSwapInt64(*attruint64));
    uint32* t=(uint32*) kbuf+(klen/4);
    uint16* l=(uint16*) kbuf+((klen/2)+3);
    uint8 v=*(kbuf+(klen+4));
-   uint8 r=*(kbuf+(klen+5));      
-      
+   uint8 r=*(kbuf+(klen+5));
+   printf(",\"%08X\":{\"vr\":\"%c%c\"",CFSwapInt32(*t),v,r);
+   
+
    if (vll)
    {
       if (fromStdin && vlen)
       {
-#pragma mark ¿replace by seek?
-
          unsigned long ll=vlen;
          while (ll>0xFFFF)
          {
@@ -245,19 +251,18 @@ bool appendkv(
          case kvUI://unique ID
          {
             if (klen > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,klen+1,space,CFSwapInt32(*((uint32*) kbuf+((klen/4)-1))),CFSwapInt32(*t),v,r,*l);
-            else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
+            else printf("%s",",\"Value\":[");
             if (vlen > 0)
             {
-               printf(" (");
                buFFFF[vlen]=0x0;//terminate even uid lists
                char *token = strtok(buFFFF, backslash);
                while( token != NULL ) {
-                     printf( " %s", token );
-                     token = strtok(NULL, backslash);
+                  printf( "%c\"%s\"", *coma,token );
+                  token = strtok(NULL, backslash);
+                  coma=",";
                }
-               printf(" )");
             }
-            printf("\n");
+            putchar(']');
          }break;
             
          case kvTXT://valores representadas por texto
@@ -273,7 +278,7 @@ bool appendkv(
                      printf( " «%s»", token );
                      token = strtok(NULL, backslash);
                }
-               printf(" )");
+               putchar(']');
             }
             printf("\n");
          }break;
@@ -304,6 +309,8 @@ bool appendkv(
          default: return false;
       }
    }
+   
+   putchar('}');
    return true;
 }
 

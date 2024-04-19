@@ -47,7 +47,7 @@ const char *repertoirestr[]={
    "ISO 2022 IR 58"   //chinese simplified (multi byte)
 };
 
-uint32 repertoireidx( uint8_t *valbytes, uint16 vallength )
+uint32 repertoireidx( uint8_t *vbuf, uint16 vallength )
 {
    uint32 idx=0x9;//error
    switch (vallength){
@@ -55,7 +55,7 @@ uint32 repertoireidx( uint8_t *valbytes, uint16 vallength )
       case 4: idx=GBK;break;
       case 8: idx=GB18030;break;
       case 10:{
-         switch ((valbytes[9]<<8) | valbytes[8]) {
+         switch ((vbuf[9]<<8) | vbuf[8]) {
             case 0x3030: idx=ISO_IR100;break;//latin1
             case 0x3130: idx=ISO_IR101;break;//latin2
             case 0x3930: idx=ISO_IR109;break;//latin3
@@ -81,7 +81,7 @@ uint32 repertoireidx( uint8_t *valbytes, uint16 vallength )
 #pragma mark TODO encoding extension
       }
    }
-   if (strncmp(repertoirestr[idx],(char*)valbytes,vallength)==0) return idx;
+   if (strncmp(repertoirestr[idx],(char*)vbuf,vallength)==0) return idx;
    else return 0x9;//error
 }
 

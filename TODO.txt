@@ -55,7 +55,9 @@ fread()
 
 ----------------------------------------------------------------------
 
-- more calls to dckvapi
-- agregar más log
+- jsoninline
+- jsonbinref
+- putchar en lugar de printf cuando se escribe un solo char
+- 00020002,00020003,00020010 escritos be le
+- agregar más log (pensar bien DIWEF)
 - más pruebas con diversos objetos DICM ELE
-- loc inloc

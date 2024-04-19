@@ -133,7 +133,7 @@ ts_7_2,
 ts_7_3
 };
 
-uint8 tsidx( uint8_t *valbytes, uint16 vallength );
+uint8 tsidx( uint8_t *vbuf, uint16 vallength );
 
 NSString *tsname( uint16 tsidx);
 
