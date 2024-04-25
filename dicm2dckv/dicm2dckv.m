@@ -113,10 +113,8 @@ BOOL read8(uint8_t *buffer, unsigned long *bytesReadRef)
  finds soptsidx
  
  returns sopiuid:
- - nil -> not dicom
- - @"" -> not dicom part 10 (no prolog)
+ - "" -> no DICM
  - sopiuid (0002,0003)
- 
  */
 char *dicmuptosopts(
    uint8_t *kbuf, // buffer matriz de creación de nuevos keys por diferencial
@@ -132,91 +130,22 @@ char *dicmuptosopts(
    uint16 *stidx  // index in const char *csstr[]
 )
 {
-   if (feof(stdin)) return "";
-   //read first 8 bytes
-   *inloc=fread(vbuf, 1, 8, stdin);
-   if (*inloc<8) return "";
-   memcpy(kbuf, vbuf, *inloc);
-   struct t4r2l2 *attrstruct=(struct t4r2l2*) kbuf;//corresponding struct
-
-#pragma mark dataset without preface ?
-   uint64 *attruint64=(uint64*) kbuf;//first 8 bytes are not 0x00
-   if (*attruint64 !=0)
-   {
-      switch (attrstruct->r) {
-         case FD://floating point double
-         case FL://floating point single
-         case SL://signed long
-         case SS://signed short
-         case UL://unsigned long
-         case US://unsigned short
-         case AT://attribute tag
-         case CS://coded string
-         case UI://unique ID
-         case AE://application entity
-         case AS://age string
-         case DA://date
-         case DS://decimal string
-         case DT://date time
-         case IS://integer string
-         case TM://time
-         case LO://long string
-         case LT://long text
-         case SH://short string
-         case ST://short text
-         case PN://person name
-         case OB://other byte
-         case OD://other double
-         case OF://other float
-         case OL://other long
-         case OV://other 64-bit very long
-         case OW://other word
-         case SV://signed 64-bit very long
-         case UV://unsigned 64-bit very long
-         case UC://unlimited characters
-         case UT://unlimited text
-         case UR://universal resource identifier/locator
-         case UN://unknown
-         case SQ://sequence
-         {
-            D("%s","no DICM prolog");
-            //first attr is loaded
-            return "";
-         }
-         default:
-         {
-            E("%s","not explicit little endian or derived");
-            return "";
-         }
-      }
-   }
-
-   
-#pragma mark dataset with preface ?
+   NSLog(@"waiting");
+   *inloc=fread(kbuf, 1,158, stdin);
+   if (*inloc!=158) return "";
    //check if 128-131 = DICM
+   if (kbuf[128]!=0x44 || kbuf[129]!=0x49 || kbuf[130]!=0x43 || kbuf[131]!=0x4D) return "";
    //read up to dicom version 0002001 (8+150 bytes)
-   
-   *inloc+=fread(vbuf+8, 1, 150, stdin);
-   if (*inloc != 158){
-      E("%s","stream premature end (less than 158 bytes)");
-      return "";
-   }
-   
-   if ( (*(vbuf+128)!='D') || (*(vbuf+129)!='I') || (*(vbuf+130)!='C') || (*(vbuf+131)!='M') )
-   {
-      E("%s","no DICM signature");
-      return "";
-   }
-   
+   struct t4r2l2 *attrstruct=(struct t4r2l2*) kbuf;//corresponding struct
+   uint64 *attruint64=(uint64*) kbuf;
    uint16 bytescount;
 #pragma mark read sop object [so] (=sop class)
-   bytescount=fread(vbuf+*inloc, 1, 8, stdin);
-   memcpy(kbuf, vbuf+*inloc, bytescount);
+   bytescount=fread(kbuf, 1, 8, stdin);
    *inloc+=bytescount;
    if (bytescount!=8) return "";
    if ((*attruint64 % 0x100000000)!=0x00020002)
    {
-      E("%s","no 00020002");
+      E("%08llx [no 00020002]",*attruint64);
       return "";
    }
    *soloc=*inloc;
@@ -230,8 +159,6 @@ char *dicmuptosopts(
    }
    *soidx=scidx( vbuf+*soloc, *solen - (vbuf[*soloc + *solen - 1]==0x0) );
    if (*soidx==0) return "";//no valid sopclass
-
-   
    
 #pragma mark read sop instance uid [si]
    bytescount=fread(vbuf+*inloc, 1, 8, stdin);
@@ -252,8 +179,6 @@ char *dicmuptosopts(
       E("%s","bad 00020003");
       return "";
    }
-
-
    
 #pragma mark read transfer syntax
    bytescount=fread(vbuf+*inloc, 1, 8, stdin);
@@ -281,7 +206,6 @@ char *dicmuptosopts(
 }
 
 BOOL dicm2dckvInstance(
-   const char * srcurl,
    const char * dstdir,
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // lectura del valor del atributo
@@ -297,13 +221,11 @@ BOOL dicm2dckvInstance(
    uint16 *silen,         // length in valbyes for sop instance uid
    uint64 *stloc,         // offset in valbyes for transfer syntax
    uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,          // index in const char *csstr[]
-   uint16 *siidx,         // SOPinstance index
-   uint16 *sitot          // SOPinstance total
+   uint16 *stidx,         // index in const char *csstr[]
+   uint16 *siidx          // SOPinstance index
 )
 {
    if (!createtx(
-                 srcurl,
                  dstdir,
                  vbuf,
                  soloc,         // offset in valbyes for sop class
@@ -314,28 +236,26 @@ BOOL dicm2dckvInstance(
                  stloc,         // offset in valbyes for transfer syntax
                  stlen,         // length in valbyes for transfer syntax
                  stidx,         // index in const char *csstr[]
-                 siidx,
-                 sitot
+                 siidx
                  )) return false;
    if (!createdb(kvDEFAULT))
    {
-      if (!canceltx(siidx,sitot)) E("%s","cannot cancel tx");
+      if (!canceltx(siidx)) E("%s","cannot cancel tx");
       return false;
    }
    
    if (*soidx>0) //part 10
    {
       const uint64 key00020002=0x0000554902000200;
-      if(!appendkv((uint8_t*)&key00020002,0,false,kvUI,srcurl, *soloc, *solen,false,vbuf+*soloc)) return false;
+      if(!appendkv((uint8_t*)&key00020002,0,false,kvUI, *soloc, *solen,false,vbuf+*soloc)) return false;
       const uint64 key00020003=0x0000554903000200;
-      if(!appendkv((uint8_t*)&key00020003,0,false,kvUI,srcurl, *siloc, *silen,false,vbuf+*siloc)) return false;
+      if(!appendkv((uint8_t*)&key00020003,0,false,kvUI, *siloc, *silen,false,vbuf+*siloc)) return false;
       const uint64 key00020010=0x0000554910000200;
-      if(!appendkv((uint8_t*)&key00020010,0,false,kvUI,srcurl, *stloc, *stlen,false,vbuf+*stloc)) return false;
+      if(!appendkv((uint8_t*)&key00020010,0,false,kvUI, *stloc, *stlen,false,vbuf+*stloc)) return false;
 
       if (dicm2dckvDataset(
-                  srcurl,
                   kbuf,
-                  0,          //keydepth
+                  0,          //kloc
                   true,       //readfirstattr
                   0,          //keycs
                   lbuf,
@@ -345,14 +265,13 @@ BOOL dicm2dckvInstance(
                   inloc,
                   beforebyte, //beforebyte
                   beforetag  //beforetag
-                 ) && committx(siidx,sitot)) return true;
+                 ) && committx(siidx)) return true;
    }
    else //pure dataset
    {
       if (dicm2dckvDataset(
-                     srcurl,
                      kbuf,
-                     0,          //keydepth
+                     0,          //kloc
                      false,      //readfirstattr
                      0,          //keycs
                      lbuf,
@@ -362,18 +281,17 @@ BOOL dicm2dckvInstance(
                      inloc,
                      beforebyte, //beforebyte
                      beforetag  //beforetag
-                    ) && committx(siidx,sitot)) return true;
+                    ) && committx(siidx)) return true;
    }
-   canceltx(siidx,sitot);
+   canceltx(siidx);
    return false;
 }
 
 
 
 BOOL dicm2dckvDataset(
-   const char * srcurl,
    uint8_t *kbuf,
-   uint8 keydepth,
+   unsigned long kloc,
    BOOL readfirstattr,
    uint16 keycs,
    uint8_t *lbuf,
@@ -388,22 +306,26 @@ BOOL dicm2dckvDataset(
    //inits
    unsigned long bytescount=0;
    uint16 vl=0;//keeps vl while overwritting it in kbuf
-   uint8 *attrbytes=kbuf+keydepth;//subbuffer for attr reading
+   uint8 *attrbytes=kbuf+kloc;//subbuffer for attr reading
    struct t4r2l2 *attrstruct=(struct t4r2l2*) attrbytes;//corresponding struct
-   uint8 *llbytes=kbuf+keydepth+8;//subbuffer for ll reading
-   uint32 *ll=(uint32*)llbytes;//corresponding uin32
+   lbuf=kbuf+kloc+8;//subbuffer for ll reading
+   llul=(uint32*)lbuf;
+   //uint32 *ll=(uint32*)llbytes;//corresponding uin32
 
    if (readfirstattr && (! read8(attrbytes, &bytescount))) return false;
-   while ((*inloc < beforebyte) &&  ( CFSwapInt32(attrstruct->t) < beforetag))
+   while (
+      (*inloc < beforebyte)
+   && ( CFSwapInt32(attrstruct->t) < beforetag)
+   )
    {
-      
+      //((attrstruct->t >> 16)==0xFFFE ||
       switch (attrstruct->r) {
 #pragma mark vl num
          case FD://floating point double
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvFD,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvFD,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -411,7 +333,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvFL,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvFL,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -419,7 +341,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvSL,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvSL,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -427,7 +349,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvSS,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvSS,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -435,7 +357,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvUL,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvUL,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -443,7 +365,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvUS,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvUS,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -453,7 +375,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvAT,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvAT,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -478,11 +400,11 @@ BOOL dicm2dckvDataset(
                   keycs=(keycs & 0x8000) | repidxs;
                   attrstruct->l=repidxs;
                }
-               if (!appendkv(kbuf,keydepth,false,kvTXT,srcurl,*inloc,vl,false,vbuf)) return false;
+               if (!appendkv(kbuf,kloc,false,kvTXT,*inloc,vl,false,vbuf)) return false;
             }
             else
             {
-              if (!appendkv(kbuf,keydepth,false,kvTXT,srcurl,*inloc,vl,true,vbuf)) return false;
+              if (!appendkv(kbuf,kloc,false,kvTXT,*inloc,vl,true,vbuf)) return false;
             }
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
@@ -503,11 +425,11 @@ BOOL dicm2dckvDataset(
                   return false;
                }
                else attrstruct->l=sopclassidx;
-               if (!appendkv(kbuf,keydepth,false,kvUI,srcurl,*inloc,(unsigned long)vl,false,vbuf)) return false;
+               if (!appendkv(kbuf,kloc,false,kvUI,*inloc,(unsigned long)vl,false,vbuf)) return false;
             }
             else
             {
-               if (!appendkv(kbuf,keydepth,false,kvUI,srcurl,*inloc,vl,true,vbuf)) return false;
+               if (!appendkv(kbuf,kloc,false,kvUI,*inloc,vl,true,vbuf)) return false;
             }
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
@@ -524,7 +446,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvTXT,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvTXT,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -537,7 +459,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=keycs;
-            if (!appendkv(kbuf,keydepth,false,kvTXT,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvTXT,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -547,7 +469,7 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,keydepth,false,kvTXT,srcurl,*inloc,vl,true,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,false,kvPN,*inloc,vl,true,vbuf)) return false;
             *inloc += 8 + vl;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
@@ -564,12 +486,12 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (fread(llbytes, 1,4,stdin)!=4) {
+            if (fread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
-            if (!appendkv(kbuf,keydepth,true,kvBIN,srcurl,*inloc,*ll,true,vbuf)) return false;
-            *inloc += 12 + *ll;
+            if (!appendkv(kbuf,kloc,true,kvBIN,*inloc,*llul,true,vbuf)) return false;
+            *inloc += 12 + *llul;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
@@ -580,12 +502,12 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (fread(llbytes, 1,4,stdin)!=4) {
+            if (fread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
-            if (!appendkv(kbuf,keydepth,true,kvTXT,srcurl,*inloc,*ll,true,vbuf)) return false;
-            *inloc += 12 + *ll;
+            if (!appendkv(kbuf,kloc,true,kvTXT,*inloc,*llul,true,vbuf)) return false;
+            *inloc += 12 + *llul;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
@@ -594,29 +516,29 @@ BOOL dicm2dckvDataset(
          {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (fread(llbytes, 1,4,stdin)!=4) {
+            if (fread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
-            if (!appendkv(kbuf,keydepth,true,kvTXT,srcurl,*inloc,*ll,true,vbuf)) return false;
-            *inloc += 12 + *ll;
+            if (!appendkv(kbuf,kloc,true,kvTXT,*inloc,*llul,true,vbuf)) return false;
+            *inloc += 12 + *llul;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
       //---------
 #pragma mark UN
          case UN://unknown
+         {
             // https://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2.2
              //5. The Value Length Field of VR UN may contain Undefined Length (FFFFFFFFH), in which case the contents can be assumed to be encoded with Implicit VR. See Section 7.5.1 to determine how to parse Data Elements with an Undefined Length.
-         {
             vl=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (fread(llbytes, 1,4,stdin)!=4) {
+            if (fread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
-            if (!appendkv(kbuf,keydepth,true,kvBIN,srcurl,*inloc,*ll,true,vbuf)) return false;
-            *inloc += 12 + *ll;
+            if (!appendkv(kbuf,kloc,true,kvBIN,*inloc,*llul,true,vbuf)) return false;
+            *inloc += 12 + *llul;
             if (! read8(attrbytes, &bytescount)) return false;
          } break;
 
@@ -625,42 +547,42 @@ BOOL dicm2dckvDataset(
          case SQ://sequence
          {
             //register SQ con vr 0000 y length undefined
-            kbuf[keydepth+0x8]=0xff;
-            kbuf[keydepth+0x9]=0xff;
-            kbuf[keydepth+0xA]=0xff;
-            kbuf[keydepth+0xB]=0xff;
+            kbuf[kloc+0x8]=0xff;
+            kbuf[kloc+0x9]=0xff;
+            kbuf[kloc+0xA]=0xff;
+            kbuf[kloc+0xB]=0xff;
             attrstruct->r=SA;
             attrstruct->l=REPERTOIRE_GL;
 
 
-            if (!appendkv(kbuf,keydepth,true,kvSA,srcurl,*inloc,12,false,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,true,kvSA,*inloc,12,false,vbuf)) return false;
 
             //read length
-            if (fread(llbytes, 1,4,stdin)!=4) {
+            if (fread(lbuf, 1,4,stdin)!=4) {
                E("%s","eof instead of SQ vll");
                return false;
             }
-            if (*ll==0)
+            if (*llul==0)
             {
                attrstruct->r=SZ;
                attrstruct->l=0xFFFF;
-               if (!appendkv(kbuf,keydepth,false,kvSZ,srcurl,*inloc,8,false,(void*)&SZbytes)) return false;
+               if (!appendkv(kbuf,kloc,false,kvSZ,*inloc,8,false,(void*)&SZbytes)) return false;
 
                //read nextattr
-               *inloc += 12;//do not add *ll !
+               *inloc += 12;//do not add *llul !
                if (! read8(attrbytes, &bytescount)) return false;
             }
-            else //SQ *ll!=0
+            else //SQ *llul!=0
             {
                //SQ length
                uint64 beforebyteSQ;
-               if (*ll==ffffffff) beforebyteSQ=beforebyte;
-               else if (beforebyte==ffffffff) beforebyteSQ= *inloc + *ll;
-               else if (*inloc + *ll > beforebyte) {
+               if (*llul==ffffffff) beforebyteSQ=beforebyte;
+               else if (beforebyte==ffffffff) beforebyteSQ= *inloc + *llul;
+               else if (*inloc + *llul > beforebyte) {
                   E("%s","SQ incomplete input");
                   return false;
                }
-               else beforebyteSQ=*inloc + *ll;
+               else beforebyteSQ=*inloc + *llul;
 
                
                //replace vr and vl of SQ by itemnumber
@@ -668,12 +590,12 @@ BOOL dicm2dckvDataset(
                attrstruct->r=CFSwapInt16(itemnumber/0x10000);
                attrstruct->l=CFSwapInt16(itemnumber%0x10000);
 
-               *inloc += 12;//do not add *ll !
+               *inloc += 12;//do not add *llul !
 
                
 #pragma mark item level
-               keydepth+=8;
-               uint8 *itembytes=kbuf+keydepth;
+               kloc+=8;
+               uint8 *itembytes=kbuf+kloc;
                struct t4r2l2 *itemstruct=(struct t4r2l2*) itembytes;
                if (! read8(itembytes, &bytescount)) return false;
 
@@ -685,22 +607,21 @@ BOOL dicm2dckvDataset(
                   itemstruct->t=0x00000000;
                   itemstruct->r=IA;
                   itemstruct->l=REPERTOIRE_GL;
-                  if (!appendkv(kbuf,keydepth,false,kvIA,srcurl,*inloc,8,false,(void*)&IAbytes)) return false;
+                  if (!appendkv(kbuf,kloc,false,kvIA,*inloc,8,false,(void*)&IAbytes)) return false;
 
                   uint64 beforebyteIT;//to be computed from after item start
                   *inloc+=8;
                   if (IQll==ffffffff) beforebyteIT=beforebyteSQ;
-                  else if (beforebyteSQ==ffffffff) beforebyteIT=*inloc + *ll;
-                  else if (*inloc + *ll > beforebyteSQ) {
+                  else if (beforebyteSQ==ffffffff) beforebyteIT=*inloc + *llul;
+                  else if (*inloc + *llul > beforebyteSQ) {
                      E("%s","IT incomplete input");
                      return false;
                   }
-                  else beforebyteIT=*inloc + *ll;
+                  else beforebyteIT=*inloc + *llul;
 
                   dicm2dckvDataset(
-                        srcurl,
                         kbuf,
-                        keydepth,
+                        kloc,
                         true,
                         keycs,
                         lbuf,
@@ -716,13 +637,14 @@ BOOL dicm2dckvDataset(
                   //kbuf kept the last attr read one level deeper than current attr
 
                   
-                  //write IZ to db
+                  //write IZ
                   if (CFSwapInt32(itemstruct->t)==fffee00d)
                   {
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x00;
-                     if (!appendkv(kbuf,keydepth,false,kvIZ,srcurl,*inloc,8,false,(void*)&IZbytes)) return false;
+                     if (!appendkv(kbuf,kloc,false,kvIZ,*inloc,8,false,(void*)&IZbytes)) return false;
+                     if (! read8(itembytes, &bytescount)) return false;
                      *inloc+=8;
                   }
                   else
@@ -734,7 +656,7 @@ BOOL dicm2dckvDataset(
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x0;
-                     if (!appendkv(kbuf,keydepth,false,kvIZ,srcurl,*inloc,8,false,(void*)&IZbytes)) return false;
+                     if (!appendkv(kbuf,kloc,false,kvIZ,*inloc,8,false,(void*)&IZbytes)) return false;
                      itemstruct->t=copyattr.t;
                      itemstruct->r=copyattr.r;
                      itemstruct->l=copyattr.l;
@@ -746,13 +668,13 @@ BOOL dicm2dckvDataset(
                   attrstruct->l=CFSwapInt16(itemnumber%0x10000);
 
                }//end while item
-               keydepth-=8;
+               kloc-=8;
 #pragma mark item level end
 
                attrstruct->r=SZ;
                attrstruct->l=0xFFFF;
-               if (! read8(itembytes, &bytescount)) return false;
-               if (!appendkv(kbuf,keydepth,false,kvSZ,srcurl,*inloc,8,false,(void*)&SZbytes)) return false;
+//               if (! read8(itembytes, &bytescount)) return false;
+               if (!appendkv(kbuf,kloc,false,kvSZ,*inloc,8,false,(void*)&SZbytes)) return false;
 
                
                //itemstruct may be SZ or post SQ
@@ -774,13 +696,27 @@ BOOL dicm2dckvDataset(
             
          default:
          {
-            NSLog(@"error unknown vr");
+            if (attrstruct->t==0 && attrstruct->r==0 && attrstruct->l==0)
+            {
+               return true;
+            }
+            E("error unknown vr at index %llu %08x %c%c %d",*inloc, attrstruct->t,attrstruct->r % 0x100,attrstruct->r / 0x100,attrstruct->l);
             return false;
          }
             
       //---------
       }//end switch
    }//end while (*index < beforebyte)
+   
+   if (attrstruct->t == 0xFCFFFCFF)
+   {
+      NSLog(@"%llu 0xFFFCFFFC vll 4 bytes (00000000) to be removed",*inloc);
+      if (fread(lbuf, 1,4,stdin)!=4) {
+         E("%s","0xFFFCFFFC eof instead of vll");
+         return false;
+      }
+   }
+
    return true;
 }
 

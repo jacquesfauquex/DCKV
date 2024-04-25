@@ -27,96 +27,56 @@
 
 
 int main(int argc, const char * argv[]) {
-   if (argc < 5){
-      E("requires 5 args (command, DIWEF, err, out, in ). args count %d",argc);
+   if (argc < 3){
+      E("%s","syntax: command DIWEF outdir");
       return errorArgs;
    }
 
-   uint8_t *kbuf = malloc(0xFF);//max use 16 bytes x 10 encapsulation levels
-   uint8_t *vbuf = malloc(0xFFFF);//max size of vl attribute values
+   uint8_t *kbuf = malloc(0xA0);//max use 16 bytes x 10 encapsulation levels
+   uint8_t *vbuf = malloc(0xFFFE);//max size of vl attribute values
    uint8_t *lbuf = malloc(0x4);//vll bytes
-   uint32 llul;//4 bytes little endian buffer for ll reading form stdin
-   uint64 inloc=0;//inputstream index
+   uint32 llul;
+   uint64 inloc;//inputstream index
    uint64 soloc,siloc,stloc;
    uint16 solen,silen,stlen;
    uint16 soidx,stidx;
-
-   uint16 siidx=0;
-   uint16 sitot=argc-3;
-   int argidx;
-   for (argidx=4;argidx < argc; argidx++)
-   {
-      siidx++;
-      const char *srcurl=argv[argidx];
+   uint16 siidx=1;
    
-      if (strcmp(argv[argidx], "-")  == 0){//stdin
-          argidx=argc+1;
-          freopen(NULL, "rb", stdin);
-      } else {
-          if (false){// "://" //url
-          } else { //path
-             if (freopen(argv[argidx],"rb",stdin)==NULL){
-                E("freopen error %d: %s",errno,argv[argidx]);
-                EXIT_FAILURE;
-             }
+   FILE *testFILE=NULL;
+   if (argc==4) testFILE=freopen(argv[3],"rb",stdin);//para testing
+   else freopen(NULL, "rb", stdin);
+   setvbuf(stdin, NULL, _IOFBF, 0xFFFE);// | O_NONBLOCK  buffer binario largo 0xFFFE
+   
+   kbuf[0]=0xFF;
+   kbuf[1]=0xFC;
+   kbuf[2]=0xFF;
+   kbuf[3]=0xFC;
 
-          }
-      }
-      setvbuf(stdin, NULL, _IOFBF, 0xFFFF);//buffer binario largo 0xFFFF
-      inloc=0;//inputstream index
+   while ((kbuf[0]==0xFF)&&(kbuf[1]==0xFC)&&(kbuf[2]==0xFF)&&(kbuf[3]==0xFC))
+   {
       char *sopiuid=dicmuptosopts(
-                      kbuf,
-                      vbuf,
-                      &inloc,
-                      &soloc,
-                      &solen,
-                      &soidx,
-                      &siloc,
-                      &silen,
-                      &stloc,
-                      &stlen,
-                      &stidx
-                     );
-      if ((soidx==0)||(stidx==1)) //not DICM or DICM ile
-      {
-         char *path=malloc(0xFF);
-         if (soidx!=0) sprintf( path, "%s/%s.ile.dcm", argv[3], sopiuid);
-         else{
-            struct timeval tv;
-            gettimeofday(&tv,NULL);
-            // seconds
-            // microseconds
-            sprintf( path, "%s/%ld.%d.bin", argv[3], tv.tv_sec,tv.tv_usec);
-         }
-         FILE *fp;
-         fp=freopen(path, "a", stdout);
-         NSInteger bytesRead=inloc;
-         ssize_t bytesWritten=0;
-         while (!feof(stdin))
-         {
-            if (bytesRead) bytesWritten=write(1,vbuf,bytesRead);//1=stdout
-            if (bytesWritten!=bytesRead)
-            {
-               E("error writing %s",path);
-               fclose(fp);
-               return errorWrite;
-            }
-            bytesRead=fread(vbuf, 1, 0xFFFF, stdin);
-            inloc+=bytesRead;
-         }
-         fclose(fp);
-         W("written %llu bytes to %s",inloc,path );
-      }
-      else if (dicm2dckvInstance(
-               srcurl,
-               argv[3],
+                         kbuf,
+                         vbuf,
+                         &inloc,
+                         &soloc,
+                         &solen,
+                         &soidx,
+                         &siloc,
+                         &silen,
+                         &stloc,
+                         &stlen,
+                         &stidx
+                        );
+      if (   strlen(sopiuid)>0
+          && dicm2dckvInstance(
+               argv[2],
                kbuf,
                vbuf,
                lbuf,
                &llul,
                &inloc,
                0xFFFFFFFF, //beforebyte
-               0xFFFFFFFF,  //beforetag
+               0xFFFCFFFC,  //beforetag agradado en dcmtk storescp al final de cada instancia, para delimitarla dentro del stream
                &soloc,
                &solen,
                &soidx,
@@ -125,10 +85,23 @@ int main(int argc, const char * argv[]) {
                &stloc,
                &stlen,
                &stidx,
-               &siidx,
-               &sitot
-          )) I("%s", "dicm2dckv OK");
-      else E("%s", "dicm2dckv error");
-   }
+               &siidx
+          )
+         ) D("%s", "dicm2dckv OK");
+      else
+      {
+         E("%s", "dicm2dckv error");
+#pragma mark TODO register error log
+         //reinitiate storescp loop
+         kbuf[0]=0xFF;
+         kbuf[1]=0xFC;
+         kbuf[2]=0xFF;
+         kbuf[3]=0xFC;
+      }
+      uint32 *attruint32=(uint32*) kbuf;
+      NSLog(@"%08X",*attruint32);
+     }
+ 
+   if (testFILE!=NULL)fclose(testFILE);
    return exitOK;
 }

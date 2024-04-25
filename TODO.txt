@@ -51,12 +51,10 @@ leemos hasta 0xFFFF bytes a la vez (max vl)
 fread()
 ----------------------------------------------------------------------
 
-      //https://stackoverflow.com/questions/19165134/correct-portable-way-to-interpret-buffer-as-a-struct
-
-----------------------------------------------------------------------
+- storescp FFFCFFFC sr truncated before item2 of any sequence
 
 - jsoninline
-- jsonbinref
+- jsonbinref (files in dstdir)
 - putchar en lugar de printf cuando se escribe un solo char
 - 00020002,00020003,00020010 escritos be le
 - agregar más log (pensar bien DIWEF)

@@ -13,7 +13,7 @@
 bool createtx(
    const char * srcurl,
    const char * dstdir,
-   uint8_t    * buFFFF,
+   uint8_t    * vbuf,
    uint64 *soloc,         // offset in valbyes for sop class
    uint16 *solen,         // length in valbyes for sop class
    uint16 *soidx,         // index in const char *scstr[]
@@ -74,14 +74,14 @@ bool existsdb(enum kvDBcategory kvdb)
 //requiere que todas las enmiendas este clasificadas por key ascendientes
 bool appendkv(
               uint8_t            *kbuf,
-              int                klen,
+              unsigned long      kloc,
               BOOL               vll,
               enum kvVRcategory  vrcat,
               const char         *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
               BOOL               fromStdin,
-              uint8_t            *buFFFF
+              uint8_t            *vbuf
               )
 {
    return false;
@@ -95,7 +95,7 @@ bool appendkv(
 bool coercekv(
               enum kvDBcategory  kvdb,
               uint8_t            *kbuf,
-              int                klen,
+              unsigned long      kloc,
               uint8_t            *vbuf,
               unsigned long long vlen
               )
@@ -117,7 +117,7 @@ bool coercek8v(
 bool supplementkv(
                   enum kvDBcategory  kvdb,
                   uint8_t            *kbuf,
-                  int                klen,
+                  unsigned long    kloc,
                   uint8_t            *vbuf,
                   unsigned long long vlen
                  )
@@ -142,10 +142,10 @@ bool supplementk8v(
 //requieren vbuf de 0xFFFFFFFF length,
 //en el cual se escribe el valor borrado
 //vlen máx 0xFFFFFFFF indica que el key no existía
-bool removetkv(
+bool removekv(
                enum kvDBcategory  kvdb,
                uint8_t            *kbuf,
-               int                klen,
+               unsigned long      kloc,
                uint8_t            *vbuf,
                unsigned long long *vlen
               )

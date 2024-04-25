@@ -48,7 +48,6 @@ char *dicmuptosopts(
 );
 
 BOOL dicm2dckvInstance(
-   const char * srcurl,
    const char * dstdir,
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // buffer lectura del valor del atributo
@@ -65,8 +64,7 @@ BOOL dicm2dckvInstance(
    uint64 *stloc,     // offset in valbyes for transfer syntax
    uint16 *stlen,     // length in valbyes for transfer syntax
    uint16 *stidx,     // index in const char *csstr[]
-   uint16 *siidx,     // SOPinstance index
-   uint16 *sitot      // SOPinstance total
+   uint16 *siidx      // SOPinstance index
 );
 
 /*
@@ -74,9 +72,8 @@ BOOL dicm2dckvInstance(
  parser
  */
 BOOL dicm2dckvDataset(
-   const char * srcurl,
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
-   uint8 keydepth,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
+   unsigned long kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
    BOOL readfirstattr,    // true:read desde stream. false:ya está en kbuf
    uint16 keycs,          // key charset
    uint8_t *lbuf,

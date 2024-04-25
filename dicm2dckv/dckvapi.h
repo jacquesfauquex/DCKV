@@ -33,7 +33,7 @@ kvUS,//unsigned short
 kvAT,//attribute tag, 2 uint16 hexa
 kvUI,//unique ID eventualmente terminado por 0x00
 kvTXT,//texts ascii or charset or url-encoded
-kvURL,//not equal to vr UR. Refers to file or url origin of the stream. nil = unregistered
+kvPN,//person name has a special treatment in json and xml
 kvBIN,//binary, not textually represented
 kvSA,//SQ head
 kvIA,//item head
@@ -45,9 +45,8 @@ kvSZ//SQ tail
 #pragma mark - tx
 
 bool createtx(
-   const char * srcurl,
    const char * dstdir,
-   uint8_t    * buFFFF,
+   uint8_t    * vbuf,
    uint64 *soloc,         // offset in valbyes for sop class
    uint16 *solen,         // length in valbyes for sop class
    uint16 *soidx,         // index in const char *scstr[]
@@ -55,12 +54,11 @@ bool createtx(
    uint16 *silen,         // length in valbyes for sop instance uid
    uint64 *stloc,         // offset in valbyes for transfer syntax
    uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,          // index in const char *csstr[]
-   uint16 *siidx,         // SOPinstance index
-   uint16 *sitot          // SOPinstance total
+   uint16 *stidx,         // index in const char *csstr[]
+   uint16 *siidx          // SOPinstance index
 );
-bool committx(uint16 *siidx,uint16 *sitot);//aplica a todos los kv
-bool canceltx(uint16 *siidx,uint16 *sitot);//aplica a todos los kv
+bool committx(uint16 *siidx);//aplica a todos los kv
+bool canceltx(uint16 *siidx);//aplica a todos los kv
 
 
 #pragma mark - db
@@ -76,17 +74,16 @@ bool existsdb(enum kvDBcategory kvdb);
 
 
 //appendkv uses vStream y puede cargarlo directamente en el buffer de la db
-//buFFFF es un búfer de 0xFFFF bytes útil para la lectura del stream en otros tipos de implementaciones. Su dimensión corresponde al tamaño máximo de atributos de tipo vl. si vStream is nil, buFFFF contains the data of v
+//vbuf es un búfer de 0xFFFF bytes útil para la lectura del stream en otros tipos de implementaciones. Su dimensión corresponde al tamaño máximo de atributos de tipo vl. si vStream is nil, vbuf contains the data of v
 bool appendkv(
               uint8_t            *kbuf,
-              int                klen,
+              unsigned long      kloc,
               BOOL               vll,
               enum kvVRcategory  vrcat,
-              const char         *vurl,
               unsigned long long vloc,
               unsigned long      vlen,
               BOOL               fromStdin,
-              uint8_t            *buFFFF
+              uint8_t            *vbuf
               );
 
 #pragma mark - ow ((re)opened write) opcional
@@ -127,7 +124,7 @@ bool supplementk8v(enum kvDBcategory  kvdb,
 //requieren vbuf de 0xFFFFFFFF length,
 //en el cual se escribe el valor borrado
 //vlen máx 0xFFFFFFFF indica que el key no existía
-bool removetkv(
+bool removekv(
                enum kvDBcategory  kvdb,
                uint8_t            *kbuf,
                int                klen,
