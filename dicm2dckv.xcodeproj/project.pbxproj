@@ -84,6 +84,7 @@
 		4A80996D2BD0A5DA0042CAC1 /* dicm2jsonbinref */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicm2jsonbinref; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A80999C2BD0A6590042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
 		4A80999D2BD0A6590042CAC1 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A8099B62BDBEEC80042CAC1 /* dcmtk */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dcmtk; sourceTree = "<group>"; };
 		4ACCC9E42BBDC40A00670A7F /* dicm2dckv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicm2dckv; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACCC9E72BBDC40A00670A7F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SopClasses.m; sourceTree = "<group>"; };
@@ -202,8 +203,10 @@
 		4ACCC9DB2BBDC40A00670A7F = {
 			isa = PBXGroup;
 			children = (
+				4A8099B62BDBEEC80042CAC1 /* dcmtk */,
 				4A8097AA2BC189A20042CAC1 /* README.md */,
 				4A8098152BC90B6A0042CAC1 /* TODO.txt */,
+				4A8099422BCE92690042CAC1 /* dicm */,
 				4ACCC9E62BBDC40A00670A7F /* dicm2dckv */,
 				4ACCC9E52BBDC40A00670A7F /* Products */,
 			);
@@ -223,7 +226,6 @@
 		4ACCC9E62BBDC40A00670A7F /* dicm2dckv */ = {
 			isa = PBXGroup;
 			children = (
-				4A8099422BCE92690042CAC1 /* dicm */,
 				4A80992B2BCE913C0042CAC1 /* README.md */,
 				4ACCCA032BBF3F1900670A7F /* dckvapi.h */,
 				4A8097A22BC181380042CAC1 /* dckvvapi */,

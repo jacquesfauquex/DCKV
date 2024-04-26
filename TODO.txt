@@ -51,7 +51,8 @@ leemos hasta 0xFFFF bytes a la vez (max vl)
 fread()
 ----------------------------------------------------------------------
 
-- storescp FFFCFFFC sr truncated before item2 of any sequence
+- defined length does not work
+Para pipe desde storescp evitamos el problema usando los argumentos de storescp +te -e (explicit little endian + length-undefined)
 
 - jsoninline
 - jsonbinref (files in dstdir)
