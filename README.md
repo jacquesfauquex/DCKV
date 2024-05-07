@@ -1,4 +1,4 @@
-# DICOM ordered contextualizedKey-values
+# DICOM contextualizedKey-value
 
 This repository is a work in progress toward a new representation for DICOM objects.
 
