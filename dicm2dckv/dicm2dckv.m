@@ -238,11 +238,6 @@ BOOL dicm2dckvInstance(
                  stidx,         // index in const char *csstr[]
                  siidx
                  )) return false;
-   if (!createdb(kvDEFAULT))
-   {
-      if (!canceltx(siidx)) E("%s","cannot cancel tx");
-      return false;
-   }
    
    if (*soidx>0) //part 10
    {

@@ -44,34 +44,6 @@ bool canceltx(uint16 *siidx,uint16 *sitot)
    return false;
 }
 
-
-#pragma mark - db
-
-//apertura kv
-bool createdb(enum kvDBcategory kvdb)
-{
-   //0 -> no se creó, o ya existe, always kvCoerce mode
-   return true;
-}
-#pragma mark todo (void*)&SZbytes)
-
-
-bool reopendb(enum kvDBcategory kvdb)
-{
-   //0 -> no estaba abierto o no se pudo reabrir
-   return false;
-}
-
-
-bool existsdb(enum kvDBcategory kvdb)
-{
-   return false;
-}
-
-
-#pragma mark - cw
-//operaciones exclusivas para primera creación
-//requiere que todas las enmiendas este clasificadas por key ascendientes
 bool appendkv(
               uint8_t            *kbuf,
               unsigned long      kloc,
@@ -83,83 +55,6 @@ bool appendkv(
               BOOL               fromStdin,
               uint8_t            *vbuf
               )
-{
-   return false;
-}
-
-#pragma mark - ow
-//operaciones de escritura sobre db preexistente reabierta
-
-
-
-bool coercekv(
-              enum kvDBcategory  kvdb,
-              uint8_t            *kbuf,
-              unsigned long      kloc,
-              uint8_t            *vbuf,
-              unsigned long long vlen
-              )
-{
-   return false;
-}
-
-bool coercek8v(
-               enum kvDBcategory  kvdb,
-               uint64             k8,
-               uint8_t            *vbuf,
-               unsigned long long vlen
-               )
-{
-   return false;
-}
-
-
-bool supplementkv(
-                  enum kvDBcategory  kvdb,
-                  uint8_t            *kbuf,
-                  unsigned long    kloc,
-                  uint8_t            *vbuf,
-                  unsigned long long vlen
-                 )
-{
-   return false;
-}
-
-
-bool supplementk8v(
-                   enum kvDBcategory  kvdb,
-                   uint64             k8,
-                   uint8_t            *vbuf,
-                   unsigned long long vlen
-                   )
-{
-   return false;
-}
-
-
-
-//operaciones remove (vlen is a pointer)
-//requieren vbuf de 0xFFFFFFFF length,
-//en el cual se escribe el valor borrado
-//vlen máx 0xFFFFFFFF indica que el key no existía
-bool removekv(
-               enum kvDBcategory  kvdb,
-               uint8_t            *kbuf,
-               unsigned long      kloc,
-               uint8_t            *vbuf,
-               unsigned long long *vlen
-              )
-{
-   return false;
-}
-
-
-bool removek8v(
-               enum kvDBcategory  kvdb,
-               uint64             k8,
-               uint8_t            *vbuf,
-               unsigned long long *vlen
-               )
 {
    return false;
 }

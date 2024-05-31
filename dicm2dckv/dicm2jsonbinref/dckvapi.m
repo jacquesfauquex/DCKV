@@ -43,10 +43,6 @@ bool committx(uint16 *siidx){
    return true;
 }
 bool canceltx(uint16 *siidx){return true;}
-bool createdb(enum kvDBcategory kvdb){return true;}
-
-
-#pragma mark - parseo y agregado
 
 bool appendkv(
               uint8_t            *kbuf,
@@ -312,83 +308,4 @@ bool appendkv(
    
    putchar('}');
    return true;
-}
-
-
-
-
-#pragma mark - ow
-//operaciones de escritura sobre db preexistente reabierta
-
-
-
-bool coercekv(
-              enum kvDBcategory  kvdb,
-              uint8_t            *kbuf,
-              int                kloc,
-              uint8_t            *vbuf,
-              unsigned long long vlen
-              )
-{
-   return false;
-}
-
-bool coercek8v(
-               enum kvDBcategory  kvbd,
-               uint64             k8,
-               uint8_t            *vbuf,
-               unsigned long long vlen
-               )
-{
-   return false;
-}
-
-
-bool supplementkv(
-                  enum kvDBcategory  kvdb,
-                  uint8_t            *kbuf,
-                  int                kloc,
-                  uint8_t            *vbuf,
-                  unsigned long long vlen
-                 )
-{
-   return false;
-}
-
-
-bool supplementk8v(enum kvDBcategory  kvdb,
-                   uint64             k8,
-                   uint8_t            *vbuf,
-                   unsigned long long vlen
-                   )
-{
-   return false;
-}
-
-
-
-//operaciones remove (vlen is a pointer)
-//requieren vbuf de 0xFFFFFFFF length,
-//en el cual se escribe el valor borrado
-//vlen máx 0xFFFFFFFF indica que el key no existía
-bool removekv(
-               enum kvDBcategory  kvdb,
-               uint8_t            *kbuf,
-               int                kloc,
-               uint8_t            *vbuf,
-               unsigned long long *vlen
-              )
-{
-   return false;
-}
-
-
-bool removek8v(
-               enum kvDBcategory  kvdb,
-               uint64             k8,
-               uint8_t            *vbuf,
-               unsigned long long *vlen
-               )
-{
-   return false;
 }

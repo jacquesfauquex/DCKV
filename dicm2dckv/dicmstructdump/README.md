@@ -1,17 +1,10 @@
 # dicmstructdump
 
+- dckv transformed on the flight into dump
+- conforms to dckvapi
+- compares to other dicom dump tools(dcmtk y dcm4chee). Though it is worth notice that dicmstructdump does not make use of any tag dictionary, which is a speed advantage on dcmtk dcmdump.
 
-
-- es una variante prototipo de dicm2dckv
-- permitió definir la función crucial de dckvapi (escritura de un kv)
-- cumple con dckvapi
-  - servirá de base para derivar 
-    - dicm2json
-    - dicm2xml
-    - dicm2mdbx
-- permite comparación con otras herramientas dicom dump (dcmtk y dcm4chee). No obstante, dicmstructdump no incorpora dicionario, por lo cual tiene ventaja competitiva en particular sobre dcmtk dcmdump.
-
-## comparación: parseo de un CT pesando 552 KB
+## parsing of a 552 kb CT
 
 - dicmstructdump parsea 
   
@@ -82,16 +75,12 @@ user   0m0.950s
 sys    0m0.154s
 ```
 
-### Resultado
+## Results
 
 | ejecutable                 | KB    |           | ms     |           |
 | ----------------------- | ------ | ------ | ------- | ------ |
 | dicmstructdump       | 129   | mejor | 0.015 | mejor |
 | dcmtk dcmdump      | 4600 | x 35   | 0.063 | x 4     |
 | dcm4che dcmdump | 2500 | x 19   | 0.840 | x 56   |
-
-¡¡¡ Resultado muy prometedor para dicm2dckv !!! 
-
-De lejos es el mejor candidato para contenedor webassembly  y ejecución desde navegador.
 
 

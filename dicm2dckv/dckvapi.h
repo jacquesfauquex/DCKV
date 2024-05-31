@@ -15,14 +15,6 @@
 //#include "stdbool.h"
 
 
-enum kvDBcategory{
-   kvDEFAULT=0,//requisito, recibe todo lo que no este en otra categoria
-   kvPRIVATE,  //opcional, separa atributos de grupo impar, privados
-   kvSERIES,   //opcional, separa atributos de nivel paciente estudio y serie, comunes a todas las instancias. Agregamos en esta categoria los atributos de nivel instancia de objectos SR y encapsulatedCDA, de tal forma que dichos objetos esten completamente accesibles desde una sola column family.
-   kvNATIVE,   //opcional, atributos específicos de la representación nativa (bitmap) de la imagen, y también transfer syntax y atributos relativos
-   kvFRAGMENTS //opcional, alternativa a NATIVE para las imágenes en sintaxis de transferencia comprimida y también transfer syntax y atributos relativos
-};
-
 enum kvVRcategory{
 kvFD,//floating point double
 kvFL,//floating point single
@@ -60,19 +52,6 @@ bool createtx(
 bool committx(uint16 *siidx);//aplica a todos los kv
 bool canceltx(uint16 *siidx);//aplica a todos los kv
 
-
-#pragma mark - db
-
-bool createdb(enum kvDBcategory kvdb);//0 -> no se creó, o ya existe, always kvCoerce mode
-bool reopendb(enum kvDBcategory kvdb);//0 -> no estaba abierto o no se pudo reabrir
-bool existsdb(enum kvDBcategory kvdb);
-
-
-#pragma mark - cw (create write) obligatorio
-//operaciones exclusivas para creación no categorizada
-//requiere que todas las enmiendas este clasificadas por key ascendientes
-
-
 //appendkv uses vStream y puede cargarlo directamente en el buffer de la db
 //vbuf es un búfer de 0xFFFF bytes útil para la lectura del stream en otros tipos de implementaciones. Su dimensión corresponde al tamaño máximo de atributos de tipo vl. si vStream is nil, vbuf contains the data of v
 bool appendkv(
@@ -85,58 +64,5 @@ bool appendkv(
               BOOL               fromStdin,
               uint8_t            *vbuf
               );
-
-#pragma mark - ow ((re)opened write) opcional
-//operaciones de escritura sobre db categorizada
-
-bool coercekv(
-              enum kvDBcategory  kvdb,
-              uint8_t            *kbuf,
-              int                klen,
-              uint8_t            *vbuf,
-              unsigned long long vlen
-              );
-
-bool coercek8v(
-               enum kvDBcategory  kvdb,
-               uint64             k8,
-               uint8_t            *vbuf,
-               unsigned long long vlen
-               );
-
-
-bool supplementkv(
-                  enum kvDBcategory  kvdb,
-                  uint8_t            *kbuf,
-                  int                klen,
-                  uint8_t            *vbuf,
-                  unsigned long long vlen
-                 );
-
-bool supplementk8v(enum kvDBcategory  kvdb,
-                   uint64             k8,
-                   uint8_t            *vbuf,
-                   unsigned long long vlen
-                   );
-
-
-//operaciones remove (vlen is a pointer)
-//requieren vbuf de 0xFFFFFFFF length,
-//en el cual se escribe el valor borrado
-//vlen máx 0xFFFFFFFF indica que el key no existía
-bool removekv(
-               enum kvDBcategory  kvdb,
-               uint8_t            *kbuf,
-               int                klen,
-               uint8_t            *vbuf,
-               unsigned long long *vlen
-              );
-
-bool removek8v(
-               enum kvDBcategory  kvdb,
-               uint64             k8,
-               uint8_t            *vbuf,
-               unsigned long long *vlen
-               );
 
 #endif /* dckvapi_h */

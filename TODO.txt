@@ -52,6 +52,7 @@ fread()
 ----------------------------------------------------------------------
 
 - defined length does not work
+
 Para pipe desde storescp evitamos el problema usando los argumentos de storescp +te -e (explicit little endian + length-undefined)
 
 - jsoninline

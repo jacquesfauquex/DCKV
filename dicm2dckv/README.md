@@ -6,8 +6,6 @@
 
 - These console apps in  c transform dicm into dckv and subproducts (xml,json,mdbx)
 
-- This is still a work in progress. A definitive rust version is worked out in another repository
-
 - the documentation is found in the wiki part of the github
 
 ## comando
