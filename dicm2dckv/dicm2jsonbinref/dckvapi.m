@@ -11,6 +11,46 @@
 #include "dckvapi.h"
 #include "log.h"
 
+size_t dckvapi_fread(
+                     void * __restrict __ptr,
+                     size_t __size,
+                     size_t __nitems,
+                     FILE * __restrict __stream
+                     )
+{
+   return fread(__ptr,__size,__nitems,__stream);
+}
+
+uint8 swapchar;
+
+
+//returns true when 8 bytes were read
+BOOL dckvapi_fread8(uint8_t *buffer, unsigned long *bytesReadRef)
+{
+   *bytesReadRef=fread(buffer, 1, 8, stdin);
+   if (ferror(stdin)){
+      E("%s","stdin error");
+      return false;
+   }
+   
+   if (*bytesReadRef==8){
+      swapchar=*buffer;
+      *buffer=*(buffer+1);
+      *(buffer+1)=swapchar;
+      swapchar=*(buffer+2);
+      *(buffer+2)=*(buffer+3);
+      *(buffer+3)=swapchar;
+   }
+   else
+   {
+      *buffer=0xFF;
+      *(buffer+1)=0xFF;
+      *(buffer+2)=0xFF;
+      *(buffer+3)=0xFF;
+   }
+   return true;
+}
+
 const char *space=" ";
 const char *backslash = "\\";
 
@@ -18,7 +58,6 @@ char *coma=" ";
 
 #pragma mark obligatorios formales
 bool createtx(
-   const char * srcurl,
    const char * dstdir,
    uint8_t    * vbuf,
    uint64 *soloc,         // offset in valbyes for sop class
@@ -29,25 +68,26 @@ bool createtx(
    uint64 *stloc,         // offset in valbyes for transfer syntax
    uint16 *stlen,         // length in valbyes for transfer syntax
    uint16 *stidx,         // index in const char *csstr[]
-   uint16 *siidx          // SOPinstance index
+   sint16 *siidx          // SOPinstance index
 ){
-   if ((*sitot > 1) && (*siidx==1)) putchar('[');
+   if (*siidx==1) putchar('[');//((*sitot > 1) &&
    if (*siidx>1) putchar(',');
    printf("%s","{\"00020001\":{\"vr\":\"OB\",\"InlineBinary\":\"AAE=\"}");
    return true;
 }
 
-bool committx(uint16 *siidx){
+bool committx(sint16 *siidx){
    putchar('}');
    //if ((*sitot > 1) && (*siidx==*sitot)) putchar(']');
    return true;
 }
-bool canceltx(uint16 *siidx){return true;}
+bool closetx(sint16 *siidx){return true;}
+
 
 bool appendkv(
               uint8_t            *kbuf,
               unsigned long      kloc,
-              BOOL               vll,
+              BOOL               vlenisl,
               enum kvVRcategory  vrcat,
               unsigned long long vloc,
               unsigned long      vlen,
@@ -62,7 +102,7 @@ bool appendkv(
    printf(",\"%08X\":{\"vr\":\"%c%c\"",CFSwapInt32(*t),v,r);
    
 
-   if (vll)
+   if (vlenisl==vll)
    {
       if (fromStdin && vlen)
       {
@@ -233,7 +273,7 @@ bool appendkv(
             if (vlen > 0)
             {
                vbuf[vlen]=0x0;//terminate even uid lists
-               char *token = strtok((*charvbuf, backslash);
+               char *token = strtok((*vbuf, backslash);
                while( token != NULL ) {
                   printf( "%c\"%s\"", *coma,token );
                   token = strtok(NULL, backslash);

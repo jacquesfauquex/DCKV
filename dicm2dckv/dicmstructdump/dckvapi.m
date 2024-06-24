@@ -11,6 +11,46 @@
 #include "dckvapi.h"
 #include "log.h"
 
+size_t dckvapi_fread(
+                     void * __restrict __ptr,
+                     size_t __size,
+                     size_t __nitems,
+                     FILE * __restrict __stream
+                     )
+{
+   return fread(__ptr,__size,__nitems,__stream);
+}
+
+uint8 swapchar;
+
+
+//returns true when 8 bytes were read
+BOOL dckvapi_fread8(uint8_t *buffer, unsigned long *bytesReadRef)
+{
+   *bytesReadRef=fread(buffer, 1, 8, stdin);
+   if (ferror(stdin)){
+      E("%s","stdin error");
+      return false;
+   }
+   
+   if (*bytesReadRef==8){
+      swapchar=*buffer;
+      *buffer=*(buffer+1);
+      *(buffer+1)=swapchar;
+      swapchar=*(buffer+2);
+      *(buffer+2)=*(buffer+3);
+      *(buffer+3)=swapchar;
+   }
+   else
+   {
+      *buffer=0xFF;
+      *(buffer+1)=0xFF;
+      *(buffer+2)=0xFF;
+      *(buffer+3)=0xFF;
+   }
+   return true;
+}
+
 const char *space=" ";
 const char *backslash = "\\";
 
@@ -26,16 +66,20 @@ bool createtx(
    uint64 *stloc,         // offset in valbyes for transfer syntax
    uint16 *stlen,         // length in valbyes for transfer syntax
    uint16 *stidx,         // index in const char *csstr[]
-   uint16 *siidx          // SOPinstance index
+   sint16 *siidx          // SOPinstance index
 ){
+   I("#%d",*siidx);
    printf("     144 %s\n","00020001 OB 0000 {156,2}");
    return true;
 }
-bool committx(uint16 *siidx){
+bool committx(sint16 *siidx){
+   return closetx(siidx);
+}
+bool closetx(sint16 *siidx){
+   I("!#%d",*siidx);
    (*siidx)++;
    return true;
 }
-bool canceltx(uint16 *siidx){return true;}
 
 
 #pragma mark - parseo y agregado
@@ -43,7 +87,7 @@ bool canceltx(uint16 *siidx){return true;}
 bool appendkv(
               uint8_t            *kbuf,
               unsigned long      kloc,
-              BOOL               vll,
+              BOOL               vlenisl,
               enum kvVRcategory  vrcat,
               unsigned long long vloc,
               unsigned long      vlen,
@@ -70,14 +114,14 @@ bool appendkv(
    
    //uint64* attruint64=(uint64*) kbuf+kloc;
    //printf("%*s%016llX\n",kloc+kloc+1,space, CFSwapInt64(*attruint64));
-   uint32* t=(uint32*) kbuf+(kloc/4);
+   uint32* t=(uint32*)kbuf+(kloc/4);
    uint32* i=0;
    if (kloc > 0) i=(uint32*) kbuf+(kloc/4)-4;
    uint16* l=(uint16*) kbuf+((kloc/2)+3);
    uint8 v=*(kbuf+(kloc+4));
    uint8 r=*(kbuf+(kloc+5));
       
-   if (vll)
+   if (vlenisl)
    {
       if (fromStdin && vlen)
       {

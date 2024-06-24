@@ -14,6 +14,26 @@
 //#include <stdio.h>
 //#include "stdbool.h"
 
+#pragma mark blocking code
+
+size_t dckvapi_fread(
+                     void * __restrict __ptr,
+                     size_t __size,
+                     size_t __nitems,
+                     FILE * __restrict __stream
+                     );
+
+struct t4r2l2 {
+   uint32 t;
+   uint16 r;
+   uint16 l;
+};
+
+//returns true when it was possible to read the 8 bytes
+BOOL dckvapi_fread8(uint8_t *buffer, unsigned long *bytesReadRef);
+
+
+#pragma mark - vr category
 
 enum kvVRcategory{
 kvFD,//floating point double
@@ -47,17 +67,18 @@ bool createtx(
    uint64 *stloc,         // offset in valbyes for transfer syntax
    uint16 *stlen,         // length in valbyes for transfer syntax
    uint16 *stidx,         // index in const char *csstr[]
-   uint16 *siidx          // SOPinstance index
+   sint16 *siidx          // SOPinstance index
 );
-bool committx(uint16 *siidx);//aplica a todos los kv
-bool canceltx(uint16 *siidx);//aplica a todos los kv
+bool committx(sint16 *siidx);//aplica a todos los kv
+bool closetx(sint16 *siidx);//aplica a todos los kv
 
 //appendkv uses vStream y puede cargarlo directamente en el buffer de la db
 //vbuf es un búfer de 0xFFFF bytes útil para la lectura del stream en otros tipos de implementaciones. Su dimensión corresponde al tamaño máximo de atributos de tipo vl. si vStream is nil, vbuf contains the data of v
+
 bool appendkv(
               uint8_t            *kbuf,
               unsigned long      kloc,
-              BOOL               vll,
+              BOOL               vlenisl,
               enum kvVRcategory  vrcat,
               unsigned long long vloc,
               unsigned long      vlen,

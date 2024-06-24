@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4ACCC9E32BBDC40A00670A7F"
-               BuildableName = "dicm2dckv"
-               BlueprintName = "dicm2dckv"
+               BuildableName = "dicm2mdbx"
+               BlueprintName = "dicm2mdbx"
                ReferencedContainer = "container:dicm2dckv.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,18 +45,22 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4ACCC9E32BBDC40A00670A7F"
-            BuildableName = "dicm2dckv"
-            BlueprintName = "dicm2dckv"
+            BuildableName = "dicm2mdbx"
+            BlueprintName = "dicm2mdbx"
             ReferencedContainer = "container:dicm2dckv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/Shared/TESTING/52861890@-^2.16.858.2.10001442.67430.20230312223752.5567013.8/1.3.12.2.1107.5.1.7.111639.30000023031222110008300000101/CT.1.3.12.2.1107.5.1.7.111639.30000023031222110008300000131.dcm"
+            argument = "D"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jacquesfauquex/mdbx"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG1.ele.dcm"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -72,8 +76,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4ACCC9E32BBDC40A00670A7F"
-            BuildableName = "dicm2dckv"
-            BlueprintName = "dicm2dckv"
+            BuildableName = "dicm2mdbx"
+            BlueprintName = "dicm2mdbx"
             ReferencedContainer = "container:dicm2dckv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

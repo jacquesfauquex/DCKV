@@ -12,18 +12,7 @@
 #import "Repertoires.h"
 #import "SopClasses.h"
 #import "TransferSyntaxes.h"
-
-//static NSArray *args=nil;
-
-struct t4r2l2 {
-   uint32 t;
-   uint16 r;
-   uint16 l;
-};
-
-//returns true when it was possible to read the 8 bytes
-BOOL read8(uint8_t *buffer, unsigned long *bytesReadRef);
-
+#import "dckvapi.h"
 
 /*
  read stream up to transfer syntax.
@@ -33,7 +22,7 @@ BOOL read8(uint8_t *buffer, unsigned long *bytesReadRef);
  
  returns sopuid (with eventual space padding)
  */
-char *dicmuptosopts(
+BOOL dicmuptosopts(
   uint8_t *kbuf, // buffer matriz de creación de nuevos keys por diferencial
   uint8_t *vbuf, // lectura del valor del atributo returns with sopiuid
   uint64 *inloc, // current stream byte index
@@ -52,7 +41,7 @@ BOOL dicm2dckvInstance(
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // buffer lectura del valor del atributo
    uint8_t *lbuf,
-   uint32 *llul,      // buffer lectura 4-bytes ll de atributos largos
+   uint32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
    uint64 *inloc,     // offstet en stream
    uint32 beforebyte, // limite superior de lectura
    uint32 beforetag,  // limite superior attr. first traspassing attr is read en kbuf
@@ -64,7 +53,7 @@ BOOL dicm2dckvInstance(
    uint64 *stloc,     // offset in valbyes for transfer syntax
    uint16 *stlen,     // length in valbyes for transfer syntax
    uint16 *stidx,     // index in const char *csstr[]
-   uint16 *siidx      // SOPinstance index
+   sint16 *siidx      // SOPinstance index
 );
 
 /*
@@ -77,7 +66,7 @@ BOOL dicm2dckvDataset(
    BOOL readfirstattr,    // true:read desde stream. false:ya está en kbuf
    uint16 keycs,          // key charset
    uint8_t *lbuf,
-   uint32 *llul,      // buffer lectura 4-bytes ll de atributos largos
+   uint32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
    uint8_t *vbuf,     // lectura del valor del atributo
    BOOL fromStdin,        // ... o from vbuf
    uint64 *inloc,           // offstet en stream

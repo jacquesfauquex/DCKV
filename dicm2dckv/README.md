@@ -4,21 +4,20 @@
 
 - **dckv** refers to our dicom contextual-key value format of DICOM
 
-- These console apps in  c transform dicm into dckv and subproducts (xml,json,mdbx)
+- These console apps written in  c transform dicm into dckv and subproducts (xml,json,mdbx)
 
-- the documentation is found in the wiki part of the github
 
-## comando
+## command
 
-Seguimos el modelo natural de streaming de linux (stdin, stdout, stderr).
+dicm2dckv uses linux streaming (stdin, stdout, stderr).
 
 ```
 command loglevel outdir
 ```
 
-- El nombre del comando difiere dependiendo el nombre de la implementación de dckvapi
-- loglevel es uno de [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
-- outdir (directorio adónde escribir los resultados )
+- The name of the app may differ depending on the specific implementation of dckvapi.h
+- loglevel is one of [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
+- outdir (dir where results are written)
 
 ## dckvapi
 
@@ -28,21 +27,23 @@ command loglevel outdir
 
 - we define an api to which any destination implementation should conform
   
-  - structdump was chosen for the prototype implementation
+  - the implementation "structdump" was chosen for the prototype
   
   - other implementations include 
+  
+    - "grouplengthremove"
     
-    - mdbx
+    - "mdbx"
     
-    - xml
+    - "xml"
     
-    - json
+    - "json"
 
-- We use non seekable stdin stream, so that the apps can be piped
+- all these apps receive non seekable stdin stream, so that data can be piped into them
 
 ## dicm
 
-- we developped specific dicm parsing tools
+- we developped specific tools for dicm parsing
   
   - subroutine parsing up to tag 0002,0010, with sopclass and transfer syntax recognition
     
