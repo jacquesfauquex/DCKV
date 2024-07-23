@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
    - outdir (directorio adónde escribir los resultados )
    */
    
-   uint8_t *kbuf = malloc(0xA0);//max use 16 bytes x 10 encapsulation levels
+   uint8_t *kbuf = malloc(0xFF);//max use 16 bytes x 10 encapsulation levels
    uint8_t *vbuf = malloc(0xFFFE);//max size of vl attribute values
    uint8_t *lbuf = malloc(0x4);//vll bytes
    uint32 vlen;//size of large attributes
@@ -50,11 +50,11 @@ int main(int argc, const char * argv[]) {
    //file or stdin
    sint16 siidx=1;//instances count
 
-   FILE *file = NULL;
+   FILE *inFile = NULL;
    if (argc==4)
    {
-      file=freopen(argv[3],"rb",stdin);//para testing
-      if (file==NULL) return errorArgs;
+      inFile=freopen(argv[3],"rb",stdin);//para testing
+      if (inFile==NULL) return errorArgs;
       siidx=-1;
    }
    else freopen(NULL, "rb", stdin);
@@ -103,6 +103,6 @@ int main(int argc, const char * argv[]) {
       }
    }
  
-   if (file!=NULL)fclose(file);
+   //if (inFile!=NULL) fclose(inFile);
    return exitOK;
 }

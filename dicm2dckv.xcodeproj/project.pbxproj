@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4A39E4512C299968004DE4FB /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A39E4502C299968004DE4FB /* dckvapi.m */; };
+		4A39E4572C299A41004DE4FB /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
+		4A39E4582C299A41004DE4FB /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
+		4A39E4592C299A41004DE4FB /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
+		4A39E45F2C299A69004DE4FB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
+		4A39E4652C299A8F004DE4FB /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
+		4A39E46C2C2A342B004DE4FB /* eDCKVprefixtag.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A39E46B2C2A342B004DE4FB /* eDCKVprefixtag.m */; };
 		4A6982AE2C1CE43A0094F9D9 /* mdbx.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A6982AD2C1CE43A0094F9D9 /* mdbx.c */; };
 		4A8098032BC90A540042CAC1 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A8097AF2BC4079A0042CAC1 /* dckvapi.m */; };
 		4A80980A2BC90AB50042CAC1 /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
@@ -30,6 +37,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		4A39E43B2C2998F7004DE4FB /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		4A8097F72BC90A370042CAC1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -70,9 +86,13 @@
 
 /* Begin PBXFileReference section */
 		4A39E4282C20669B004DE4FB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A39E43D2C2998F7004DE4FB /* eDCKVinline */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = eDCKVinline; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A39E44F2C299968004DE4FB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A39E4502C299968004DE4FB /* dckvapi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
+		4A39E46B2C2A342B004DE4FB /* eDCKVprefixtag.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = eDCKVprefixtag.m; sourceTree = "<group>"; };
 		4A6982AC2C1CE43A0094F9D9 /* mdbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdbx.h; sourceTree = "<group>"; };
 		4A6982AD2C1CE43A0094F9D9 /* mdbx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mdbx.c; sourceTree = "<group>"; };
-		4A80979F2BC034720042CAC1 /* seriesk8tags.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = seriesk8tags.h; sourceTree = "<group>"; };
+		4A80979F2BC034720042CAC1 /* eDCKVprefixtag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eDCKVprefixtag.h; sourceTree = "<group>"; };
 		4A8097AA2BC189A20042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A8097AF2BC4079A0042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
 		4A8097B12BC4079A0042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
@@ -89,6 +109,7 @@
 		4A80999D2BD0A6590042CAC1 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A8099B62BDBEEC80042CAC1 /* dcmtk */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dcmtk; sourceTree = "<group>"; };
 		4ABA009D2C0A1CB80066AED3 /* doc_fread.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = doc_fread.txt; sourceTree = "<group>"; };
+		4AC9A5102C4AE2290078C566 /* snippets */ = {isa = PBXFileReference; lastKnownFileType = text; path = snippets; sourceTree = "<group>"; };
 		4ACCC9E42BBDC40A00670A7F /* dicm2mdbx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicm2mdbx; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACCC9E72BBDC40A00670A7F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SopClasses.m; sourceTree = "<group>"; };
@@ -104,6 +125,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4A39E43A2C2998F7004DE4FB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4A8097F62BC90A370042CAC1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -135,9 +163,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4A39E44E2C299968004DE4FB /* eDCKVinline */ = {
+			isa = PBXGroup;
+			children = (
+				4A39E44F2C299968004DE4FB /* README.md */,
+				4A39E4502C299968004DE4FB /* dckvapi.m */,
+				4AC9A5102C4AE2290078C566 /* snippets */,
+			);
+			path = eDCKVinline;
+			sourceTree = "<group>";
+		};
 		4A8097A22BC181380042CAC1 /* dckvvapi */ = {
 			isa = PBXGroup;
 			children = (
+				4A39E44E2C299968004DE4FB /* eDCKVinline */,
 				4A8097B02BC4079A0042CAC1 /* dicm2mdbx */,
 				4A8097FA2BC90A370042CAC1 /* dicmstructdump */,
 				4A8099642BD0A5290042CAC1 /* dicm2jsonbinref */,
@@ -193,7 +232,8 @@
 				4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */,
 				4ACCC9F42BBE2ACF00670A7F /* TransferSyntaxes.h */,
 				4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */,
-				4A80979F2BC034720042CAC1 /* seriesk8tags.h */,
+				4A80979F2BC034720042CAC1 /* eDCKVprefixtag.h */,
+				4A39E46B2C2A342B004DE4FB /* eDCKVprefixtag.m */,
 			);
 			path = dicm;
 			sourceTree = "<group>";
@@ -227,6 +267,7 @@
 				4A8097F92BC90A370042CAC1 /* dicmstructdump */,
 				4A80982A2BC931FE0042CAC1 /* dicm2xml */,
 				4A80996D2BD0A5DA0042CAC1 /* dicm2jsonbinref */,
+				4A39E43D2C2998F7004DE4FB /* eDCKVinline */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -248,6 +289,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4A39E43C2C2998F7004DE4FB /* eDCKVinline */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A39E4412C2998F7004DE4FB /* Build configuration list for PBXNativeTarget "eDCKVinline" */;
+			buildPhases = (
+				4A39E4392C2998F7004DE4FB /* Sources */,
+				4A39E43A2C2998F7004DE4FB /* Frameworks */,
+				4A39E43B2C2998F7004DE4FB /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = eDCKVinline;
+			productName = eDCKVinline;
+			productReference = 4A39E43D2C2998F7004DE4FB /* eDCKVinline */;
+			productType = "com.apple.product-type.tool";
+		};
 		4A8097F82BC90A370042CAC1 /* dicmstructdump */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4A8097FD2BC90A370042CAC1 /* Build configuration list for PBXNativeTarget "dicmstructdump" */;
@@ -324,6 +382,9 @@
 			attributes = {
 				LastUpgradeCheck = 1240;
 				TargetAttributes = {
+					4A39E43C2C2998F7004DE4FB = {
+						CreatedOnToolsVersion = 12.4;
+					};
 					4A8097F82BC90A370042CAC1 = {
 						CreatedOnToolsVersion = 12.4;
 					};
@@ -355,11 +416,26 @@
 				4A8097F82BC90A370042CAC1 /* dicmstructdump */,
 				4A8098292BC931FE0042CAC1 /* dicm2xml */,
 				4A80996C2BD0A5DA0042CAC1 /* dicm2jsonbinref */,
+				4A39E43C2C2998F7004DE4FB /* eDCKVinline */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4A39E4392C2998F7004DE4FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A39E46C2C2A342B004DE4FB /* eDCKVprefixtag.m in Sources */,
+				4A39E4652C299A8F004DE4FB /* dicm2dckv.m in Sources */,
+				4A39E45F2C299A69004DE4FB /* main.m in Sources */,
+				4A39E4572C299A41004DE4FB /* Repertoires.m in Sources */,
+				4A39E4582C299A41004DE4FB /* SopClasses.m in Sources */,
+				4A39E4592C299A41004DE4FB /* TransferSyntaxes.m in Sources */,
+				4A39E4512C299968004DE4FB /* dckvapi.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4A8097F52BC90A370042CAC1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -411,6 +487,22 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		4A39E4422C2998F7004DE4FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4A39E4432C2998F7004DE4FB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		4A8097FE2BC90A370042CAC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -589,6 +681,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4A39E4412C2998F7004DE4FB /* Build configuration list for PBXNativeTarget "eDCKVinline" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4A39E4422C2998F7004DE4FB /* Debug */,
+				4A39E4432C2998F7004DE4FB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4A8097FD2BC90A370042CAC1 /* Build configuration list for PBXNativeTarget "dicmstructdump" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -1,0 +1,23 @@
+/*
+#pragma mark borrar
+   uint32* leaftag=(uint32*)kbuf+(kloc/4);
+   uint32* i=0;
+   if (kloc > 0) i=(uint32*) kbuf+(kloc/4)-4;
+   uint16* l=(uint16*) kbuf+((kloc/2)+3);
+   uint8 v=*(kbuf+(kloc+4));
+   uint8 r=*(kbuf+(kloc+5));
+   
+   
+#pragma mark
+      if (fromStdin && vlen)
+      {
+         unsigned long ll=vlen;
+         while (ll>0xFFFE)
+         {
+            if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
+            ll-=0xFFFE;
+         }
+         if (ll && (!feof(stdin)) && (fread(vbuf,1,ll,stdin)!=ll)) return false;
+      }
+
+*/

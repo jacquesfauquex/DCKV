@@ -36,21 +36,64 @@ BOOL dckvapi_fread8(uint8_t *buffer, unsigned long *bytesReadRef);
 #pragma mark - vr category
 
 enum kvVRcategory{
-kvFD,//floating point double
-kvFL,//floating point single
-kvSL,//signed long
-kvSS,//signed short
-kvUL,//unsigned long
-kvUS,//unsigned short
-kvAT,//attribute tag, 2 uint16 hexa
-kvUI,//unique ID eventualmente terminado por 0x00
-kvTXT,//texts ascii or charset or url-encoded
-kvPN,//person name has a special treatment in json and xml
-kvBIN,//binary, not textually represented
-kvSA,//SQ head
-kvIA,//item head
-kvIZ,//item tail
-kvSZ//SQ tail
+kvFD,//FD 0 floating point double
+   
+kvFL,//FL 1 floating point single
+   
+kvSL,//SL 2 signed long
+   
+kvSS,//SS 3 signed short
+   
+kvUL,//UL 4 unsigned long
+   
+kvUS,//US 5 unsigned short
+   
+kvAT,//AT 6 attribute tag, 2 uint16 hexa
+   
+kvUI,//UI 7 unique ID eventualmente terminado por 0x00
+kvII,//UI 8 SOPInstanceUID
+kvIE,//UI 9 StudyInstanceUID
+kvIS,//UI 10 SeriesInstanceUID
+
+kvTP,//AS DT TM DA 11 text short ascii pair length
+kvEd,//DA 12 StudyDate
+
+kvTA,//AE DS IS CS 13 text short ascii
+kvSm,//CS 14 Modality
+kvAt,//CS 15 AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400,X500,...)
+kvIs,//IS 16 SeriesNumber
+kvIi,//IS 17 InstanceNumber
+kvIa,//IS 18 AcquisitionNumber
+
+kvTS,//LO LT SH ST 19 text short charset
+kvHC,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
+kvEi,//SH 21 StudyID
+kvAn,//SH 22 AccessionNumber 00080050
+kvdn,//ST 23 DocumentTitle 00420010
+   
+kvTL,//UC UT 24 text long charset
+kvAl,//UT 25 AccessionNumberIssuer local 00080051.00400031
+kvAu,//UT 26 AccessionNumberIssuer universal 00080051.00400032
+   
+kvTU,//UR 27 text long url-encoded
+   
+kvPN,//PN 28 person name has a special treatment in json and xml
+
+kved,//OB 29 Encapsulated​Document 00420011
+kvfo,//OV 30 Extended​Offset​Table fragments offset 7FE00001
+kvfl,//OV 31 Extended​Offset​TableLengths fragments offset 7FE00002
+kvft,//UV 32 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
+kv01,//OB OD OF OL OV OW SV UV 33 binary, not textually represented
+   
+kvUN,//UN 34
+   
+kvSA,//SQ 35 head
+   
+kvIA,//36 item head
+   
+kvIZ,//37 item tail
+   
+kvSZ//38 SQ tail
 };
 
 

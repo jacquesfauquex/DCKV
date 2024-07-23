@@ -116,9 +116,10 @@ bool appendkv(
       }
       switch (vrcat) {
 #pragma mark ll BIN
-         case kvBIN://not representable
+         case kv01://not representable
 #pragma mark ll TXTY
-         case kvTXT://texts ascii or charset
+         case kvTL:
+         case kvTU:
          {
             if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X {%llu,%lu}\n",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l,vloc+12,vlen);
             else printf("%8lld %08X %c%c %04X {%llu,%lu}\n",vloc,CFSwapInt32(*t),v,r,*l,vloc+12,vlen);
@@ -283,7 +284,9 @@ bool appendkv(
             putchar(']');
          }break;
 #pragma mark TXT
-         case kvTXT://valores representadas por texto
+         case kvTP:
+         case kvTA:
+         case kvTS:
          {
             if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);

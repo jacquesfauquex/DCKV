@@ -123,29 +123,91 @@ bool appendkv(
       
    if (vlenisl)
    {
-      if (fromStdin && vlen)
+#pragma mark long length
+      if (vlen==0xFFFFFFFF)
       {
-         unsigned long ll=vlen;
-         while (ll>0xFFFE)
+         unsigned long long ulllen=0;
+         if (fromStdin)
          {
-            if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
-            ll-=0xFFFE;
+            size_t bytesread=0xFFFE;
+            while (bytesread==0xFFFE)
+            {
+               bytesread=fread(vbuf,1,0xFFFE,stdin);
+               ulllen+=bytesread;
+            }
          }
-         if (ll && (!feof(stdin)) && (fread(vbuf,1,ll,stdin)!=ll)) return false;
-      }
-      switch (vrcat) {
-            
-         case kvBIN://not representable
-         case kvTXT://texts ascii or charset
-            printf("%08X %c%c %04X {%llu,%lu}\n",CFSwapInt32(*t),v,r,*l,vloc+12,vlen);
-            break;
-            
-         case kvSA://SQ head
+         else if (!fromStdin)
          {
-            printf("%08X00000000\n", CFSwapInt32(*t));
-         }break;
+            //contents already in vbuf
+         }
+         switch (vrcat) {
+             
+            case kvAl://AccessionNumberIssuer local 00080051.00400031
+            case kvAu://AccessionNumberIssuer universal 00080051.00400032
+            case kvTL://UC
 
-         default: return false;
+            case kvTU://UR
+            
+            case kved://OB Encapsulated​Document 00420011
+            case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
+            case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
+            case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
+            case kv01://OB OD OF OL OV OW SV UV
+               
+            case kvUN:
+               printf("%08X %c%c %04X {%llu,%llu}\n",CFSwapInt32(*t),v,r,*l,vloc+12,ulllen);
+               break;
+               
+            case kvSA://SQ head
+            {
+               printf("%08X00000000\n", CFSwapInt32(*t));
+            }break;
+
+            default: return false;
+         }
+
+      }
+      else
+      {
+#pragma mark short length
+         
+         if (fromStdin && vlen)
+         {
+            unsigned long ll=vlen;
+            while (ll>0xFFFE)
+            {
+               if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
+               ll-=0xFFFE;
+            }
+            if (ll && (!feof(stdin)) && (fread(vbuf,1,ll,stdin)!=ll)) return false;
+         }
+         else if (!fromStdin)
+         {
+            //contents already in vbuf
+         }
+         
+         
+         switch (vrcat) {
+             
+            case kvAl://AccessionNumberIssuer local 00080051.00400031
+            case kvAu://AccessionNumberIssuer universal 00080051.00400032
+            case kvTL://UC
+
+            case kvTU://UR
+               
+            case kv01://OB OD OF OL OV OW SV UV
+               
+            case kvUN:
+               printf("%08X %c%c %04X {%llu,%lu}\n",CFSwapInt32(*t),v,r,*l,vloc+12,vlen);
+               break;
+               
+            case kvSA://SQ head
+            {
+               printf("%08X00000000\n", CFSwapInt32(*t));
+            }break;
+
+            default: return false;
+         }
       }
    }
    else //vl
@@ -265,6 +327,9 @@ bool appendkv(
             printf("\n");
          }break;
             
+         case kvII://SOPInstanceUID
+         case kvIE://StudyInstanceUID
+         case kvIS://SeriesInstanceUID
          case kvUI://unique ID
          {
             printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
@@ -282,9 +347,24 @@ bool appendkv(
             printf("\n");
          }break;
             
-         case kvTXT://valores representadas por texto
+         case kvEd://StudyDate
+         case kvTP:
+            
+         case kvSm://Modality
+         case kvAt://AccessionNumberType
+         case kvIs://SeriesNumber
+         case kvIi://InstanceNumber
+         case kvIa://AcquisitionNumber
+         case kvTA://AE DS IS CS
+            
+         case kvdn://ST  DocumentTitle 00420010
+         case kvHC://HL7InstanceIdentifier
+         case kvEi://StudyID
+         case kvAn://AccessionNumber
+         case kvTS://LO LT SH ST
+            
          case kvPN:
-        {
+         {
             printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {

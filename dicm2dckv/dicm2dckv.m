@@ -10,8 +10,36 @@
 
 #include "dckvapi.h"
 
+const uint32 B00080005=0x05000800;//charset
 
-const uint32 tag00081150=0x50110800;
+const uint32 B00080018=0x18000800;//kvII UI SOPInstanceUID
+const uint32 B0020000D=0x0D002000;//kvIE UI StudyInstanceUID
+const uint32 B0020000E=0x0E002000;//kvIS UI SeriesInstanceUID
+
+const uint32 B0040E001=0x0E002000;//kvHC ST CDA root^extension
+
+const uint32 B00080020=0x20000800;//kvEd DA StudyDate
+const uint32 B00200010=0x10002000;//kvEi SH StudyID
+const uint32 B00080060=0x60000800;//kvSm CS Modality
+
+const uint32 B00200011=0x11002000;//kvIs IS SeriesNumber
+const uint32 B00200012=0x12002000;//kvIa IS AcquisitionNumber
+const uint32 B00200013=0x13002000;//kvIi IS InstanceNumber
+
+const uint32 B00080050=0x50000800;//kvAn SH Accession​Number
+const uint32 B00080051=0x51000800;//kvAn SH Accession​NumberIssuer
+const uint32 B00400031=0x31004000;//kvAl UT Accession​Number local
+const uint32 B00400032=0x32004000;//kvAu UT Accession​Number universal
+const uint32 B00400033=0x33004000;//kvAt CS Accession​Number type
+
+const uint32 B00081150=0x50110800;
+
+const uint32 B00420010=0x10004200;
+const uint32 B00420011=0x11004200;
+
+const uint32 B7FE00001=0x0100E07F;//kvfo Extended​Offset​Table
+const uint32 B7FE00002=0x0200E07F;//kvfl Extended​Offset​TableLengths
+const uint32 B7FE00003=0x0300E07F;//kvft Encapsulated​Pixel​Data​Value​Total​Length
 
 const uint64 SZbytes=0xDDE0FEFF;//FFFEE0DD00000000
 const uint64 IAbytes=0xFFFFFFFF00E0FEFF;//FFFEE000FFFFFFFF
@@ -308,6 +336,7 @@ BOOL dicm2dckvDataset(
             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
+            
          case FL://floating point single
          {
             *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
@@ -316,6 +345,7 @@ BOOL dicm2dckvDataset(
             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
+            
          case SL://signed long
          {
             *vlen=attrstruct->l;//length is then replaced in K by encoding
@@ -324,6 +354,7 @@ BOOL dicm2dckvDataset(
             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
+            
          case SS://signed short
          {
             *vlen=attrstruct->l;//length is then replaced in K by encoding
@@ -332,6 +363,7 @@ BOOL dicm2dckvDataset(
             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
+            
          case UL://unsigned long
          {
             *vlen=attrstruct->l;//length is then replaced in K by encoding
@@ -340,6 +372,7 @@ BOOL dicm2dckvDataset(
             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
+            
         case US://unsigned short
          {
             *vlen=attrstruct->l;//length is then replaced in K by encoding
@@ -356,97 +389,195 @@ BOOL dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
             if (!appendkv(kbuf,kloc,isshort,kvAT,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
-
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
 
-#pragma mark vl ascii code
-         case CS://coded string
-         {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
-            attrstruct->l=REPERTOIRE_GL;
-            //charset
-            
-            if ( attrstruct->t ==0x05000800 ){
-               if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
-               uint16 repidxs=repertoireidx(vbuf,*vlen);
-               if (repidxs==0x09)
-               {
-                  E("bad repertoire %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:vbuf length:*vlen] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
-                  return false;
-               }
-               else
-               {
-                  keycs=(keycs & 0x8000) | repidxs;
-                  attrstruct->l=repidxs;
-               }
-               if (!appendkv(kbuf,kloc,isshort,kvTXT,*inloc,*vlen,frombuffer,vbuf)) return false;
-            }
-            else
-            {
-              if (!appendkv(kbuf,kloc,isshort,kvTXT,*inloc,*vlen,fromStdin,vbuf)) return false;
-            }
-            *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
-         } break;
-            
 #pragma mark vl oid code
          case UI://unique ID
          {
             *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             
-            if ( attrstruct->t==tag00081150 ){//0x50110800
-               if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
-               
-               uint16 sopclassidx=scidx( vbuf, *vlen - (vbuf[*vlen - 1]==0x0) );
-               if (sopclassidx==0x00)
-               {
-                  E("bad sop class %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:vbuf length:*vlen] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
-                  return false;
-               }
-               else attrstruct->l=sopclassidx;
-               if (!appendkv(kbuf,kloc,isshort,kvUI,*inloc,*vlen,frombuffer,vbuf)) return false;
+            switch (attrstruct->t) {
+               case B00080018: if (!appendkv(kbuf,kloc,isshort,kvII,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B0020000D: if (!appendkv(kbuf,kloc,isshort,kvIE,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B0020000E: if (!appendkv(kbuf,kloc,isshort,kvIS,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00081150:{
+                  if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
+                  
+                  uint16 sopclassidx=scidx( vbuf, *vlen - (vbuf[*vlen - 1]==0x0) );
+                  if (sopclassidx==0x00)
+                  {
+                     E("bad sop class %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:vbuf length:*vlen] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
+                     return false;
+                  }
+                  else attrstruct->l=sopclassidx;
+                  if (!appendkv(kbuf,kloc,isshort,kvUI,*inloc,*vlen,frombuffer,vbuf)) return false;
+               } break;
+                  
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvUI,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
             }
-            else
-            {
-               if (!appendkv(kbuf,kloc,isshort,kvUI,*inloc,*vlen,fromStdin,vbuf)) return false;
-            }
-            *inloc += 8 + *vlen;
-
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
-         } break;
-
-#pragma mark vl ascii
-         case AE://application entity
-         case AS://age string
-         case DA://date
-         case DS://decimal string
-         case DT://date time
-         case IS://integer string
-         case TM://time
-         {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
-            attrstruct->l=REPERTOIRE_GL;
-            //charset
-            if (!appendkv(kbuf,kloc,isshort,kvTXT,*inloc,*vlen,fromStdin,vbuf)) return false;
-            *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
-         } break;
-
-#pragma mark vl charset
-         case LO://long string
-         case LT://long text
-         case SH://short string
-         case ST://short text
-         {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
-            attrstruct->l=keycs;
-            if (!appendkv(kbuf,kloc,isshort,kvTXT,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
             
+#pragma mark vl ascii code
+         case CS://coded string
+         {
+            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            switch (attrstruct->t) {
+               case B00080060: if (!appendkv(kbuf,kloc,isshort,kvSm,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00400033:{ //kvAt CS Accession​Number type
+                  uint32 *itemtag=(uint32 *)kbuf;
+                  if (*itemtag==B00080051)
+                  {
+                     if (!appendkv(kbuf,kloc,isshort,kvAt,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  }
+                  else
+                  {
+                     if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  }
+               }break;
+               case B00080005:{
+                  if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
+                  uint16 repidxs=repertoireidx(vbuf,*vlen);
+                  if (repidxs==0x09)
+                  {
+                     E("bad repertoire %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:vbuf length:*vlen] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
+                     return false;
+                  }
+                  else
+                  {
+                     keycs=(keycs & 0x8000) | repidxs;
+                     attrstruct->l=repidxs;
+                  }
+                  if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,frombuffer,vbuf)) return false;
+               } break;
+                  
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+            *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+            
+
+#pragma mark vl ascii
+         case AS://age string
+         case DT://date time
+         case TM://time
+         {
+            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            if (!appendkv(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
+            *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+         case DA://date
+         {
+            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            switch (attrstruct->t) {
+               case B00080020:
+                  if (!appendkv(kbuf,kloc,isshort,kvEd,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+            *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+
+         case AE://application entity
+         case DS://decimal string
+         {
+            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            //charset
+            if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
+            *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+
+         case IS://integer string
+         {
+            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            switch (attrstruct->t) {
+               case B00200011:
+                  if (!appendkv(kbuf,kloc,isshort,kvIs,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               case B00200012:
+                  if (!appendkv(kbuf,kloc,isshort,kvIa,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               case B00200013:
+                  if (!appendkv(kbuf,kloc,isshort,kvIi,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+            *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+
+            
+#pragma mark vl charset
+         case LO://long string
+         case LT://long text
+         {
+            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=keycs;
+            if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+            *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+
+         case SH://short string
+         {
+            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=keycs;
+            switch (attrstruct->t) {
+               case B00200010:
+                  if (!appendkv(kbuf,kloc,isshort,kvEi,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               case B00080050:
+                  if (!appendkv(kbuf,kloc,isshort,kvAn,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+            *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+
+
+            
+         case ST://short text
+         {
+            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=keycs;
+            switch (attrstruct->t) {
+               case B0040E001://kvHC ST CDA root^extension
+                  if (!appendkv(kbuf,kloc,isshort,kvHC,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               case B00420010://kvdn ST DocumentTitle 00420010
+                  if (!appendkv(kbuf,kloc,isshort,kvdn,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+            *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+
 #pragma mark vl person
          case PN://person name
          {
@@ -458,13 +589,80 @@ BOOL dicm2dckvDataset(
          } break;
 
 #pragma mark vll bin
+            
+            
          case OB://other byte
+         {
+            attrstruct->l=REPERTOIRE_GL;
+
+            lbuf=kbuf+kloc+8;//subbuffer for ll reading
+            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+               E("%s","stream end instead of vll");
+               return false;
+            }
+            *vlen=*(uint32*)lbuf;
+            switch (attrstruct->t) {
+               case B00420011:
+                  if (!appendkv(kbuf,kloc,isshort,kved,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+            *inloc += 12 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+
+            
          case OD://other double
          case OF://other float
          case OL://other long
-         case OV://other 64-bit very long
          case OW://other word
          case SV://signed 64-bit very long
+         {
+            attrstruct->l=REPERTOIRE_GL;
+
+            lbuf=kbuf+kloc+8;//subbuffer for ll reading
+            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+               E("%s","stream end instead of vll");
+               return false;
+            }
+            *vlen=*(uint32*)lbuf;
+            if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
+
+            *inloc += 12 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+
+         } break;
+
+
+            
+         case OV://other 64-bit very long
+         {
+            attrstruct->l=REPERTOIRE_GL;
+
+            lbuf=kbuf+kloc+8;//subbuffer for ll reading
+            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+               E("%s","stream end instead of vll");
+               return false;
+            }
+            *vlen=*(uint32*)lbuf;
+            switch (attrstruct->t) {
+               case B7FE00001:
+                  if (!appendkv(kbuf,kloc,isshort,kvfo,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               case B7FE00002:
+                  if (!appendkv(kbuf,kloc,isshort,kvfl,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+
+            *inloc += 12 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+            
          case UV://unsigned 64-bit very long
          {
             attrstruct->l=REPERTOIRE_GL;
@@ -475,7 +673,14 @@ BOOL dicm2dckvDataset(
                return false;
             }
             *vlen=*(uint32*)lbuf;
-            if (!appendkv(kbuf,kloc,islong,kvBIN,*inloc,*vlen,fromStdin,vbuf)) return false;
+            switch (attrstruct->t) {
+               case B7FE00003:
+                  if (!appendkv(kbuf,kloc,isshort,kvft,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
 
             *inloc += 12 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
@@ -485,6 +690,22 @@ BOOL dicm2dckvDataset(
 
 #pragma mark vll charset
          case UC://unlimited characters
+         {
+            attrstruct->l=keycs;
+
+            lbuf=kbuf+kloc+8;//subbuffer for ll reading
+            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+               E("%s","stream end instead of vll");
+               return false;
+            }
+            *vlen=*(uint32*)lbuf;
+            if (!appendkv(kbuf,kloc,islong,kvTL,*inloc,*vlen,fromStdin,vbuf)) return false;
+
+            *inloc += 12 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+
+         } break;
+
          case UT://unlimited text
          {
             attrstruct->l=keycs;
@@ -495,13 +716,23 @@ BOOL dicm2dckvDataset(
                return false;
             }
             *vlen=*(uint32*)lbuf;
-            if (!appendkv(kbuf,kloc,islong,kvTXT,*inloc,*vlen,fromStdin,vbuf)) return false;
-
+            switch (attrstruct->t) {
+               case B00400031:
+                  if (!appendkv(kbuf,kloc,islong,kvAl,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               case B00400032:
+                  if (!appendkv(kbuf,kloc,islong,kvAu,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,islong,kvTL,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
             *inloc += 12 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
 
          } break;
 
+            
 #pragma mark vll RFC3986
          case UR://universal resrcurl identifier/locator
          {
@@ -513,7 +744,7 @@ BOOL dicm2dckvDataset(
                return false;
             }
             *vlen=*(uint32*)lbuf;
-            if (!appendkv(kbuf,kloc,islong,kvTXT,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,islong,kvTU,*inloc,*vlen,fromStdin,vbuf)) return false;
             
             *inloc += 12 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
@@ -534,7 +765,7 @@ BOOL dicm2dckvDataset(
                return false;
             }
             *vlen=*(uint32*)lbuf;
-            if (!appendkv(kbuf,kloc,islong,kvBIN,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!appendkv(kbuf,kloc,islong,kvUN,*inloc,*vlen,fromStdin,vbuf)) return false;
 
             *inloc += 12 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
@@ -721,7 +952,7 @@ BOOL dicm2dckvDataset(
       }
       *vlen=*(uint32*)lbuf;
 
-      if ((*vlen > 0) && !appendkv(kbuf,kloc,islong,kvBIN,*inloc,*vlen,fromStdin,vbuf)) return false;
+      if ((*vlen > 0) && !appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
    }
 
    return true;
