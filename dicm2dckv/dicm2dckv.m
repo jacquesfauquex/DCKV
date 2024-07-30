@@ -28,14 +28,16 @@ const uint32 B00200013=0x13002000;//kvIi IS InstanceNumber
 
 const uint32 B00080050=0x50000800;//kvAn SH Accession​Number
 const uint32 B00080051=0x51000800;//kvAn SH Accession​NumberIssuer
+const uint32 B00080080=0x80000800;//kvIN LO InstitutionName
+
 const uint32 B00400031=0x31004000;//kvAl UT Accession​Number local
 const uint32 B00400032=0x32004000;//kvAu UT Accession​Number universal
 const uint32 B00400033=0x33004000;//kvAt CS Accession​Number type
 
 const uint32 B00081150=0x50110800;
 
-const uint32 B00420010=0x10004200;
-const uint32 B00420011=0x11004200;
+const uint32 B00420010=0x10004200;//kvdn ST DocumentTitle
+const uint32 B00420011=0x11004200;//kved OB EncapsulatedDocument
 
 const uint32 B7FE00001=0x0100E07F;//kvfo Extended​Offset​Table
 const uint32 B7FE00002=0x0200E07F;//kvfl Extended​Offset​TableLengths
@@ -533,7 +535,15 @@ BOOL dicm2dckvDataset(
          {
             *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=keycs;
-            if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+            switch (attrstruct->t) {
+               case B00080080://institution name
+                  if (!appendkv(kbuf,kloc,isshort,kvIN,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+            
             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;

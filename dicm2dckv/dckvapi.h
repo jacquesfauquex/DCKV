@@ -54,6 +54,7 @@ kvUI,//UI 7 unique ID eventualmente terminado por 0x00
 kvII,//UI 8 SOPInstanceUID
 kvIE,//UI 9 StudyInstanceUID
 kvIS,//UI 10 SeriesInstanceUID
+     //kvPU,//UI 00080019 PyramidUID
 
 kvTP,//AS DT TM DA 11 text short ascii pair length
 kvEd,//DA 12 StudyDate
@@ -64,12 +65,14 @@ kvAt,//CS 15 AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400
 kvIs,//IS 16 SeriesNumber
 kvIi,//IS 17 InstanceNumber
 kvIa,//IS 18 AcquisitionNumber
+     //kvIT,//CS 00080008 ImageType
 
 kvTS,//LO LT SH ST 19 text short charset
 kvHC,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
 kvEi,//SH 21 StudyID
 kvAn,//SH 22 AccessionNumber 00080050
 kvdn,//ST 23 DocumentTitle 00420010
+kvIN,//LO InstitutionName 00080080
    
 kvTL,//UC UT 24 text long charset
 kvAl,//UT 25 AccessionNumberIssuer local 00080051.00400031

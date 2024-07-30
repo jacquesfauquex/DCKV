@@ -580,6 +580,7 @@ bool appendkv(
             case kvEi://StudyID
             case kvAn://AccessionNumber
             case kvTS://valores representadas por texto
+            case kvIN://InstitutionName
             case kvPN:
             {
               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
