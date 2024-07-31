@@ -10,6 +10,7 @@
 #define dckvapi_h
 
 #import <Foundation/Foundation.h>
+#include "log.h"
 
 //#include <stdio.h>
 //#include "stdbool.h"

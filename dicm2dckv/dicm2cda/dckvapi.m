@@ -9,7 +9,6 @@
 #include <Foundation/Foundation.h>
 
 #include "dckvapi.h"
-#include "log.h"
 
 
 //possibility to overwrite any value read

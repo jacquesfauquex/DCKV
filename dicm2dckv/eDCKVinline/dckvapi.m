@@ -6,7 +6,6 @@
 #include <Foundation/Foundation.h>
 
 #include "dckvapi.h"
-#include "log.h"
 
 #include "eDCKVprefixtag.h"
 

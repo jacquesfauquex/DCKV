@@ -8,7 +8,6 @@
 
 #include "dckvapi.h"
 #include "mdbx.h"
-#include "log.h"
 
 
 size_t dckvapi_fread(

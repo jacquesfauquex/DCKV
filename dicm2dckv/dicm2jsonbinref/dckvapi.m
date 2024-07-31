@@ -9,7 +9,6 @@
 #include <Foundation/Foundation.h>
 
 #include "dckvapi.h"
-#include "log.h"
 
 size_t dckvapi_fread(
                      void * __restrict __ptr,

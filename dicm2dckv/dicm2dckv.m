@@ -6,7 +6,7 @@
 //
 
 #include "dicm2dckv.h"
-#include "log.h"
+
 
 #include "dckvapi.h"
 

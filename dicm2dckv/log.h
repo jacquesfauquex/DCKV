@@ -1,12 +1,5 @@
-//
-//  ODLog.h
-//  dicm2dckv
-//
-//  Created by jacquesfauquex on 2024-04-03.
-//
+// log.h
 
-#ifndef main_h
-#define main_h
 #include "stdarg.h"
 
 
@@ -59,6 +52,3 @@ BOOL loglevel(const char * logletter);
 
 
 #define F(format, ...) do { fprintf(stderr, @"%@", __FAULT__); } while (0)
-
-
-#endif /* main_h */
