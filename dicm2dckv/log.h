@@ -7,7 +7,6 @@
 
 #ifndef main_h
 #define main_h
-#include <Foundation/Foundation.h>
 #include "stdarg.h"
 
 
@@ -17,13 +16,15 @@ enum exitValue{
    errorIn,
    errorOutPath,
    errorWrite,
-   errorCreateKV
+   errorCreateKV,
+   errorLogLevel
 };
 
 //https://stackoverflow.com/questions/53522586/variadic-macro-calling-fprintf-how-to-add-arguments-to-va-args
 //el if permite sumar los niveles más fundamentales
 typedef NS_ENUM(int, DIWEFenum) {D,I,W,E,F};
-static DIWEFenum DIWEF=D;
+extern DIWEFenum DIWEF;
+BOOL loglevel(const char * logletter);
 
 #define D(format, ...) do {           \
   if (DIWEF <= D){         \
