@@ -1,7 +1,7 @@
+// dicm2dckv
 // log.h
-
-#include "stdarg.h"
-
+#include <stdio.h>
+#include "stdbool.h"
 
 enum exitValue{
    exitOK=0,
@@ -15,9 +15,9 @@ enum exitValue{
 
 //https://stackoverflow.com/questions/53522586/variadic-macro-calling-fprintf-how-to-add-arguments-to-va-args
 //el if permite sumar los niveles más fundamentales
-typedef NS_ENUM(int, DIWEFenum) {D,I,W,E,F};
-extern DIWEFenum DIWEF;
-BOOL loglevel(const char * logletter);
+enum DIWEFenum {D,I,W,E,F};
+extern enum DIWEFenum DIWEF;
+bool loglevel(const char * logletter);
 
 #define D(format, ...) do {           \
   if (DIWEF <= D){         \

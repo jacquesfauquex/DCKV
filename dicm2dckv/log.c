@@ -1,15 +1,10 @@
-//
-//  log.m
-//  dicm2dckv
-//
-//  Created by jacquesfauquex on 2024-07-31.
-//
+// dicm2dckv
+// log.c
 
-#import <Foundation/Foundation.h>
 #include "log.h"
 
-DIWEFenum DIWEF;
-BOOL loglevel(const char * logletter)
+enum DIWEFenum DIWEF;
+bool loglevel(const char * logletter)
 {
    switch ((int)*logletter) {
       case 'D':
