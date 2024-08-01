@@ -71,9 +71,9 @@ const char *tsstr[]={
 };
 
 //ts_papyrus3ile = 0 = código de error
-uint8 tsidx( uint8_t *vbuf, uint16 vallength )
+u8 tsidx( uint8_t *vbuf, u16 vallength )
 {
-   uint8 idx=0x0;//verification / error
+   u8 idx=0x0;//verification / error
    
    switch (vallength){
       case 17: idx=ts_;break;//Implicit​VR​Little​Endian
@@ -175,7 +175,7 @@ uint8 tsidx( uint8_t *vbuf, uint16 vallength )
 }
 
 
-NSString *tsname( uint16 tsidx)
+NSString *tsname( u16 tsidx)
 {
    return [NSString stringWithUTF8String:tsstr[tsidx]];
 }

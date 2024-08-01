@@ -327,9 +327,9 @@ const char *scstr[]={
 "1.2.840.10008.10.4"//RenditionSelectionDocumentRealTimeCommunication
 };
 
-uint16 scidx( uint8_t *vbuf, uint16 vallength )
+u16 scidx( uint8_t *vbuf, u16 vallength )
 {
-   uint16 idx=0x0;//verification / error
+   u16 idx=0x0;//verification / error
    switch (vallength-(vbuf[vallength-1]==0)){
          
       case 17: {
@@ -716,7 +716,7 @@ uint16 scidx( uint8_t *vbuf, uint16 vallength )
    else return 0;//error (verification)
 }
 
-NSString *scname( uint16 scidx)
+NSString *scname( u16 scidx)
 {
    return [NSString stringWithUTF8String:scstr[scidx]];
 }

@@ -22,12 +22,12 @@ size_t dckvapi_fread(
    return fread(__ptr,__size,__nitems,__stream);
 }
 
-uint8 swapchar;
+u8 swapchar;
 
 
 //returns true when 8 bytes were read
 //possibility to overwrite any tag,vr,length reading
-BOOL dckvapi_fread8(uint8_t *buffer, unsigned long *bytesReadRef)
+BOOL dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
 {
    *bytesReadRef=fread(buffer, 1, 8, stdin);
    if (ferror(stdin)){
@@ -60,24 +60,24 @@ const char *backslash = "\\";
 bool createtx(
    const char * dstdir,
    uint8_t    * vbuf,
-   uint64 *soloc,         // offset in valbyes for sop class
-   uint16 *solen,         // length in valbyes for sop class
-   uint16 *soidx,         // index in const char *scstr[]
-   uint64 *siloc,         // offset in valbyes for sop instance uid
-   uint16 *silen,         // length in valbyes for sop instance uid
-   uint64 *stloc,         // offset in valbyes for transfer syntax
-   uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,         // index in const char *csstr[]
-   sint16 *siidx          // SOPinstance index
+   u64 *soloc,         // offset in valbyes for sop class
+   u16 *solen,         // length in valbyes for sop class
+   u16 *soidx,         // index in const char *scstr[]
+   u64 *siloc,         // offset in valbyes for sop instance uid
+   u16 *silen,         // length in valbyes for sop instance uid
+   u64 *stloc,         // offset in valbyes for transfer syntax
+   u16 *stlen,         // length in valbyes for transfer syntax
+   u16 *stidx,         // index in const char *csstr[]
+   s16 *siidx          // SOPinstance index
 ){
    (*siidx)++;
    D("#%d",*siidx);
    return true;
 }
-bool committx(sint16 *siidx){
+bool committx(s16 *siidx){
    return closetx(siidx);
 }
-bool closetx(sint16 *siidx){
+bool closetx(s16 *siidx){
    return true;
 }
 
@@ -85,14 +85,14 @@ bool closetx(sint16 *siidx){
 #pragma mark - parseo y agregado
 
 bool appendkv(
-              uint8_t            *kbuf,
-              unsigned long      kloc,
-              BOOL               vlenisl,
+              uint8_t           *kbuf,
+              u32                kloc,
+              bool               vlenisl,
               enum kvVRcategory  vrcat,
-              unsigned long long vloc,
-              unsigned long      vlen,
-              BOOL               fromStdin,
-              uint8_t            *vbuf
+              u64                vloc,
+              u32                vlen,
+              bool               fromStdin,
+              uint8_t           *vbuf
               )
 {
    D("%d\n",vrcat);
@@ -119,20 +119,30 @@ bool appendkv(
       case kved://OB encapsulaed document
       {
          printf("%s","doc\n");
-         
-         unsigned long ll=vlen;
-         while (ll>0xFFFE)
+         if (fromStdin && vlen)
          {
-            if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
-            ll-=0xFFFE;
+            u32 toberead=vlen;
+            while (toberead>0xFFFE)
+            {
+               if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
+               toberead-=0xFFFE;
+            }
+            if (toberead && (!feof(stdin)) && (fread(vbuf,1,toberead,stdin)!=toberead)) return false;
          }
-         if (ll && (!feof(stdin)) && (fread(vbuf,1,ll,stdin)!=ll)) return false;
           
       } break;
       
       default:
       {
-         if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
+         if (fromStdin && vlen)
+         {
+            while (vlen>0xFFFE)
+            {
+               if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
+               vlen-=0xFFFE;
+            }
+            if (vlen && (!feof(stdin)) && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
+         }
       }
    }
 

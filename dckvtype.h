@@ -1,7 +1,20 @@
 // dicm2dckv
-// log.h
+// dckvtype.h
+
+#ifndef dckvtype_h
+#define dckvtype_h
+
 #include <stdio.h>
 #include "stdbool.h"
+
+typedef char            s8;//%c
+typedef unsigned char   u8;//%c
+typedef short              s16;//%hd
+typedef unsigned short     u16;//%hu
+typedef int                s32;//%d
+typedef unsigned int       u32;//%u
+typedef long long          s64;//%lld
+typedef unsigned long long u64;//%llu
 
 enum exitValue{
    exitOK=0,
@@ -52,3 +65,5 @@ bool loglevel(const char * logletter);
 
 
 #define F(format, ...) do { fprintf(stderr, @"%@", __FAULT__); } while (0)
+
+#endif /* dckvtype_h */

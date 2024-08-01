@@ -47,9 +47,9 @@ const char *repertoirestr[]={
    "ISO 2022 IR 58"   //chinese simplified (multi byte)
 };
 
-uint32 repertoireidx( uint8_t *vbuf, uint16 vallength )
+u32 repertoireidx( uint8_t *vbuf, u16 vallength )
 {
-   uint32 idx=0x9;//error
+   u32 idx=0x9;//error
    switch (vallength){
       case 0: idx=REPERTOIRE_GL;break;
       case 4: idx=GBK;break;

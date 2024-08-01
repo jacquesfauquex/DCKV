@@ -20,7 +20,7 @@ size_t dckvapi_fread(
    return fread(__ptr,__size,__nitems,__stream);
 }
 
-uint8 swapchar;
+u8 swapchar;
 
 
 //returns true when 8 bytes were read
@@ -65,15 +65,15 @@ static char *dbpath;
 bool createtx(
    const char * dstdir,
    uint8_t    * vbuf,
-   uint64 *soloc,         // offset in valbyes for sop class
-   uint16 *solen,         // length in valbyes for sop class
-   uint16 *soidx,         // index in const char *scstr[]
-   uint64 *siloc,         // offset in valbyes for sop instance uid
-   uint16 *silen,         // length in valbyes for sop instance uid
-   uint64 *stloc,         // offset in valbyes for transfer syntax
-   uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,         // index in const char *csstr[]
-   sint16 *siidx          // SOPinstance index
+   u64 *soloc,         // offset in valbyes for sop class
+   u16 *solen,         // length in valbyes for sop class
+   u16 *soidx,         // index in const char *scstr[]
+   u64 *siloc,         // offset in valbyes for sop instance uid
+   u16 *silen,         // length in valbyes for sop instance uid
+   u64 *stloc,         // offset in valbyes for transfer syntax
+   u16 *stlen,         // length in valbyes for transfer syntax
+   u16 *stidx,         // index in const char *csstr[]
+   s16 *siidx          // SOPinstance index
 )
 {
 #define FLAGS (DB_INIT_LOCK|DB_INIT_LOG|DB_INIT_TXN|DB_INIT_MPOOL|DB_CREATE|DB_THREAD)
@@ -118,7 +118,7 @@ bool createtx(
 }
 
 
-bool committx(sint16 *siidx)
+bool committx(s16 *siidx)
 {
    rc = mdbx_txn_commit(txn);
    if (rc)
@@ -137,7 +137,7 @@ bool committx(sint16 *siidx)
 }
 
 
-bool closetx(sint16 *siidx)
+bool closetx(s16 *siidx)
 {
    if (cursor)
      mdbx_cursor_close(cursor);

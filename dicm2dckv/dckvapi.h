@@ -10,7 +10,7 @@
 #define dckvapi_h
 
 #import <Foundation/Foundation.h>
-#include "log.h"
+#include "dckvtype.h"
 
 //#include <stdio.h>
 //#include "stdbool.h"
@@ -25,13 +25,13 @@ size_t dckvapi_fread(
                      );
 
 struct t4r2l2 {
-   uint32 t;
-   uint16 r;
-   uint16 l;
+   u32 t;
+   u16 r;
+   u16 l;
 };
 
 //returns true when it was possible to read the 8 bytes
-BOOL dckvapi_fread8(uint8_t *buffer, unsigned long *bytesReadRef);
+BOOL dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 
 
 #pragma mark - vr category
@@ -49,7 +49,7 @@ kvUL,//UL 4 unsigned long
    
 kvUS,//US 5 unsigned short
    
-kvAT,//AT 6 attribute tag, 2 uint16 hexa
+kvAT,//AT 6 attribute tag, 2 u16 hexa
    
 kvUI,//UI 7 unique ID eventualmente terminado por 0x00
 kvII,//UI 8 SOPInstanceUID
@@ -106,30 +106,30 @@ kvSZ//38 SQ tail
 bool createtx(
    const char * dstdir,
    uint8_t    * vbuf,
-   uint64 *soloc,         // offset in valbyes for sop class
-   uint16 *solen,         // length in valbyes for sop class
-   uint16 *soidx,         // index in const char *scstr[]
-   uint64 *siloc,         // offset in valbyes for sop instance uid
-   uint16 *silen,         // length in valbyes for sop instance uid
-   uint64 *stloc,         // offset in valbyes for transfer syntax
-   uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,         // index in const char *csstr[]
-   sint16 *siidx          // SOPinstance index
+   u64 *soloc,         // offset in valbyes for sop class
+   u16 *solen,         // length in valbyes for sop class
+   u16 *soidx,         // index in const char *scstr[]
+   u64 *siloc,         // offset in valbyes for sop instance uid
+   u16 *silen,         // length in valbyes for sop instance uid
+   u64 *stloc,         // offset in valbyes for transfer syntax
+   u16 *stlen,         // length in valbyes for transfer syntax
+   u16 *stidx,         // index in const char *csstr[]
+   s16 *siidx          // SOPinstance index
 );
-bool committx(sint16 *siidx);//aplica a todos los kv
-bool closetx(sint16 *siidx);//aplica a todos los kv
+bool committx(s16 *siidx);//aplica a todos los kv
+bool closetx(s16 *siidx);//aplica a todos los kv
 
 //appendkv uses vStream y puede cargarlo directamente en el buffer de la db
 //vbuf es un búfer de 0xFFFF bytes útil para la lectura del stream en otros tipos de implementaciones. Su dimensión corresponde al tamaño máximo de atributos de tipo vl. si vStream is nil, vbuf contains the data of v
 
 bool appendkv(
               uint8_t            *kbuf,
-              unsigned long      kloc,
-              BOOL               vlenisl,
+              u32                kloc,
+              bool               vlenisl,
               enum kvVRcategory  vrcat,
-              unsigned long long vloc,
-              unsigned long      vlen,
-              BOOL               fromStdin,
+              u64                vloc,
+              u32                vlen,
+              bool               fromStdin,
               uint8_t            *vbuf
               );
 

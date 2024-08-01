@@ -12,6 +12,7 @@
 #import "Repertoires.h"
 #import "SopClasses.h"
 #import "TransferSyntaxes.h"
+
 #import "dckvapi.h"
 
 /*
@@ -25,15 +26,15 @@
 BOOL dicmuptosopts(
   uint8_t *kbuf, // buffer matriz de creación de nuevos keys por diferencial
   uint8_t *vbuf, // lectura del valor del atributo returns with sopiuid
-  uint64 *inloc, // current stream byte index
-  uint64 *soloc, // offset in valbyes for sop class
-  uint16 *solen, // length in valbyes for sop class
-  uint16 *soidx, // index in const char *scstr[]
-  uint64 *siloc, // offset in valbyes for sop instance uid
-  uint16 *silen, // length in valbyes for sop instance uid
-  uint64 *stloc, // offset in valbyes for transfer syntax
-  uint16 *stlen, // length in valbyes for transfer syntax
-  uint16 *stidx  // index in const char *csstr[]
+  u64 *inloc, // current stream byte index
+  u64 *soloc, // offset in valbyes for sop class
+  u16 *solen, // length in valbyes for sop class
+  u16 *soidx, // index in const char *scstr[]
+  u64 *siloc, // offset in valbyes for sop instance uid
+  u16 *silen, // length in valbyes for sop instance uid
+  u64 *stloc, // offset in valbyes for transfer syntax
+  u16 *stlen, // length in valbyes for transfer syntax
+  u16 *stidx  // index in const char *csstr[]
 );
 
 BOOL dicm2dckvInstance(
@@ -41,19 +42,19 @@ BOOL dicm2dckvInstance(
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // buffer lectura del valor del atributo
    uint8_t *lbuf,
-   uint32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
-   uint64 *inloc,     // offstet en stream
-   uint32 beforebyte, // limite superior de lectura
-   uint32 beforetag,  // limite superior attr. first traspassing attr is read en kbuf
-   uint64 *soloc,     // offset in valbyes for sop class
-   uint16 *solen,     // length in valbyes for sop class
-   uint16 *soidx,     // index in const char *scstr[]
-   uint64 *siloc,     // offset in valbyes for sop instance uid
-   uint16 *silen,     // length in valbyes for sop instance uid
-   uint64 *stloc,     // offset in valbyes for transfer syntax
-   uint16 *stlen,     // length in valbyes for transfer syntax
-   uint16 *stidx,     // index in const char *csstr[]
-   sint16 *siidx      // SOPinstance index
+   u32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
+   u64 *inloc,     // offstet en stream
+   u32 beforebyte, // limite superior de lectura
+   u32 beforetag,  // limite superior attr. first traspassing attr is read en kbuf
+   u64 *soloc,     // offset in valbyes for sop class
+   u16 *solen,     // length in valbyes for sop class
+   u16 *soidx,     // index in const char *scstr[]
+   u64 *siloc,     // offset in valbyes for sop instance uid
+   u16 *silen,     // length in valbyes for sop instance uid
+   u64 *stloc,     // offset in valbyes for transfer syntax
+   u16 *stlen,     // length in valbyes for transfer syntax
+   u16 *stidx,     // index in const char *csstr[]
+   s16 *siidx      // SOPinstance index
 );
 
 /*
@@ -62,16 +63,16 @@ BOOL dicm2dckvInstance(
  */
 BOOL dicm2dckvDataset(
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
-   unsigned long kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
-   BOOL readfirstattr,    // true:read desde stream. false:ya está en kbuf
-   uint16 keycs,          // key charset
+   u32 kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
+   bool readfirstattr,    // true:read desde stream. false:ya está en kbuf
+   u16 keycs,          // key charset
    uint8_t *lbuf,
-   uint32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
+   u32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
    uint8_t *vbuf,     // lectura del valor del atributo
-   BOOL fromStdin,        // ... o from vbuf
-   uint64 *inloc,           // offstet en stream
-   uint32 beforebyte,     // limite superior de lectura
-   uint32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
+   bool fromStdin,        // ... o from vbuf
+   u64 *inloc,           // offstet en stream
+   u32 beforebyte,     // limite superior de lectura
+   u32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
 );
 
 

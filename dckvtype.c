@@ -1,7 +1,7 @@
-// dicm2dckv
-// log.c
+//  dicm2dckv
+//  log.c
 
-#include "log.h"
+#include "dckvtype.h"
 
 enum DIWEFenum DIWEF;
 bool loglevel(const char * logletter)

@@ -10,93 +10,93 @@
 
 #include "dckvapi.h"
 
-const uint32 B00080005=0x05000800;//charset
+const u32 B00080005=0x05000800;//charset
 
-const uint32 B00080018=0x18000800;//kvII UI SOPInstanceUID
-const uint32 B0020000D=0x0D002000;//kvIE UI StudyInstanceUID
-const uint32 B0020000E=0x0E002000;//kvIS UI SeriesInstanceUID
+const u32 B00080018=0x18000800;//kvII UI SOPInstanceUID
+const u32 B0020000D=0x0D002000;//kvIE UI StudyInstanceUID
+const u32 B0020000E=0x0E002000;//kvIS UI SeriesInstanceUID
 
-const uint32 B0040E001=0x0E002000;//kvHC ST CDA root^extension
+const u32 B0040E001=0x0E002000;//kvHC ST CDA root^extension
 
-const uint32 B00080020=0x20000800;//kvEd DA StudyDate
-const uint32 B00200010=0x10002000;//kvEi SH StudyID
-const uint32 B00080060=0x60000800;//kvSm CS Modality
+const u32 B00080020=0x20000800;//kvEd DA StudyDate
+const u32 B00200010=0x10002000;//kvEi SH StudyID
+const u32 B00080060=0x60000800;//kvSm CS Modality
 
-const uint32 B00200011=0x11002000;//kvIs IS SeriesNumber
-const uint32 B00200012=0x12002000;//kvIa IS AcquisitionNumber
-const uint32 B00200013=0x13002000;//kvIi IS InstanceNumber
+const u32 B00200011=0x11002000;//kvIs IS SeriesNumber
+const u32 B00200012=0x12002000;//kvIa IS AcquisitionNumber
+const u32 B00200013=0x13002000;//kvIi IS InstanceNumber
 
-const uint32 B00080050=0x50000800;//kvAn SH Accession​Number
-const uint32 B00080051=0x51000800;//kvAn SH Accession​NumberIssuer
-const uint32 B00080080=0x80000800;//kvIN LO InstitutionName
+const u32 B00080050=0x50000800;//kvAn SH Accession​Number
+const u32 B00080051=0x51000800;//kvAn SH Accession​NumberIssuer
+const u32 B00080080=0x80000800;//kvIN LO InstitutionName
 
-const uint32 B00400031=0x31004000;//kvAl UT Accession​Number local
-const uint32 B00400032=0x32004000;//kvAu UT Accession​Number universal
-const uint32 B00400033=0x33004000;//kvAt CS Accession​Number type
+const u32 B00400031=0x31004000;//kvAl UT Accession​Number local
+const u32 B00400032=0x32004000;//kvAu UT Accession​Number universal
+const u32 B00400033=0x33004000;//kvAt CS Accession​Number type
 
-const uint32 B00081150=0x50110800;
+const u32 B00081150=0x50110800;
 
-const uint32 B00420010=0x10004200;//kvdn ST DocumentTitle
-const uint32 B00420011=0x11004200;//kved OB EncapsulatedDocument
+const u32 B00420010=0x10004200;//kvdn ST DocumentTitle
+const u32 B00420011=0x11004200;//kved OB EncapsulatedDocument
 
-const uint32 B7FE00001=0x0100E07F;//kvfo Extended​Offset​Table
-const uint32 B7FE00002=0x0200E07F;//kvfl Extended​Offset​TableLengths
-const uint32 B7FE00003=0x0300E07F;//kvft Encapsulated​Pixel​Data​Value​Total​Length
+const u32 B7FE00001=0x0100E07F;//kvfo Extended​Offset​Table
+const u32 B7FE00002=0x0200E07F;//kvfl Extended​Offset​TableLengths
+const u32 B7FE00003=0x0300E07F;//kvft Encapsulated​Pixel​Data​Value​Total​Length
 
-const uint64 SZbytes=0xDDE0FEFF;//FFFEE0DD00000000
-const uint64 IAbytes=0xFFFFFFFF00E0FEFF;//FFFEE000FFFFFFFF
-const uint64 IZbytes=0x0DE0FEFF;//FFFEE00D00000000
-const uint32 ffffffff=0xFFFFFFFF;
-const uint32 fffee000=0xfffee000;
-const uint32 fffee00d=0xfffee00d;
-const uint32 fffee0dd=0xfffee0dd;
+const u64 SZbytes=0xDDE0FEFF;//FFFEE0DD00000000
+const u64 IAbytes=0xFFFFFFFF00E0FEFF;//FFFEE000FFFFFFFF
+const u64 IZbytes=0x0DE0FEFF;//FFFEE00D00000000
+const u32 ffffffff=0xFFFFFFFF;
+const u32 fffee000=0xfffee000;
+const u32 fffee00d=0xfffee00d;
+const u32 fffee0dd=0xfffee0dd;
 
 //short length value vr
-const uint16 AE=0x4541;
-const uint16 AS=0x5341;
-const uint16 AT=0x5441;
-const uint16 CS=0x5343;
-const uint16 DA=0x4144;
-const uint16 DS=0x5344;
-const uint16 DT=0x5444;
-const uint16 FD=0x4446;
-const uint16 FL=0x4C46;
-const uint16 IS=0x5349;
-const uint16 LO=0x4f4c;
-const uint16 LT=0x544c;
-const uint16 PN=0x4e50;
-const uint16 SH=0x4853;
-const uint16 SL=0x4C53;
-const uint16 SS=0x5353;
-const uint16 ST=0x5453;
-const uint16 TM=0x4d54;
-const uint16 UI=0x4955;
-const uint16 UL=0x4C55;
-const uint16 US=0x5355;
+const u16 AE=0x4541;
+const u16 AS=0x5341;
+const u16 AT=0x5441;
+const u16 CS=0x5343;
+const u16 DA=0x4144;
+const u16 DS=0x5344;
+const u16 DT=0x5444;
+const u16 FD=0x4446;
+const u16 FL=0x4C46;
+const u16 IS=0x5349;
+const u16 LO=0x4f4c;
+const u16 LT=0x544c;
+const u16 PN=0x4e50;
+const u16 SH=0x4853;
+const u16 SL=0x4C53;
+const u16 SS=0x5353;
+const u16 ST=0x5453;
+const u16 TM=0x4d54;
+const u16 UI=0x4955;
+const u16 UL=0x4C55;
+const u16 US=0x5355;
 
 //long length value vr
-const uint16 OB=0x424F;
-const uint16 OD=0x444F;
-const uint16 OF=0x464F;
-const uint16 OL=0x4C4F;
-const uint16 OV=0x564F;
-const uint16 OW=0x574F;
-const uint16 SV=0x5653;
-const uint16 UC=0x4355;
-const uint16 UR=0x5255;
-const uint16 UT=0x5455;
-const uint16 UV=0x5655;
+const u16 OB=0x424F;
+const u16 OD=0x444F;
+const u16 OF=0x464F;
+const u16 OL=0x4C4F;
+const u16 OV=0x564F;
+const u16 OW=0x574F;
+const u16 SV=0x5653;
+const u16 UC=0x4355;
+const u16 UR=0x5255;
+const u16 UT=0x5455;
+const u16 UV=0x5655;
 
-const uint16 UN=0x4E55;
+const u16 UN=0x4E55;
 
-const uint16 SQ=0x5153;
+const u16 SQ=0x5153;
 
 //propietary delimitation vr
 
-const uint16 SA=0x0000;
-const uint16 IA=0x2B2B;//++
-const uint16 IZ=0x5F5F;//__
-const uint16 SZ=0xFFFF;
+const u16 SA=0x0000;
+const u16 IA=0x2B2B;//++
+const u16 IZ=0x5F5F;//__
+const u16 SZ=0xFFFF;
 
 
 const BOOL islong=true;//long length
@@ -125,15 +125,15 @@ const BOOL firstattravailable=false;
 BOOL dicmuptosopts(
    uint8_t *kbuf, // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf, // lectura del valor del atributo returns with sopiuid
-   uint64 *inloc, // current stdin byte index
-   uint64 *soloc, // offset in valbyes for sop class
-   uint16 *solen, // length in valbyes for sop class
-   uint16 *soidx, // index in const char *scstr[]
-   uint64 *siloc, // offset in valbyes for sop instance uid
-   uint16 *silen, // length in valbyes for sop instance uid
-   uint64 *stloc, // offset in valbyes for transfer syntax
-   uint16 *stlen, // length in valbyes for transfer syntax
-   uint16 *stidx  // index in const char *csstr[]
+   u64 *inloc, // current stdin byte index
+   u64 *soloc, // offset in valbyes for sop class
+   u16 *solen, // length in valbyes for sop class
+   u16 *soidx, // index in const char *scstr[]
+   u64 *siloc, // offset in valbyes for sop instance uid
+   u16 *silen, // length in valbyes for sop instance uid
+   u64 *stloc, // offset in valbyes for transfer syntax
+   u16 *stlen, // length in valbyes for transfer syntax
+   u16 *stidx  // index in const char *csstr[]
 )
 {
    //read up to dicom version 0002001 (8+150 bytes)
@@ -146,8 +146,8 @@ BOOL dicmuptosopts(
    
    //variables init
    struct t4r2l2 *attrstruct=(struct t4r2l2*) kbuf;//corresponding struct
-   uint64 *attruint64=(uint64*) kbuf;
-   uint16 bytescount;
+   u64 *attruint64=(u64*) kbuf;
+   u16 bytescount;
    
 #pragma mark read sop object [so] (=sop class)
    *soloc=*inloc;
@@ -220,19 +220,19 @@ BOOL dicm2dckvInstance(
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // lectura del valor del atributo
    uint8_t *lbuf,
-   uint32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
-   uint64 *inloc,           // offstet en stream
-   uint32 beforebyte,     // limite superior de lectura
-   uint32 beforetag,       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
-   uint64 *soloc,         // offset in valbyes for sop class
-   uint16 *solen,         // length in valbyes for sop class
-   uint16 *soidx,         // index in const char *scstr[]
-   uint64 *siloc,         // offset in valbyes for sop instance uid
-   uint16 *silen,         // length in valbyes for sop instance uid
-   uint64 *stloc,         // offset in valbyes for transfer syntax
-   uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,         // index in const char *csstr[]
-   sint16 *siidx          // instance count
+   u32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
+   u64 *inloc,           // offstet en stream
+   u32 beforebyte,     // limite superior de lectura
+   u32 beforetag,       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
+   u64 *soloc,         // offset in valbyes for sop class
+   u16 *solen,         // length in valbyes for sop class
+   u16 *soidx,         // index in const char *scstr[]
+   u64 *siloc,         // offset in valbyes for sop instance uid
+   u16 *silen,         // length in valbyes for sop instance uid
+   u64 *stloc,         // offset in valbyes for transfer syntax
+   u16 *stlen,         // length in valbyes for transfer syntax
+   u16 *stidx,         // index in const char *csstr[]
+   s16 *siidx          // instance count
 )
 {
    if (!createtx(
@@ -251,11 +251,11 @@ BOOL dicm2dckvInstance(
    
    if (*soidx>0) //part 10
    {
-      const uint64 key00020002=0x0000495502000200;
+      const u64 key00020002=0x0000495502000200;
       if(!appendkv((uint8_t*)&key00020002,0,isshort,kvUI, *soloc, *solen,frombuffer,vbuf+*soloc+8)) return false;
-      const uint64 key00020003=0x0000495503000200;
+      const u64 key00020003=0x0000495503000200;
       if(!appendkv((uint8_t*)&key00020003,0,isshort,kvUI, *siloc, *silen,frombuffer,vbuf+*siloc+8)) return false;
-      const uint64 key00020010=0x0000495510000200;
+      const u64 key00020010=0x0000495510000200;
       if(!appendkv((uint8_t*)&key00020010,0,isshort,kvUI, *stloc, *stlen,frombuffer,vbuf+*stloc+8)) return false;
 
       if (   dicm2dckvDataset(
@@ -298,28 +298,28 @@ BOOL dicm2dckvInstance(
 
 BOOL dicm2dckvDataset(
    uint8_t *kbuf,
-   unsigned long kloc,
-   BOOL readfirstattr,
-   uint16 keycs,
+   u32 kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
+   bool readfirstattr,    // true:read desde stream. false:ya está en kbuf
+   u16 keycs,          // key charset
    uint8_t *lbuf,
-   uint32 *vlen,
-   uint8_t *vbuf,
-   BOOL fromStdin,
-   uint64 *inloc,
-   uint32 beforebyte,
-   uint32 beforetag
+   u32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
+   uint8_t *vbuf,     // lectura del valor del atributo
+   bool fromStdin,        // ... o from vbuf
+   u64 *inloc,
+   u32 beforebyte,
+   u32 beforetag
 )
 {
    //inits
-   unsigned long bytescount=0;
-   //uint16 vl=0;//keeps vl while overwritting it in kbuf
-   uint8 *attrbytes=kbuf+kloc;//subbuffer for attr reading
+   u64 bytescount=0;
+   //u16 vl=0;//keeps vl while overwritting it in kbuf
+   u8 *attrbytes=kbuf+kloc;//subbuffer for attr reading
    struct t4r2l2 *attrstruct=(struct t4r2l2*) attrbytes;//corresponding struct
    
    //lbuf=kbuf+kloc+8;//subbuffer for ll reading
-   //vlen=(uint32*)lbuf;
+   //vlen=(u32*)lbuf;
    
-   //uint32 *ll=(uint32*)llbytes;//corresponding uin32
+   //u32 *ll=(u32*)llbytes;//corresponding uin32
 
    if (readfirstattr && (! dckvapi_fread8(attrbytes, &bytescount))) return false;
    while (
@@ -332,7 +332,7 @@ BOOL dicm2dckvDataset(
 #pragma mark vl num
          case FD://floating point double
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if (!appendkv(kbuf,kloc,isshort,kvFD,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
@@ -341,7 +341,7 @@ BOOL dicm2dckvDataset(
             
          case FL://floating point single
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if (!appendkv(kbuf,kloc,isshort,kvFL,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
@@ -387,7 +387,7 @@ BOOL dicm2dckvDataset(
 #pragma mark vl tag code
          case AT://attribute tag
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if (!appendkv(kbuf,kloc,isshort,kvAT,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
@@ -397,7 +397,7 @@ BOOL dicm2dckvDataset(
 #pragma mark vl oid code
          case UI://unique ID
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             
             switch (attrstruct->t) {
@@ -407,7 +407,7 @@ BOOL dicm2dckvDataset(
                case B00081150:{
                   if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
                   
-                  uint16 sopclassidx=scidx( vbuf, *vlen - (vbuf[*vlen - 1]==0x0) );
+                  u16 sopclassidx=scidx( vbuf, *vlen - (vbuf[*vlen - 1]==0x0) );
                   if (sopclassidx==0x00)
                   {
                      E("bad sop class %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:vbuf length:*vlen] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
@@ -428,12 +428,12 @@ BOOL dicm2dckvDataset(
 #pragma mark vl ascii code
          case CS://coded string
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
                case B00080060: if (!appendkv(kbuf,kloc,isshort,kvSm,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                case B00400033:{ //kvAt CS Accession​Number type
-                  uint32 *itemtag=(uint32 *)kbuf;
+                  u32 *itemtag=(u32 *)kbuf;
                   if (*itemtag==B00080051)
                   {
                      if (!appendkv(kbuf,kloc,isshort,kvAt,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -445,7 +445,7 @@ BOOL dicm2dckvDataset(
                }break;
                case B00080005:{
                   if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
-                  uint16 repidxs=repertoireidx(vbuf,*vlen);
+                  u16 repidxs=repertoireidx(vbuf,*vlen);
                   if (repidxs==0x09)
                   {
                      E("bad repertoire %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:vbuf length:*vlen] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
@@ -473,7 +473,7 @@ BOOL dicm2dckvDataset(
          case DT://date time
          case TM://time
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if (!appendkv(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
@@ -481,7 +481,7 @@ BOOL dicm2dckvDataset(
          } break;
          case DA://date
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
                case B00080020:
@@ -498,7 +498,7 @@ BOOL dicm2dckvDataset(
          case AE://application entity
          case DS://decimal string
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             //charset
             if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -508,7 +508,7 @@ BOOL dicm2dckvDataset(
 
          case IS://integer string
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
                case B00200011:
@@ -533,7 +533,7 @@ BOOL dicm2dckvDataset(
          case LO://long string
          case LT://long text
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=keycs;
             switch (attrstruct->t) {
                case B00080080://institution name
@@ -550,7 +550,7 @@ BOOL dicm2dckvDataset(
 
          case SH://short string
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=keycs;
             switch (attrstruct->t) {
                case B00200010:
@@ -571,7 +571,7 @@ BOOL dicm2dckvDataset(
             
          case ST://short text
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=keycs;
             switch (attrstruct->t) {
                case B0040E001://kvHC ST CDA root^extension
@@ -591,7 +591,7 @@ BOOL dicm2dckvDataset(
 #pragma mark vl person
          case PN://person name
          {
-            *vlen=(uint32)attrstruct->l;//length is then replaced in K by encoding
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=keycs;
             if (!appendkv(kbuf,kloc,isshort,kvPN,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
@@ -610,10 +610,10 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B00420011:
-                  if (!appendkv(kbuf,kloc,isshort,kved,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!appendkv(kbuf,kloc,islong,kved,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
                   if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -637,7 +637,7 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
             if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
 
             *inloc += 12 + *vlen;
@@ -656,7 +656,7 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B7FE00001:
                   if (!appendkv(kbuf,kloc,isshort,kvfo,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -682,7 +682,7 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B7FE00003:
                   if (!appendkv(kbuf,kloc,isshort,kvft,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -708,7 +708,7 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
             if (!appendkv(kbuf,kloc,islong,kvTL,*inloc,*vlen,fromStdin,vbuf)) return false;
 
             *inloc += 12 + *vlen;
@@ -725,7 +725,7 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B00400031:
                   if (!appendkv(kbuf,kloc,islong,kvAl,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -753,7 +753,7 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
             if (!appendkv(kbuf,kloc,islong,kvTU,*inloc,*vlen,fromStdin,vbuf)) return false;
             
             *inloc += 12 + *vlen;
@@ -774,7 +774,7 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
             if (!appendkv(kbuf,kloc,islong,kvUN,*inloc,*vlen,fromStdin,vbuf)) return false;
 
             *inloc += 12 + *vlen;
@@ -803,7 +803,7 @@ BOOL dicm2dckvDataset(
                E("%s","stream end instead of vll");
                return false;
             }
-            *vlen=*(uint32*)lbuf;
+            *vlen=*(u32*)lbuf;
 
             if (*vlen==0)
             {
@@ -819,7 +819,7 @@ BOOL dicm2dckvDataset(
             {
                *inloc += 12;
                //SQ length
-               uint64 beforebyteSQ;
+               u64 beforebyteSQ;
                if (*vlen==ffffffff) beforebyteSQ=beforebyte;//undefined length
                else if (beforebyte==ffffffff) beforebyteSQ= *inloc + *vlen;//undefined length container
                else if (*inloc + *vlen > beforebyte) {
@@ -830,7 +830,7 @@ BOOL dicm2dckvDataset(
 
                
                //replace vr and vl of SQ by itemnumber
-               uint32 itemnumber=1;
+               u32 itemnumber=1;
                attrstruct->r=CFSwapInt16(itemnumber/0x10000);
                attrstruct->l=CFSwapInt16(itemnumber%0x10000);
 
@@ -838,7 +838,7 @@ BOOL dicm2dckvDataset(
                
 #pragma mark item level
                kloc+=8;
-               uint8 *itembytes=kbuf+kloc;
+               u8 *itembytes=kbuf+kloc;
                struct t4r2l2 *itemstruct=(struct t4r2l2*) itembytes;
                if (! dckvapi_fread8(itembytes, &bytescount)) return false;
 
@@ -846,13 +846,13 @@ BOOL dicm2dckvDataset(
                //for each first attr fffee000 of any new item
               while ((*inloc < beforebyteSQ) && (CFSwapInt32(itemstruct->t)==fffee000)) //itemstart compulsory
                {
-                  uint32 IQll = (itemstruct->l << 16) | itemstruct->r;
+                  u32 IQll = (itemstruct->l << 16) | itemstruct->r;
                   itemstruct->t=0x00000000;
                   itemstruct->r=IA;
                   itemstruct->l=REPERTOIRE_GL;
                   if (!appendkv(kbuf,kloc,isshort,kvIA,*inloc,0,fromStdin,(void*)&IAbytes)) return false;
 
-                  uint64 beforebyteIT;//to be computed from after item start
+                  u64 beforebyteIT;//to be computed from after item start
                   *inloc+=8;
                   if (IQll==ffffffff) beforebyteIT=beforebyteSQ;
                   else if (beforebyteSQ==ffffffff) beforebyteIT=*inloc + *vlen;
@@ -872,7 +872,7 @@ BOOL dicm2dckvDataset(
                         vbuf,
                         fromstdin,
                         inloc,
-                        (uint32)beforebyteIT,
+                        (u32)beforebyteIT,
                         fffee00d
                         );
                   //Atención!!! attr still is the first attr of the first item
@@ -960,7 +960,7 @@ BOOL dicm2dckvDataset(
          E("%s","stream end instead of vll");
          return false;
       }
-      *vlen=*(uint32*)lbuf;
+      *vlen=*(u32*)lbuf;
 
       if ((*vlen > 0) && !appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
    }

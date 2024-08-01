@@ -8,6 +8,8 @@
 #ifndef SopClasses_h
 #define SopClasses_h
 
+#include "dckvtype.h"
+
 //referenced SOP class
 
 //sc_=1.2.840.10008
@@ -650,8 +652,8 @@ RenditionSelectionDocumentRealTimeCommunication
 };
    
 
-uint16 scidx( uint8_t *vbuf, uint16 vallength );
-NSString *scname( uint16 scidx);
+u16 scidx( uint8_t *vbuf, u16 vallength );
+NSString *scname( u16 scidx);
 
 
 #endif /* SopClasses_h */

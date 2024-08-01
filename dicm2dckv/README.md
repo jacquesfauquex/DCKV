@@ -53,4 +53,4 @@ command loglevel outdir
     
     - repertoire index
   
-  - convenient exhaustive list of uint64 key representations for patient, study and series level attributes found in the ground dataset
+  - convenient exhaustive list of u64 key representations for patient, study and series level attributes found in the ground dataset

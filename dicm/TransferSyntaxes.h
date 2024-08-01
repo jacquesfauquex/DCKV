@@ -8,6 +8,8 @@
 #ifndef TransferSyntaxes_h
 #define TransferSyntaxes_h
 
+#include "dckvtype.h"
+
 enum sopkeyenum{
 PapyrusImplicitVRLittleEndian,
 ImplicitVRLittleEndian,
@@ -133,8 +135,8 @@ ts_7_2,
 ts_7_3
 };
 
-uint8 tsidx( uint8_t *vbuf, uint16 vallength );
+u8 tsidx( uint8_t *vbuf, u16 vallength );
 
-NSString *tsname( uint16 tsidx);
+NSString *tsname( u16 tsidx);
 
 #endif /* TransferSyntaxes_h */

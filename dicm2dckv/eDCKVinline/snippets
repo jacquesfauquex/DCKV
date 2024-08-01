@@ -1,11 +1,11 @@
 /*
 #pragma mark borrar
-   uint32* leaftag=(uint32*)kbuf+(kloc/4);
-   uint32* i=0;
-   if (kloc > 0) i=(uint32*) kbuf+(kloc/4)-4;
-   uint16* l=(uint16*) kbuf+((kloc/2)+3);
-   uint8 v=*(kbuf+(kloc+4));
-   uint8 r=*(kbuf+(kloc+5));
+   u32* leaftag=(u32*)kbuf+(kloc/4);
+   u32* i=0;
+   if (kloc > 0) i=(u32*) kbuf+(kloc/4)-4;
+   u16* l=(u16*) kbuf+((kloc/2)+3);
+   u8 v=*(kbuf+(kloc+4));
+   u8 r=*(kbuf+(kloc+5));
    
    
 #pragma mark

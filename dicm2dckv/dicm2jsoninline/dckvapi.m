@@ -20,7 +20,7 @@ size_t dckvapi_fread(
    return fread(__ptr,__size,nitms,__stream);
 }
 
-uint8 swapchar;
+u8 swapchar;
 
 
 //returns true when 8 bytes were read
@@ -57,22 +57,22 @@ const char *backslash = "\\";
 bool createtx(
    const char * dstdir,
    uint8_t    * vbuf,
-   uint64 *soloc,         // offset in valbyes for sop class
-   uint16 *solen,         // length in valbyes for sop class
-   uint16 *soidx,         // index in const char *scstr[]
-   uint64 *siloc,         // offset in valbyes for sop instance uid
-   uint16 *silen,         // length in valbyes for sop instance uid
-   uint64 *stloc,         // offset in valbyes for transfer syntax
-   uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,         // index in const char *csstr[]
-   sint16 *siidx,         // SOPinstance index
-   uint16 *sitot          // SOPinstance total
+   u64 *soloc,         // offset in valbyes for sop class
+   u16 *solen,         // length in valbyes for sop class
+   u16 *soidx,         // index in const char *scstr[]
+   u64 *siloc,         // offset in valbyes for sop instance uid
+   u16 *silen,         // length in valbyes for sop instance uid
+   u64 *stloc,         // offset in valbyes for transfer syntax
+   u16 *stlen,         // length in valbyes for transfer syntax
+   u16 *stidx,         // index in const char *csstr[]
+   s16 *siidx,         // SOPinstance index
+   u16 *sitot          // SOPinstance total
 ){
    printf("     144 %s\n","00020001 OB 0000 {156,2}");
    return true;
 }
-bool committx(sint16 *siidx){return true;}
-bool closetx(sint16 *siidx){return true;}
+bool committx(s16 *siidx){return true;}
+bool closetx(s16 *siidx){return true;}
 
 
 bool appendkv(
@@ -86,12 +86,12 @@ bool appendkv(
               uint8_t            *vbuf
               )
 {
-   //uint64* attruint64=(uint64*) kbuf+kloc;
+   //u64* attruint64=(u64*) kbuf+kloc;
    //printf("%*s%016llX\n",kloc+kloc+1,space, CFSwapInt64(*attruint64));
-   uint32* t=(uint32*) kbuf+(kloc/4);
-   uint16* l=(uint16*) kbuf+((kloc/2)+3);
-   uint8 v=*(kbuf+(kloc+4));
-   uint8 r=*(kbuf+(kloc+5));
+   u32* t=(u32*) kbuf+(kloc/4);
+   u16* l=(u16*) kbuf+((kloc/2)+3);
+   u8 v=*(kbuf+(kloc+4));
+   u8 r=*(kbuf+(kloc+5));
       
    if (vlenisl==vll)
    {
@@ -113,7 +113,7 @@ bool appendkv(
          case kvTL:
          case kvTU:
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X {%llu,%lu}\n",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l,vloc+12,vlen);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X {%llu,%lu}\n",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l,vloc+12,vlen);
             else printf("%8lld %08X %c%c %04X {%llu,%lu}\n",vloc,CFSwapInt32(*t),v,r,*l,vloc+12,vlen);
          }break;
                         
@@ -141,13 +141,13 @@ bool appendkv(
       switch (vrcat) {
          case kvFD://floating point double
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
                double *v=(double*)vbuf;
                printf(" (");
-               for (uint16 idx=0; idx<(vlen>>3); idx++)
+               for (u16 idx=0; idx<(vlen>>3); idx++)
                {
                   printf(" %f",v[idx]);
                }
@@ -158,13 +158,13 @@ bool appendkv(
             
          case kvFL://floating point single
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
                float *v=(float*)vbuf;
                printf(" (");
-               for (uint16 idx=0; idx<(vlen>>2); idx++)
+               for (u16 idx=0; idx<(vlen>>2); idx++)
                {
                   printf(" %f",v[idx]);
                }
@@ -175,13 +175,13 @@ bool appendkv(
             
          case kvSL://signed long
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
-               sint32 *v=(sint32*)vbuf;
+               s32 *v=(s32*)vbuf;
                printf(" (");
-               for (uint16 idx=0; idx<(vlen>>2); idx++)
+               for (u16 idx=0; idx<(vlen>>2); idx++)
                {
                   printf(" %d",v[idx]);
                }
@@ -192,13 +192,13 @@ bool appendkv(
             
          case kvSS://signed short
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
-               sint16 *v=(sint16*)vbuf;
+               s16 *v=(s16*)vbuf;
                printf(" (");
-               for (uint16 idx=0; idx<(vlen>>1); idx++)
+               for (u16 idx=0; idx<(vlen>>1); idx++)
                {
                   printf(" %hd",v[idx]);
                }
@@ -209,13 +209,13 @@ bool appendkv(
             
          case kvUL://unsigned long
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
-               uint32 *v=(uint32*)vbuf;
+               u32 *v=(u32*)vbuf;
                printf(" (");
-               for (uint16 idx=0; idx<(vlen>>2); idx++)
+               for (u16 idx=0; idx<(vlen>>2); idx++)
                {
                   printf(" %u",v[idx]);
                }
@@ -226,13 +226,13 @@ bool appendkv(
             
          case kvUS://unsigned short
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
-               uint16 *v=(uint16*)vbuf;
+               u16 *v=(u16*)vbuf;
                printf(" (");
-               for (uint16 idx=0; idx<(vlen>>1); idx++)
+               for (u16 idx=0; idx<(vlen>>1); idx++)
                {
                   printf(" %hu",v[idx]);
                }
@@ -243,13 +243,13 @@ bool appendkv(
             
          case kvAT://attribute tag
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
-               uint16 *v=(uint16*)vbuf;
+               u16 *v=(u16*)vbuf;
                printf(" (");
-               for (uint16 idx=0; idx<(vlen>>2); idx+=2)
+               for (u16 idx=0; idx<(vlen>>2); idx+=2)
                {
                   printf(" %04x%04x",v[idx],v[idx+1]);
                }
@@ -260,7 +260,7 @@ bool appendkv(
             
          case kvUI://unique ID
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
@@ -280,7 +280,7 @@ bool appendkv(
          case kvTA:
          case kvTS:
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X",vloc,CFSwapInt32(*t),v,r,*l);
             if (vlen > 0)
             {
@@ -298,13 +298,13 @@ bool appendkv(
             
          case kvIA://item head
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X\n",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X\n",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X\n",vloc,CFSwapInt32(*t),v,r,*l);
          }break;
             
          case kvIZ://item tail
          {
-            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X\n",vloc,kloc+1,space,CFSwapInt32(*((uint32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
+            if (kloc > 0)printf("%8lld%*s%08X %08X %c%c %04X\n",vloc,kloc+1,space,CFSwapInt32(*((u32*) kbuf+((kloc/4)-1))),CFSwapInt32(*t),v,r,*l);
             else printf("%8lld %08X %c%c %04X\n",vloc,CFSwapInt32(*t),v,r,*l);
          }break;
             

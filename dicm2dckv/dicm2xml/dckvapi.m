@@ -17,7 +17,7 @@ size_t dckvapi_fread(
    return fread(__ptr,__size,nitms,__stream);
 }
 
-uint8 swapchar;
+u8 swapchar;
 
 
 //returns true when 8 bytes were read

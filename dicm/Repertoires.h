@@ -8,6 +8,9 @@
 #ifndef Repertoires_h
 #define Repertoires_h
 
+#include "dckvtype.h"
+
+
 enum repertoireenum{
    
    REPERTOIRE_GL,
@@ -48,7 +51,7 @@ enum repertoireenum{
 };
 
 
-uint32 repertoireidx( uint8_t *vbuf, uint16 vallength );
-NSString *repertoirename( uint16 repertoireidx);
+u32 repertoireidx( uint8_t *vbuf, u16 vallength );
+NSString *repertoirename( u16 repertoireidx);
 
 #endif /* Repertoires_h */

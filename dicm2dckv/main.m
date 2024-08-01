@@ -1,14 +1,10 @@
-//
-//  main.m
 //  dicm2dckv
-//
-//  Created by jacquesfauquex on 2024-04-03.
-//
-#include <Foundation/Foundation.h>
+//  main.m
+//#include <Foundation/Foundation.h>
 
 //C
 #include <stdio.h>
-#include <sys/time.h>
+//#include <sys/time.h>
 /* For malloc() */
 #include <stdlib.h>
 /* For uuid_generate() and uuid_unparse()
@@ -16,9 +12,6 @@
 
 //propietario
 #include "dicm2dckv.h"
-#include "log.h"
-#include "dckvapi.h"
-//#include "seriesk8tags.h"
 
 /*
  main controls dicm2dckv.
@@ -27,9 +20,8 @@
  */
 
 int main(int argc, const char * argv[]) {
-   
+ 
    if (argc < 3){
-      E("%s","syntax: command DIWEF outdir");
       return errorArgs;
    }
    /*
@@ -37,18 +29,19 @@ int main(int argc, const char * argv[]) {
    - loglevel es uno de [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
    - outdir (directorio adónde escribir los resultados )
    */
+   if (!loglevel(argv[1])) exit(errorLogLevel);
    
    uint8_t *kbuf = malloc(0xFF);//max use 16 bytes x 10 encapsulation levels
    uint8_t *vbuf = malloc(0xFFFE);//max size of vl attribute values
    uint8_t *lbuf = malloc(0x4);//vll bytes
-   uint32 vlen;//size of large attributes
-   uint64 inloc;//inputstream index
-   uint64 soloc,siloc,stloc;//so=sopClass, si=sopInstance, st=sopTransfer
-   uint16 solen,silen,stlen;
-   uint16 soidx,stidx;
+   u32 vlen;//size of large attributes
+   u64 inloc;//inputstream index
+   u64 soloc,siloc,stloc;//so=sopClass, si=sopInstance, st=sopTransfer
+   u16 solen,silen,stlen;
+   u16 soidx,stidx;
    
    //file or stdin
-   sint16 siidx=1;//instances count
+   s16 siidx=1;//instances count
 
    FILE *inFile = NULL;
    if (argc==4)

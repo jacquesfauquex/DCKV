@@ -19,7 +19,7 @@ size_t dckvapi_fread(
    return fread(__ptr,__size,__nitems,__stream);
 }
 
-uint8 swapchar;
+u8 swapchar;
 
 
 //returns true when 8 bytes were read
@@ -58,19 +58,19 @@ static unsigned long vstart;
 static unsigned long vstop;
 static unsigned long vtrim;
 
-static uint16 ESidx=0;
+static u16 ESidx=0;
 static char *dbpath;
-static uint16 Bcccc;//class index
-static uint16 Bffff;//frame
-static sint16 Bssss;//series number
-static sint16 Brrrr;//relative to series number
-static sint16 Biiii;//instance number
+static u16 Bcccc;//class index
+static u16 Bffff;//frame
+static s16 Bssss;//series number
+static s16 Brrrr;//relative to series number
+static s16 Biiii;//instance number
 static uint8_t *Ebuf;
 static uint8_t *Sbuf;
 static uint8_t *Ibuf;
-static uint32 Eidx=0;
-static uint32 Sidx=0;
-static uint32 Iidx=0;
+static u32 Eidx=0;
+static u32 Sidx=0;
+static u32 Iidx=0;
 static size_t bytesWritten;
 
 const char *space=" ";
@@ -79,15 +79,15 @@ const char *backslash = "\\";
 bool createtx(
    const char * dstdir,
    uint8_t    * vbuf,
-   uint64 *soloc,         // offset in valbyes for sop class
-   uint16 *solen,         // length in valbyes for sop class
-   uint16 *soidx,         // index in const char *scstr[]
-   uint64 *siloc,         // offset in valbyes for sop instance uid
-   uint16 *silen,         // length in valbyes for sop instance uid
-   uint64 *stloc,         // offset in valbyes for transfer syntax
-   uint16 *stlen,         // length in valbyes for transfer syntax
-   uint16 *stidx,         // index in const char *csstr[]
-   sint16 *siidx          // SOPinstance index
+   u64 *soloc,         // offset in valbyes for sop class
+   u16 *solen,         // length in valbyes for sop class
+   u16 *soidx,         // index in const char *scstr[]
+   u64 *siloc,         // offset in valbyes for sop instance uid
+   u16 *silen,         // length in valbyes for sop instance uid
+   u64 *stloc,         // offset in valbyes for transfer syntax
+   u16 *stlen,         // length in valbyes for transfer syntax
+   u16 *stidx,         // index in const char *csstr[]
+   s16 *siidx          // SOPinstance index
 )
 {
    Ebuf=malloc(0xFFFF);
@@ -111,7 +111,7 @@ bool createtx(
    I("#%d",*siidx);
    return true;
 }
-bool committx(sint16 *siidx)
+bool committx(s16 *siidx)
 {
 #pragma mark fwrite
    //bytesWritten=fputs(&klen, outFile);
@@ -120,7 +120,7 @@ bool committx(sint16 *siidx)
    bytesWritten=fwrite(Ibuf ,1, Iidx , outFile);
    return closetx(siidx);
 }
-bool closetx(sint16 *siidx)
+bool closetx(s16 *siidx)
 {
    fclose(outFile);
    //if (Ebuf) free(Ebuf);
@@ -154,8 +154,8 @@ bool appendkv(
    if (vrcat==kvSZ) return true;
    
    //does the attribute belong to patient-study, series levels ?
-   uint64 prefix=edckvPrefix(
-                             *(uint32*)kbuf,//basetag
+   u64 prefix=edckvPrefix(
+                             *(u32*)kbuf,//basetag
                              &ESidx,
                              Bcccc,
                              Bffff,
@@ -213,7 +213,7 @@ bool appendkv(
             case kvSS://signed short
             case kvUL://unsigned long
             case kvUS://unsigned short
-            case kvAT://attribute tag, 2 uint16 hexa
+            case kvAT://attribute tag, 2 u16 hexa
             case kvEd://StudyDate
             case kvTP:
             {
@@ -354,7 +354,7 @@ bool appendkv(
                         bytesread=fread(vbuf,1,0xFFFE,stdin);
                         ulllen+=bytesread;
                      }
-                     uint32 eightBytes=8;
+                     u32 eightBytes=8;
                      memcpy(Ibuf+Iidx, &eightBytes, 4);
                      Iidx+=4;
                      memcpy(Ibuf+Iidx, &ulllen, 8);
@@ -387,7 +387,7 @@ bool appendkv(
             case kvSS://signed short
             case kvUL://unsigned long
             case kvUS://unsigned short
-            case kvAT://attribute tag, 2 uint16 hexa
+            case kvAT://attribute tag, 2 u16 hexa
             case kvEd://StudyDate
             case kvTP:
             {
@@ -529,7 +529,7 @@ bool appendkv(
             case kvSS://signed short
             case kvUL://unsigned long
             case kvUS://unsigned short
-            case kvAT://attribute tag, 2 uint16 hexa
+            case kvAT://attribute tag, 2 u16 hexa
             case kvEd://StudyDate
             case kvTP:
             {
