@@ -14,14 +14,12 @@
 		4A0AA46F2C5ADFDC002979A3 /* dckvtype.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A0AA46A2C5ADFDC002979A3 /* dckvtype.c */; };
 		4A0AA4702C5ADFDC002979A3 /* dckvtype.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A0AA46A2C5ADFDC002979A3 /* dckvtype.c */; };
 		4A0AA4842C5AF4D7002979A3 /* dckvtype.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA002BBF098900670A7F /* dckvtype.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0AA48B2C5AF4DE002979A3 /* Repertoires.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F32BBE2ACF00670A7F /* Repertoires.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4922C5AF4E2002979A3 /* SopClasses.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F62BBE2ACF00670A7F /* SopClasses.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4992C5AF4EA002979A3 /* TransferSyntaxes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F42BBE2ACF00670A7F /* TransferSyntaxes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4A02C5AF4F1002979A3 /* eDCKVprefixtag.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A80979F2BC034720042CAC1 /* eDCKVprefixtag.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4A72C5AF507002979A3 /* dckvapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA032BBF3F1900670A7F /* dckvapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4AE2C5AF517002979A3 /* dicm2dckv.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A39E4512C299968004DE4FB /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A39E4502C299968004DE4FB /* dckvapi.m */; };
-		4A39E4572C299A41004DE4FB /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
 		4A39E4582C299A41004DE4FB /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
 		4A39E4592C299A41004DE4FB /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
 		4A39E45F2C299A69004DE4FB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
@@ -29,7 +27,6 @@
 		4A39E46C2C2A342B004DE4FB /* eDCKVprefixtag.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A39E46B2C2A342B004DE4FB /* eDCKVprefixtag.m */; };
 		4A6982AE2C1CE43A0094F9D9 /* mdbx.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A6982AD2C1CE43A0094F9D9 /* mdbx.c */; };
 		4A8098032BC90A540042CAC1 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A8097AF2BC4079A0042CAC1 /* dckvapi.m */; };
-		4A80980A2BC90AB50042CAC1 /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
 		4A80980B2BC90AB50042CAC1 /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
 		4A80980C2BC90AB50042CAC1 /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
 		4A80980D2BC90AB50042CAC1 /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
@@ -38,11 +35,9 @@
 		4A8099362BCE91B90042CAC1 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A8097B12BC4079A0042CAC1 /* dckvapi.m */; };
 		4A80997E2BD0A62B0042CAC1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
 		4A8099842BD0A62F0042CAC1 /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
-		4A80998A2BD0A6370042CAC1 /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
 		4A8099902BD0A63D0042CAC1 /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
 		4A8099962BD0A6420042CAC1 /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
 		4A8099A42BD0A6660042CAC1 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A80999C2BD0A6590042CAC1 /* dckvapi.m */; };
-		4AC9A5182C5451EE0078C566 /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
 		4AC9A5192C5451EE0078C566 /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
 		4AC9A51A2C5451EE0078C566 /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
 		4AC9A51B2C5451EE0078C566 /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
@@ -50,7 +45,6 @@
 		4AC9A53F2C54532C0078C566 /* dckvapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4AC9A5372C54531B0078C566 /* dckvapi.c */; };
 		4ACCC9E82BBDC40A00670A7F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
 		4ACCC9F72BBE2ACF00670A7F /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
-		4ACCC9F82BBE2ACF00670A7F /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
 		4ACCC9F92BBE2ACF00670A7F /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
 		4ACCC9FA2BBE2ACF00670A7F /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
 /* End PBXBuildFile section */
@@ -146,9 +140,7 @@
 		4ACCC9E72BBDC40A00670A7F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SopClasses.m; sourceTree = "<group>"; };
 		4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dicm2dckv.h; sourceTree = "<group>"; };
-		4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Repertoires.m; sourceTree = "<group>"; };
 		4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dicm2dckv.m; sourceTree = "<group>"; };
-		4ACCC9F32BBE2ACF00670A7F /* Repertoires.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Repertoires.h; sourceTree = "<group>"; };
 		4ACCC9F42BBE2ACF00670A7F /* TransferSyntaxes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransferSyntaxes.h; sourceTree = "<group>"; };
 		4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TransferSyntaxes.m; sourceTree = "<group>"; };
 		4ACCC9F62BBE2ACF00670A7F /* SopClasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SopClasses.h; sourceTree = "<group>"; };
@@ -266,8 +258,6 @@
 		4A8099422BCE92690042CAC1 /* dicm */ = {
 			isa = PBXGroup;
 			children = (
-				4ACCC9F32BBE2ACF00670A7F /* Repertoires.h */,
-				4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */,
 				4ACCC9F62BBE2ACF00670A7F /* SopClasses.h */,
 				4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */,
 				4ACCC9F42BBE2ACF00670A7F /* TransferSyntaxes.h */,
@@ -345,7 +335,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A0AA4842C5AF4D7002979A3 /* dckvtype.h in Headers */,
-				4A0AA48B2C5AF4DE002979A3 /* Repertoires.h in Headers */,
 				4A0AA4922C5AF4E2002979A3 /* SopClasses.h in Headers */,
 				4A0AA4992C5AF4EA002979A3 /* TransferSyntaxes.h in Headers */,
 				4A0AA4A02C5AF4F1002979A3 /* eDCKVprefixtag.h in Headers */,
@@ -517,7 +506,6 @@
 				4A39E46C2C2A342B004DE4FB /* eDCKVprefixtag.m in Sources */,
 				4A39E4652C299A8F004DE4FB /* dicm2dckv.m in Sources */,
 				4A39E45F2C299A69004DE4FB /* main.m in Sources */,
-				4A39E4572C299A41004DE4FB /* Repertoires.m in Sources */,
 				4A39E4582C299A41004DE4FB /* SopClasses.m in Sources */,
 				4A39E4592C299A41004DE4FB /* TransferSyntaxes.m in Sources */,
 				4A39E4512C299968004DE4FB /* dckvapi.m in Sources */,
@@ -528,7 +516,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A80980A2BC90AB50042CAC1 /* Repertoires.m in Sources */,
 				4A80980B2BC90AB50042CAC1 /* SopClasses.m in Sources */,
 				4A80980C2BC90AB50042CAC1 /* TransferSyntaxes.m in Sources */,
 				4A80980D2BC90AB50042CAC1 /* dicm2dckv.m in Sources */,
@@ -556,7 +543,6 @@
 				4A80997E2BD0A62B0042CAC1 /* main.m in Sources */,
 				4A8099842BD0A62F0042CAC1 /* dicm2dckv.m in Sources */,
 				4A0AA46E2C5ADFDC002979A3 /* dckvtype.c in Sources */,
-				4A80998A2BD0A6370042CAC1 /* Repertoires.m in Sources */,
 				4A8099A42BD0A6660042CAC1 /* dckvapi.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -565,7 +551,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AC9A5182C5451EE0078C566 /* Repertoires.m in Sources */,
 				4AC9A5192C5451EE0078C566 /* SopClasses.m in Sources */,
 				4AC9A51A2C5451EE0078C566 /* TransferSyntaxes.m in Sources */,
 				4AC9A51B2C5451EE0078C566 /* dicm2dckv.m in Sources */,
@@ -581,7 +566,6 @@
 			files = (
 				4A0AA46B2C5ADFDC002979A3 /* dckvtype.c in Sources */,
 				4ACCC9E82BBDC40A00670A7F /* main.m in Sources */,
-				4ACCC9F82BBE2ACF00670A7F /* Repertoires.m in Sources */,
 				4A6982AE2C1CE43A0094F9D9 /* mdbx.c in Sources */,
 				4ACCC9FA2BBE2ACF00670A7F /* TransferSyntaxes.m in Sources */,
 				4ACCC9F72BBE2ACF00670A7F /* SopClasses.m in Sources */,

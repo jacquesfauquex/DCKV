@@ -3,13 +3,12 @@
 //  dicm2dckv
 //
 //  Created by jacquesfauquex on 2024-02-28.
-//#import "Repertoires.h"
+
 #ifndef parseDICM_h
 #define parseDICM_h
 
 #import <Foundation/Foundation.h>
 
-#import "Repertoires.h"
 #import "SopClasses.h"
 #import "TransferSyntaxes.h"
 
