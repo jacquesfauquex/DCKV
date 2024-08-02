@@ -47,7 +47,7 @@
 		4AC9A51A2C5451EE0078C566 /* TransferSyntaxes.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F52BBE2ACF00670A7F /* TransferSyntaxes.m */; };
 		4AC9A51B2C5451EE0078C566 /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
 		4AC9A51C2C5451EE0078C566 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
-		4AC9A53F2C54532C0078C566 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AC9A5372C54531B0078C566 /* dckvapi.m */; };
+		4AC9A53F2C54532C0078C566 /* dckvapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4AC9A5372C54531B0078C566 /* dckvapi.c */; };
 		4ACCC9E82BBDC40A00670A7F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
 		4ACCC9F72BBE2ACF00670A7F /* SopClasses.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9EF2BBE2ACF00670A7F /* SopClasses.m */; };
 		4ACCC9F82BBE2ACF00670A7F /* Repertoires.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F12BBE2ACF00670A7F /* Repertoires.m */; };
@@ -140,7 +140,7 @@
 		4ABA009D2C0A1CB80066AED3 /* doc_fread.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = doc_fread.txt; sourceTree = "<group>"; };
 		4AC9A5102C4AE2290078C566 /* snippets */ = {isa = PBXFileReference; lastKnownFileType = text; path = snippets; sourceTree = "<group>"; };
 		4AC9A5232C5451EE0078C566 /* dicm2cda */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicm2cda; sourceTree = BUILT_PRODUCTS_DIR; };
-		4AC9A5372C54531B0078C566 /* dckvapi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
+		4AC9A5372C54531B0078C566 /* dckvapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dckvapi.c; sourceTree = "<group>"; };
 		4AC9A5462C54550B0078C566 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ACCC9E42BBDC40A00670A7F /* dicm2mdbx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicm2mdbx; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ACCC9E72BBDC40A00670A7F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -291,7 +291,7 @@
 			isa = PBXGroup;
 			children = (
 				4AC9A5462C54550B0078C566 /* README.md */,
-				4AC9A5372C54531B0078C566 /* dckvapi.m */,
+				4AC9A5372C54531B0078C566 /* dckvapi.c */,
 			);
 			path = dicm2cda;
 			sourceTree = "<group>";
@@ -571,7 +571,7 @@
 				4AC9A51B2C5451EE0078C566 /* dicm2dckv.m in Sources */,
 				4A0AA4702C5ADFDC002979A3 /* dckvtype.c in Sources */,
 				4AC9A51C2C5451EE0078C566 /* main.m in Sources */,
-				4AC9A53F2C54532C0078C566 /* dckvapi.m in Sources */,
+				4AC9A53F2C54532C0078C566 /* dckvapi.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

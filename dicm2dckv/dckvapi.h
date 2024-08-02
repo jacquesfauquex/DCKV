@@ -1,19 +1,17 @@
-//
-//  dckvapi.h
-//  same api
-//  various implementation
-//
-//  Created by jacquesfauquex on 2024-04-04.
-//
+// project: dicm2dckv
+// targets: dicm2cda, TODO eDCKVinline,dicm2mdbx,dicmstructdump,...
+// file: dckvapi.h
+// created by jacquesfauquex on 2024-04-04.//
 
 #ifndef dckvapi_h
 #define dckvapi_h
 
-#import <Foundation/Foundation.h>
 #include "dckvtype.h"
 
-//#include <stdio.h>
-//#include "stdbool.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #pragma mark blocking code
 
@@ -31,7 +29,7 @@ struct t4r2l2 {
 };
 
 //returns true when it was possible to read the 8 bytes
-BOOL dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
+bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 
 
 #pragma mark - vr category

@@ -1,12 +1,7 @@
-//
-//  dckvapi.m
-//  dicm2dckv
-//
-//  Created by jacquesfauquex on 2024-04-04.
-//
-
-/*potencialmente multivalue: AE AS AT CS DA DS DT FD FL IS LO OW PN SH SV TM UC UI UV*/
-#include <Foundation/Foundation.h>
+// project: dicm2dckv
+// target: dicm2cda
+// file: dckvapi.c
+// created by jacquesfauquex on 2024-04-04.
 
 #include "dckvapi.h"
 
@@ -24,12 +19,10 @@ size_t dckvapi_fread(
    return fread(__ptr,__size,__nitems,__stream);
 }
 
-u8 swapchar;
-
-
 //returns true when 8 bytes were read
 //possibility to overwrite any tag,vr,length reading
-BOOL dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
+u8 swapchar;
+bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
 {
    *bytesReadRef=fread(buffer, 1, 8, stdin);
    if (ferror(stdin)){
@@ -55,10 +48,6 @@ BOOL dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
    return true;
 }
 
-const char *space=" ";
-const char *backslash = "\\";
-
-#pragma mark obligatorios formales
 bool createtx(
    const char * dstdir,
    uint8_t    * vbuf,
@@ -94,9 +83,6 @@ bool closetx(s16 *siidx){
    return true;
 }
 
-
-#pragma mark - parseo y agregado
-
 bool appendkv(
               uint8_t           *kbuf,
               u32                kloc,
@@ -108,8 +94,6 @@ bool appendkv(
               uint8_t           *vbuf
               )
 {
-   D("%d\n",vrcat);
-
    switch (vrcat) {
          
       /*
@@ -134,7 +118,7 @@ bool appendkv(
          
       case kved://OB encapsulaed document
       {
-         printf("%s","doc\n");
+         D("%d\n",vrcat);
          if (fromStdin && vlen)
          {
             u32 toberead=vlen;
