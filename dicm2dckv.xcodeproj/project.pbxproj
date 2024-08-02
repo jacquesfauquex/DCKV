@@ -328,11 +328,11 @@
 			isa = PBXGroup;
 			children = (
 				4A80992B2BCE913C0042CAC1 /* README.md */,
-				4ACCCA032BBF3F1900670A7F /* dckvapi.h */,
-				4A8097A22BC181380042CAC1 /* dckvvapi */,
+				4ACCC9E72BBDC40A00670A7F /* main.m */,
 				4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */,
 				4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */,
-				4ACCC9E72BBDC40A00670A7F /* main.m */,
+				4ACCCA032BBF3F1900670A7F /* dckvapi.h */,
+				4A8097A22BC181380042CAC1 /* dckvvapi */,
 			);
 			path = dicm2dckv;
 			sourceTree = "<group>";

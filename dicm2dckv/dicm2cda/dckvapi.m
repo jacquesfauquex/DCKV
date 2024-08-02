@@ -10,6 +10,8 @@
 
 #include "dckvapi.h"
 
+FILE *outFile;
+static char *dbpath;
 
 //possibility to overwrite any value read
 size_t dckvapi_fread(
@@ -72,12 +74,23 @@ bool createtx(
 ){
    (*siidx)++;
    D("#%d",*siidx);
+   
+   dbpath=malloc(0xFF);
+   strcat(dbpath,dstdir);
+   strcat(dbpath, "/");
+   char *ibuf = malloc(*silen);
+   memcpy(ibuf, vbuf+*siloc+8, *silen);
+   strcat(dbpath,ibuf);
+   strcat(dbpath, ".dscd.xml");
+   outFile=fopen(dbpath, "w");
+
    return true;
 }
 bool committx(s16 *siidx){
    return closetx(siidx);
 }
 bool closetx(s16 *siidx){
+   fclose(outFile);
    return true;
 }
 
@@ -98,6 +111,8 @@ bool appendkv(
    D("%d\n",vrcat);
 
    switch (vrcat) {
+         
+      /*
       case kvdn://ST  DocumentTitle 00420010
       {
          if (vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
@@ -115,7 +130,8 @@ bool appendkv(
          }
          printf("\n");
       } break;
-      
+      */
+         
       case kved://OB encapsulaed document
       {
          printf("%s","doc\n");
@@ -126,8 +142,15 @@ bool appendkv(
             {
                if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
                toberead-=0xFFFE;
+               if ((toberead==0)&&(vbuf[0xFFFD]==0x0)&&(fwrite(vbuf ,1, 0xFFFD , outFile)!=0xFFFD));
+               else if (fwrite(vbuf ,1, 0xFFFE , outFile)!=0xFFFE) return false;
             }
-            if (toberead && (!feof(stdin)) && (fread(vbuf,1,toberead,stdin)!=toberead)) return false;
+            if (toberead)
+            {
+               if ((!feof(stdin)) && (fread(vbuf,1,toberead,stdin)!=toberead)) return false;
+               if (vbuf[toberead-1]==0x0) toberead--;
+               if (fwrite(vbuf ,1, toberead , outFile)!=toberead) return false;
+            }
          }
           
       } break;
