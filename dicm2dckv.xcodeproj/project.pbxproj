@@ -14,13 +14,11 @@
 		4A0AA46F2C5ADFDC002979A3 /* dckvtype.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A0AA46A2C5ADFDC002979A3 /* dckvtype.c */; };
 		4A0AA4702C5ADFDC002979A3 /* dckvtype.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A0AA46A2C5ADFDC002979A3 /* dckvtype.c */; };
 		4A0AA4842C5AF4D7002979A3 /* dckvtype.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA002BBF098900670A7F /* dckvtype.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A0AA4A02C5AF4F1002979A3 /* eDCKVprefixtag.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A80979F2BC034720042CAC1 /* eDCKVprefixtag.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4A72C5AF507002979A3 /* dckvapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA032BBF3F1900670A7F /* dckvapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4AE2C5AF517002979A3 /* dicm2dckv.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A39E4512C299968004DE4FB /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A39E4502C299968004DE4FB /* dckvapi.m */; };
 		4A39E45F2C299A69004DE4FB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.m */; };
 		4A39E4652C299A8F004DE4FB /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
-		4A39E46C2C2A342B004DE4FB /* eDCKVprefixtag.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A39E46B2C2A342B004DE4FB /* eDCKVprefixtag.m */; };
 		4A6982AE2C1CE43A0094F9D9 /* mdbx.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A6982AD2C1CE43A0094F9D9 /* mdbx.c */; };
 		4A8098032BC90A540042CAC1 /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A8097AF2BC4079A0042CAC1 /* dckvapi.m */; };
 		4A80980D2BC90AB50042CAC1 /* dicm2dckv.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.m */; };
@@ -100,10 +98,8 @@
 		4A39E43D2C2998F7004DE4FB /* eDCKVinline */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = eDCKVinline; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A39E44F2C299968004DE4FB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A39E4502C299968004DE4FB /* dckvapi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
-		4A39E46B2C2A342B004DE4FB /* eDCKVprefixtag.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = eDCKVprefixtag.m; sourceTree = "<group>"; };
 		4A6982AC2C1CE43A0094F9D9 /* mdbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdbx.h; sourceTree = "<group>"; };
 		4A6982AD2C1CE43A0094F9D9 /* mdbx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mdbx.c; sourceTree = "<group>"; };
-		4A80979F2BC034720042CAC1 /* eDCKVprefixtag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eDCKVprefixtag.h; sourceTree = "<group>"; };
 		4A8097AA2BC189A20042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A8097AF2BC4079A0042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
 		4A8097B12BC4079A0042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
@@ -239,15 +235,6 @@
 			path = dicm2xml;
 			sourceTree = "<group>";
 		};
-		4A8099422BCE92690042CAC1 /* dicm */ = {
-			isa = PBXGroup;
-			children = (
-				4A80979F2BC034720042CAC1 /* eDCKVprefixtag.h */,
-				4A39E46B2C2A342B004DE4FB /* eDCKVprefixtag.m */,
-			);
-			path = dicm;
-			sourceTree = "<group>";
-		};
 		4A8099642BD0A5290042CAC1 /* dicm2jsonbinref */ = {
 			isa = PBXGroup;
 			children = (
@@ -275,7 +262,6 @@
 				4ABA009D2C0A1CB80066AED3 /* doc_fread.txt */,
 				4ACCCA002BBF098900670A7F /* dckvtype.h */,
 				4A0AA46A2C5ADFDC002979A3 /* dckvtype.c */,
-				4A8099422BCE92690042CAC1 /* dicm */,
 				4ACCC9E62BBDC40A00670A7F /* dicm2dckv */,
 				4ACCC9E52BBDC40A00670A7F /* Products */,
 			);
@@ -315,7 +301,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A0AA4842C5AF4D7002979A3 /* dckvtype.h in Headers */,
-				4A0AA4A02C5AF4F1002979A3 /* eDCKVprefixtag.h in Headers */,
 				4A0AA4AE2C5AF517002979A3 /* dicm2dckv.h in Headers */,
 				4A0AA4A72C5AF507002979A3 /* dckvapi.h in Headers */,
 			);
@@ -481,7 +466,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A0AA46F2C5ADFDC002979A3 /* dckvtype.c in Sources */,
-				4A39E46C2C2A342B004DE4FB /* eDCKVprefixtag.m in Sources */,
 				4A39E4652C299A8F004DE4FB /* dicm2dckv.m in Sources */,
 				4A39E45F2C299A69004DE4FB /* main.m in Sources */,
 				4A39E4512C299968004DE4FB /* dckvapi.m in Sources */,

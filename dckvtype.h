@@ -900,8 +900,16 @@ u8 tsidx( uint8_t *vbuf, u16 vallength );
 
 
 
+#pragma mark - eDCKVprefixtag
 
-
+u64 edckvPrefix(u32 Btag,
+                   u16 *ESidx,
+                   u16 Bcccc,
+                   u16 Bffff,
+                   s16 Bssss,
+                   s16 Brrrr,
+                   s16 Biiii
+                   );
 
 
 #endif /* dckvtype_h */
