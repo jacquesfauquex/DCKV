@@ -99,12 +99,12 @@ const u16 IZ=0x5F5F;//__
 const u16 SZ=0xFFFF;
 
 
-const BOOL islong=true;//long length
-const BOOL isshort=false;//short length
-const BOOL fromstdin=true;
-const BOOL frombuffer=false;
-const BOOL firstattrread=true;
-const BOOL firstattravailable=false;
+const bool islong=true;//long length
+const bool isshort=false;//short length
+const bool fromstdin=true;
+const bool frombuffer=false;
+const bool firstattrread=true;
+const bool firstattravailable=false;
 
 
 //-------------------------
@@ -122,7 +122,7 @@ const BOOL firstattravailable=false;
  - "" -> no DICM
  - sopiuid (0002,0003)
  */
-BOOL dicmuptosopts(
+bool dicmuptosopts(
    uint8_t *kbuf, // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf, // lectura del valor del atributo returns with sopiuid
    u64 *inloc, // current stdin byte index
@@ -215,7 +215,7 @@ BOOL dicmuptosopts(
    return true;//(char*)vbuf+*siloc;
 }
 
-BOOL dicm2dckvInstance(
+bool dicm2dckvInstance(
    const char * dstdir,
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // lectura del valor del atributo
@@ -296,7 +296,7 @@ BOOL dicm2dckvInstance(
 
 
 
-BOOL dicm2dckvDataset(
+bool dicm2dckvDataset(
    uint8_t *kbuf,
    u32 kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
    bool readfirstattr,    // true:read desde stream. false:ya está en kbuf
@@ -324,7 +324,7 @@ BOOL dicm2dckvDataset(
    if (readfirstattr && (! dckvapi_fread8(attrbytes, &bytescount))) return false;
    while (
       (*inloc < beforebyte)
-   && ( CFSwapInt32(attrstruct->t) < beforetag)
+   && ( u32swap(attrstruct->t) < beforetag)
    )
    {
       //((attrstruct->t >> 16)==0xFFFE ||
@@ -410,7 +410,7 @@ BOOL dicm2dckvDataset(
                   u16 sopclassidx=scidx( vbuf, *vlen - (vbuf[*vlen - 1]==0x0) );
                   if (sopclassidx==0x00)
                   {
-                     E("bad sop class %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:vbuf length:*vlen] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
+                     E("bad sop class %.*s",(int)vlen,vbuf);
                      return false;
                   }
                   else attrstruct->l=sopclassidx;
@@ -448,7 +448,7 @@ BOOL dicm2dckvDataset(
                   u16 repidxs=repertoireidx(vbuf,*vlen);
                   if (repidxs==0x09)
                   {
-                     E("bad repertoire %s",[[[NSString alloc]initWithData:[NSData dataWithBytes:vbuf length:*vlen] encoding:NSASCIIStringEncoding]  cStringUsingEncoding:NSASCIIStringEncoding]);
+                     E("bad repertoire %.*s",(int)vlen,vbuf);
                      return false;
                   }
                   else
@@ -831,8 +831,8 @@ BOOL dicm2dckvDataset(
                
                //replace vr and vl of SQ by itemnumber
                u32 itemnumber=1;
-               attrstruct->r=CFSwapInt16(itemnumber/0x10000);
-               attrstruct->l=CFSwapInt16(itemnumber%0x10000);
+               attrstruct->r=u16swap(itemnumber/0x10000);
+               attrstruct->l=u16swap(itemnumber%0x10000);
 
 
                
@@ -844,7 +844,7 @@ BOOL dicm2dckvDataset(
 
                
                //for each first attr fffee000 of any new item
-              while ((*inloc < beforebyteSQ) && (CFSwapInt32(itemstruct->t)==fffee000)) //itemstart compulsory
+              while ((*inloc < beforebyteSQ) && (u32swap(itemstruct->t)==fffee000)) //itemstart compulsory
                {
                   u32 IQll = (itemstruct->l << 16) | itemstruct->r;
                   itemstruct->t=0x00000000;
@@ -881,7 +881,7 @@ BOOL dicm2dckvDataset(
 
                   
                   //write IZ
-                  if (CFSwapInt32(itemstruct->t)==fffee00d)
+                  if (u32swap(itemstruct->t)==fffee00d)
                   {
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
@@ -907,8 +907,8 @@ BOOL dicm2dckvDataset(
                   
                   //new item number
                   itemnumber+=1;
-                  attrstruct->r=CFSwapInt16(itemnumber/0x10000);
-                  attrstruct->l=CFSwapInt16(itemnumber%0x10000);
+                  attrstruct->r=u16swap(itemnumber/0x10000);
+                  attrstruct->l=u16swap(itemnumber%0x10000);
 
                }//end while item
                kloc-=8;
@@ -921,7 +921,7 @@ BOOL dicm2dckvDataset(
 
                
                //itemstruct may be SZ or post SQ
-               if (CFSwapInt32(itemstruct->t)==fffee0dd)
+               if (u32swap(itemstruct->t)==fffee0dd)
                {
                   *inloc+=8;
                   if (! dckvapi_fread8(attrbytes, &bytescount)) return false;

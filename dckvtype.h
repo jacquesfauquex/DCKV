@@ -21,6 +21,12 @@ typedef long long          s64;//%lld
 typedef unsigned long long u64;//%llu
 
 
+#pragma mark - endianness
+
+u32 u32swap(u32 x);
+u16 u16swap(u16 x);
+
+
 #pragma mark - main & log
 
 enum exitValue{

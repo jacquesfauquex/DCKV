@@ -7,8 +7,6 @@
 #ifndef parseDICM_h
 #define parseDICM_h
 
-#import <Foundation/Foundation.h>
-
 #import "dckvapi.h"
 
 /*
@@ -19,7 +17,7 @@
  
  returns sopuid (with eventual space padding)
  */
-BOOL dicmuptosopts(
+bool dicmuptosopts(
   uint8_t *kbuf, // buffer matriz de creación de nuevos keys por diferencial
   uint8_t *vbuf, // lectura del valor del atributo returns with sopiuid
   u64 *inloc, // current stream byte index
@@ -33,7 +31,7 @@ BOOL dicmuptosopts(
   u16 *stidx  // index in const char *csstr[]
 );
 
-BOOL dicm2dckvInstance(
+bool dicm2dckvInstance(
    const char * dstdir,
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // buffer lectura del valor del atributo
@@ -57,7 +55,7 @@ BOOL dicm2dckvInstance(
  RECURSIVE
  parser
  */
-BOOL dicm2dckvDataset(
+bool dicm2dckvDataset(
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    u32 kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
    bool readfirstattr,    // true:read desde stream. false:ya está en kbuf

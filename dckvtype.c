@@ -3,6 +3,24 @@
 
 #include "dckvtype.h"
 
+
+#pragma mark - endianness
+
+
+u32 u32swap(u32 x)
+{
+   return ((x>>24)&0xff)
+         |((x<<8)&0xff0000)
+         |((x>>8)&0xff00)
+         |((x<<24)&0xff000000);
+}
+
+u16 u16swap(u16 x)
+{
+   return ((x<<8)&0xff00)
+   |((x>>8)&0x00ff);
+}
+
 #pragma mark - main & log
 
 enum DIWEFenum DIWEF;
@@ -1978,11 +1996,7 @@ u64 edckvPrefix(u32 Btag,
 {
    //https://github.com/jacquesfauquex/DCKV/wiki/eDCKV
    
-   u32 Ltag=((Btag>>24)&0xff)
-           |((Btag<<8)&0xff0000)
-           |((Btag>>8)&0xff00)
-           |((Btag<<24)&0xff000000);
-   
+   u32 Ltag=u32swap(Btag);   
    if (Ltag < EStag[*ESidx])
    {
       //instance level
