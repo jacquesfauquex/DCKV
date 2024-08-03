@@ -1,6 +1,6 @@
-//  dicm2dckv
-//  main.m
-//#include <Foundation/Foundation.h>
+// project: dicm2dckv
+// file: main.c
+// created by jacquesfauquex on 2024-04-04.
 
 //C
 #include <stdio.h>

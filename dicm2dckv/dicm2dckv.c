@@ -1,9 +1,6 @@
-//
-//  dicm2dckv.m
-//  dicm2dckv
-//
-//  Created by jacquesfauquex on 2024-02-28.
-//
+// project: dicm2dckv
+// file: dicm2dckv.c
+// created by jacquesfauquex on 2024-04-04.
 
 #include "dicm2dckv.h"
 

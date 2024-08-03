@@ -1,7 +1,8 @@
-//  dicm2dckv
-//  log.c
+// project: dicm2dckv
+// file: dckvtypes.c
+// created by jacquesfauquex on 2024-04-04.
 
-#include "dckvtype.h"
+#include "dckvtypes.h"
 
 
 #pragma mark - endianness

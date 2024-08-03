@@ -1,8 +1,6 @@
-//
-//  dicm2dckv.h
-//  dicm2dckv
-//
-//  Created by jacquesfauquex on 2024-02-28.
+// project: dicm2dckv
+// file: dicm2dckv.h
+// created by jacquesfauquex on 2024-04-04.
 
 #ifndef parseDICM_h
 #define parseDICM_h

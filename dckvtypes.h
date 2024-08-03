@@ -1,5 +1,7 @@
-// dicm2dckv
-// dckvtype.h
+// project: dicm2dckv
+// file: dckvtypes.h
+// created by jacquesfauquex on 2024-04-04.
+
 
 #ifndef dckvtype_h
 #define dckvtype_h

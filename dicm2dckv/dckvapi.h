@@ -6,7 +6,7 @@
 #ifndef dckvapi_h
 #define dckvapi_h
 
-#include "dckvtype.h"
+#include "dckvtypes.h"
 
 
 //DICOM atribute header 8 bytes tag vr vl
