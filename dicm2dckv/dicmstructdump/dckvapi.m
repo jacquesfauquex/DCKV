@@ -24,7 +24,7 @@ u8 swapchar;
 
 
 //returns true when 8 bytes were read
-BOOL dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
+bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
 {
    *bytesReadRef=fread(buffer, 1, 8, stdin);
    if (ferror(stdin)){
