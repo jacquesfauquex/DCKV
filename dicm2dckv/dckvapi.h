@@ -9,14 +9,6 @@
 #include "dckvtypes.h"
 
 
-//DICOM atribute header 8 bytes tag vr vl
-struct t4r2l2 {
-   u32 t;
-   u16 r;
-   u16 l;
-};
-
-
 #pragma mark - blocking code
 
 size_t dckvapi_fread(

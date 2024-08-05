@@ -25,6 +25,13 @@ typedef unsigned int       u32;//%u
 typedef long long          s64;//%lld
 typedef unsigned long long u64;//%llu
 
+//DICOM atribute header 8 bytes tag vr vl
+struct t4r2l2 {
+   u32 t;
+   u16 r;
+   u16 l;
+};
+
 
 #pragma mark - endianness
 
@@ -912,17 +919,6 @@ ts_7_3
 u8 tsidx( uint8_t *vbuf, u16 vallength );
 
 
-
-#pragma mark - eDCKVprefixtag
-
-u64 edckvPrefix(u32 Btag,
-                   u16 *ESidx,
-                   u16 Bcccc,
-                   u16 Bffff,
-                   s16 Bssss,
-                   s16 Brrrr,
-                   s16 Biiii
-                   );
 
 
 #endif /* dckvtype_h */
