@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1240"
-   version = "2.0">
+   version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A8097F82BC90A370042CAC1"
-               BuildableName = "dicmstructdump"
-               BlueprintName = "dicmstructdump"
+               BlueprintIdentifier = "4AC9A5162C5451EE0078C566"
+               BuildableName = "dicm2cda"
+               BlueprintName = "dicm2cda"
                ReferencedContainer = "container:dicm2dckv.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -38,61 +38,26 @@
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
-      debugXPCServices = "NO"
       debugServiceExtension = "internal"
-      enableGPUFrameCaptureMode = "3"
-      allowLocationSimulation = "NO"
-      GPUProfilerEnabled = "No">
+      allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A8097F82BC90A370042CAC1"
-            BuildableName = "dicmstructdump"
-            BlueprintName = "dicmstructdump"
+            BlueprintIdentifier = "4AC9A5162C5451EE0078C566"
+            BuildableName = "dicm2cda"
+            BlueprintName = "dicm2cda"
             ReferencedContainer = "container:dicm2dckv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "D"
+            argument = "I"
             isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "- "
-            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jacquesfauquex/mdbx"
             isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG1.ele.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/heka/GDCM/Testing/Data/GE_DLX-8-MONO2-Multiframe-Jpeg_Lossless.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/VL4.ele.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/heka/GDCM/Testing/Data/D_CLUNIE_RG1_RLE.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/_dicom_samples/D/j2kr/VL4.j2kr.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/Shared/Sup223_DLB5_InventoryIODandServices.pdf"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/jacquesfauquex/dcvvparser/dcvvparser/sr.dcm"
-            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/dscd.dcm"
@@ -110,9 +75,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A8097F82BC90A370042CAC1"
-            BuildableName = "dicmstructdump"
-            BlueprintName = "dicmstructdump"
+            BlueprintIdentifier = "4AC9A5162C5451EE0078C566"
+            BuildableName = "dicm2cda"
+            BlueprintName = "dicm2cda"
             ReferencedContainer = "container:dicm2dckv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -16,7 +16,10 @@
 		4A0AA4842C5AF4D7002979A3 /* dckvtypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA002BBF098900670A7F /* dckvtypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4A72C5AF507002979A3 /* dckvapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA032BBF3F1900670A7F /* dckvapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4AE2C5AF517002979A3 /* dicm2dckv.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A39E4512C299968004DE4FB /* dckvapi.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A39E4502C299968004DE4FB /* dckvapi.m */; };
+		4A2BF7E22C5E5B660031A838 /* dckvtypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA002BBF098900670A7F /* dckvtypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A2BF7E92C5E5B7C0031A838 /* dckvapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA032BBF3F1900670A7F /* dckvapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A2BF7F02C5E5B850031A838 /* dicm2dckv.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A39E4512C299968004DE4FB /* dckvapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A39E4502C299968004DE4FB /* dckvapi.c */; };
 		4A39E45F2C299A69004DE4FB /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.c */; };
 		4A39E4652C299A8F004DE4FB /* dicm2dckv.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.c */; };
 		4A6982AE2C1CE43A0094F9D9 /* mdbx.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A6982AD2C1CE43A0094F9D9 /* mdbx.c */; };
@@ -97,7 +100,7 @@
 		4A39E4282C20669B004DE4FB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A39E43D2C2998F7004DE4FB /* eDCKVinline */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = eDCKVinline; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A39E44F2C299968004DE4FB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4A39E4502C299968004DE4FB /* dckvapi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
+		4A39E4502C299968004DE4FB /* dckvapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dckvapi.c; sourceTree = "<group>"; };
 		4A6982AC2C1CE43A0094F9D9 /* mdbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdbx.h; sourceTree = "<group>"; };
 		4A6982AD2C1CE43A0094F9D9 /* mdbx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mdbx.c; sourceTree = "<group>"; };
 		4A8097AA2BC189A20042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -178,7 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				4A39E44F2C299968004DE4FB /* README.md */,
-				4A39E4502C299968004DE4FB /* dckvapi.m */,
+				4A39E4502C299968004DE4FB /* dckvapi.c */,
 				4AC9A5102C4AE2290078C566 /* snippets */,
 			);
 			path = eDCKVinline;
@@ -306,6 +309,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4A2BF7E12C5E5B4A0031A838 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A2BF7E22C5E5B660031A838 /* dckvtypes.h in Headers */,
+				4A2BF7F02C5E5B850031A838 /* dicm2dckv.h in Headers */,
+				4A2BF7E92C5E5B7C0031A838 /* dckvapi.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -313,6 +326,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4A39E4412C2998F7004DE4FB /* Build configuration list for PBXNativeTarget "eDCKVinline" */;
 			buildPhases = (
+				4A2BF7E12C5E5B4A0031A838 /* Headers */,
 				4A39E4392C2998F7004DE4FB /* Sources */,
 				4A39E43A2C2998F7004DE4FB /* Frameworks */,
 				4A39E43B2C2998F7004DE4FB /* CopyFiles */,
@@ -468,7 +482,7 @@
 				4A0AA46F2C5ADFDC002979A3 /* dckvtypes.c in Sources */,
 				4A39E4652C299A8F004DE4FB /* dicm2dckv.c in Sources */,
 				4A39E45F2C299A69004DE4FB /* main.c in Sources */,
-				4A39E4512C299968004DE4FB /* dckvapi.m in Sources */,
+				4A39E4512C299968004DE4FB /* dckvapi.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

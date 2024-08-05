@@ -2,15 +2,6 @@
 // file: main.c
 // created by jacquesfauquex on 2024-04-04.
 
-//C
-#include <stdio.h>
-//#include <sys/time.h>
-/* For malloc() */
-#include <stdlib.h>
-/* For uuid_generate() and uuid_unparse()
-#include <uuid/uuid.h>*/
-
-//propietario
 #include "dicm2dckv.h"
 
 /*
@@ -20,16 +11,16 @@
  */
 
 int main(int argc, const char * argv[]) {
- 
-   if (argc < 3){
-      return errorArgs;
-   }
-   /*
-   - El nombre del comando difiere dependiendo el nombre de la implementación de dckvapi
-   - loglevel es uno de [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
-   - outdir (directorio adónde escribir los resultados )
+   /* args:
+   0 command name defined by target
+   1 loglevel [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
+   2 outdir
+   3 (opcional) infile
    */
-   if (!loglevel(argv[1])) exit(errorLogLevel);
+   if (argc < 3){
+      return dckvErrorArgs;
+   }
+   if (!loglevel(argv[1])) exit(dckvErrorLogLevel);
    
    uint8_t *kbuf = malloc(0xFF);//max use 16 bytes x 10 encapsulation levels
    uint8_t *vbuf = malloc(0xFFFE);//max size of vl attribute values
@@ -44,58 +35,57 @@ int main(int argc, const char * argv[]) {
    s16 siidx=1;//instances count
 
    FILE *inFile = NULL;
-   if (argc==4)
+   if (argc==4) //file specified in args
    {
-      inFile=freopen(argv[3],"rb",stdin);//para testing
-      if (inFile==NULL) return errorArgs;
+      inFile=freopen(argv[3],"rb",stdin);
+      if (inFile==NULL) return dckvErrorIn;
       siidx=-1;
    }
-   else freopen(NULL, "rb", stdin);
+   else freopen(NULL, "rb", stdin); //from stdin
    setvbuf(stdin, NULL, _IOFBF, 0xFFFE);// | O_NONBLOCK  buffer binario largo 0xFFFE
       
-   while (siidx)
+   while (siidx)//if file, siidx==0 after first pass
    {
-      if (   dicmuptosopts(
-                           kbuf,
-                           vbuf,
-                           &inloc,
-                           &soloc,
-                           &solen,
-                           &soidx,
-                           &siloc,
-                           &silen,
-                           &stloc,
-                           &stlen,
-                           &stidx
-                          )
+      if (!dicmuptosopts(
+                          kbuf,
+                          vbuf,
+                         &inloc,
+                         &soloc,
+                         &solen,
+                         &soidx,
+                         &siloc,
+                         &silen,
+                         &stloc,
+                         &stlen,
+                         &stidx
+                         )
+          ) return dckvSOPinstanceRejected;
       
-          && dicm2dckvInstance(
-               argv[2],
-               kbuf,
-               vbuf,
-               lbuf,
-               &vlen,
-               &inloc,
-               0xFFFFFFFF, //beforebyte
-               0xFFFCFFFC,  //beforetag agradado en dcmtk storescp al final de cada instancia, para delimitarla dentro del stream
-               &soloc,
-               &solen,
-               &soidx,
-               &siloc,
-               &silen,
-               &stloc,
-               &stlen,
-               &stidx,
-               &siidx
-          )
-         ) D("%s", "dicm2dckv OK");
-      else
-      {
-         E("%s", "dicm2dckv error");
-#pragma mark TODO register error log
-      }
+      if (!dicm2dckvInstance(
+                              argv[2],
+                              kbuf,
+                              vbuf,
+                              lbuf,
+                             &vlen,
+                             &inloc,
+                              0xFFFFFFFF, //beforebyte
+                              0xFFFCFFFC,  //beforetag agradado en dcmtk storescp al final de cada instancia, para delimitarla dentro del stream
+                             &soloc,
+                             &solen,
+                             &soidx,
+                             &siloc,
+                             &silen,
+                             &stloc,
+                             &stlen,
+                             &stidx,
+                             &siidx
+                             )
+          ) return dckvErrorParsing;
    }
  
-   //if (inFile!=NULL) fclose(inFile);
-   return exitOK;
+   if (inFile!=NULL) fclose(inFile);
+   free(kbuf);
+   free(vbuf);
+   free(lbuf);
+   return dckvExitOK;
 }

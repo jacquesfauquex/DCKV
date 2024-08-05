@@ -3,12 +3,11 @@
 //  eDCKVinline
 //
 
-#include <Foundation/Foundation.h>
+//#include <Foundation/Foundation.h>
 
 #include "dckvapi.h"
 
-#include "eDCKVprefixtag.h"
-
+//possibility to overwrite any value read
 size_t dckvapi_fread(
                      void * __restrict __ptr,
                      size_t __size,
@@ -19,11 +18,11 @@ size_t dckvapi_fread(
    return fread(__ptr,__size,__nitems,__stream);
 }
 
-u8 swapchar;
-
 
 //returns true when 8 bytes were read
-BOOL dckvapi_fread8(uint8_t *buffer, unsigned long *bytesReadRef)
+//possibility to overwrite any tag,vr,length reading
+u8 swapchar;
+bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
 {
    *bytesReadRef=fread(buffer, 1, 8, stdin);
    if (ferror(stdin)){
@@ -94,7 +93,7 @@ bool createtx(
    Sbuf=malloc(0xFFFFFF);
    Ibuf=malloc(0xFFFFFFFF);
 
-   Bcccc=CFSwapInt16(*soidx);
+   Bcccc=u16swap(*soidx);
    Bffff=0x0100;//frame
    Bssss=0x0100;//series number
    Brrrr=0x0000;//relative to series number
@@ -135,14 +134,14 @@ bool closetx(s16 *siidx)
 #pragma mark - parseo y agregado
 
 bool appendkv(
-              uint8_t            *kbuf,
-              unsigned long      kloc,
-              BOOL               vlenisl,
+              uint8_t           *kbuf,
+              u32                kloc,
+              bool               vlenisl,
               enum kvVRcategory  vrcat,
-              unsigned long long vloc,
-              unsigned long      vlen,
-              BOOL               fromStdin,
-              uint8_t            *vbuf
+              u64                vloc,
+              u32                vlen,
+              bool               fromStdin,
+              uint8_t           *vbuf
               )
 {
    D("%d",vrcat);

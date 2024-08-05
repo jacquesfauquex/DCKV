@@ -10,8 +10,11 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdlib.h>
+#include <stdlib.h> //malloc()
 #include <string.h>
+#include <ctype.h>
+//#include <sys/time.h>
+//#include <uuid/uuid.h>//For uuid_generate() and uuid_unparse()
 
 typedef char                s8;//%c
 typedef unsigned char       u8;//%c
@@ -32,13 +35,15 @@ u16 u16swap(u16 x);
 #pragma mark - main & log
 
 enum exitValue{
-   exitOK=0,
-   errorArgs,
-   errorIn,
-   errorOutPath,
-   errorWrite,
-   errorCreateKV,
-   errorLogLevel
+   dckvExitOK=0,
+   dckvErrorArgs,
+   dckvErrorIn,
+   dckvErrorOutPath,
+   dckvErrorWrite,
+   dckvErrorCreateKV,
+   dckvErrorLogLevel,
+   dckvSOPinstanceRejected,
+   dckvErrorParsing
 };
 
 //https://stackoverflow.com/questions/53522586/variadic-macro-calling-fprintf-how-to-add-arguments-to-va-args
