@@ -925,45 +925,45 @@ u8 tsidx( uint8_t *vbuf, u16 vallength )
          switch ((vbuf[20]<<8)+vbuf[21]) {
             case 0x3938: idx=ts_1_98;break;//Encapsulated​Uncompressed​Explicit​VR​Little​Endian
             case 0x3939: idx=ts_1_99;break;//Deflated​Explicit​VR​Little​Endian
-            case 0x3035: idx=ts_4_50;break;//JPEG​Baseline​8​Bit
-            case 0x3135: idx=ts_4_51;break;//JPEG​Extended​12​Bit
-            case 0x3235: idx=ts_4_52;break;//JPEG​Extended35      Retired
-            case 0x3335: idx=ts_4_53;break;//JPEG​Spectral​Selection​Non​Hierarchical68      Retired
-            case 0x3435: idx=ts_4_54;break;//JPEG​Spectral​Selection​Non​Hierarchical79      Retired
+            case 0x3530: idx=ts_4_50;break;//JPEG​Baseline​8​Bit
+            case 0x3531: idx=ts_4_51;break;//JPEG​Extended​12​Bit
+            case 0x3532: idx=ts_4_52;break;//JPEG​Extended35      Retired
+            case 0x3533: idx=ts_4_53;break;//JPEG​Spectral​Selection​Non​Hierarchical68      Retired
+            case 0x3534: idx=ts_4_54;break;//JPEG​Spectral​Selection​Non​Hierarchical79      Retired
             case 0x3535: idx=ts_4_55;break;//JPEG​Full​Progression​Non​Hierarchical1012      Retired
-            case 0x3635: idx=ts_4_56;break;//JPEG​Full​Progression​Non​Hierarchical1113      Retired
-            case 0x3735: idx=ts_4_57;break;//JPEG​Lossless
-            case 0x3835: idx=ts_4_58;break;//JPEG​Lossless​Non​Hierarchical​15      Retired
-            case 0x3935: idx=ts_4_59;break;//JPEG​Extended​Hierarchical​1618     Retired
-            case 0x3036: idx=ts_4_60;break;//JPEG​Extended​Hierarchical​1719     Retired
-            case 0x3136: idx=ts_4_61;break;//JPEG​Spectral​Selection​Hierarchical2022     Retired
-            case 0x3236: idx=ts_4_62;break;//JPEG​Spectral​Selection​Hierarchical2123     Retired
-            case 0x3336: idx=ts_4_63;break;//JPEG​Full​Progression​Hierarchical2426    Retired
-            case 0x3436: idx=ts_4_64;break;//JPEG​Full​Progression​Hierarchical2527    Retired
-            case 0x3536: idx=ts_4_65;break;//JPEG​Lossless​Hierarchical​28    Retired
+            case 0x3536: idx=ts_4_56;break;//JPEG​Full​Progression​Non​Hierarchical1113      Retired
+            case 0x3537: idx=ts_4_57;break;//JPEG​Lossless
+            case 0x3538: idx=ts_4_58;break;//JPEG​Lossless​Non​Hierarchical​15      Retired
+            case 0x3539: idx=ts_4_59;break;//JPEG​Extended​Hierarchical​1618     Retired
+            case 0x3630: idx=ts_4_60;break;//JPEG​Extended​Hierarchical​1719     Retired
+            case 0x3631: idx=ts_4_61;break;//JPEG​Spectral​Selection​Hierarchical2022     Retired
+            case 0x3632: idx=ts_4_62;break;//JPEG​Spectral​Selection​Hierarchical2123     Retired
+            case 0x3633: idx=ts_4_63;break;//JPEG​Full​Progression​Hierarchical2426    Retired
+            case 0x3634: idx=ts_4_64;break;//JPEG​Full​Progression​Hierarchical2527    Retired
+            case 0x3635: idx=ts_4_65;break;//JPEG​Lossless​Hierarchical​28    Retired
             case 0x3636: idx=ts_4_66;break;//JPEG​Lossless​Hierarchical​29    Retired
-            case 0x3037: idx=ts_4_70;break;//JPEG​Lossless​SV1
-            case 0x3038: idx=ts_4_80;break;//JPEG​LS​Lossless
-            case 0x3138: idx=ts_4_81;break;//JPEG​LS​Near​Lossless
-            case 0x3039: idx=ts_4_90;break;//JPEG​2000Lossless
-            case 0x3139: idx=ts_4_91;break;//JPEG​2000
-            case 0x3239: idx=ts_4_92;break;//JPEG​2000MCLossless
-            case 0x3339: idx=ts_4_93;break;//JPEG​2000MC
-            case 0x3439: idx=ts_4_94;break;//JPIP​Referenced
-            case 0x3539: idx=ts_4_95;break;//JPIP​Referenced​Deflate
-            case 0x2031:{
+            case 0x3730: idx=ts_4_70;break;//JPEG​Lossless​SV1
+            case 0x3830: idx=ts_4_80;break;//JPEG​LS​Lossless
+            case 0x3831: idx=ts_4_81;break;//JPEG​LS​Near​Lossless
+            case 0x3930: idx=ts_4_90;break;//JPEG​2000Lossless
+            case 0x3931: idx=ts_4_91;break;//JPEG​2000
+            case 0x3932: idx=ts_4_92;break;//JPEG​2000MCLossless
+            case 0x3933: idx=ts_4_93;break;//JPEG​2000MC
+            case 0x3934: idx=ts_4_94;break;//JPIP​Referenced
+            case 0x3935: idx=ts_4_95;break;//JPIP​Referenced​Deflate
+            case 0x3120:{
                switch (vbuf[18]){
                   case 0x36: idx=ts_6_1;break;//RFC​2557​MIME​Encapsulation
                   case 0x37: idx=ts_7_1;break;//SMPTE​ST​211020​Uncompressed​Progressive​Active​Video
                   default: idx=ts_papyrus3ile;break;//error
                }};break;
-            case 0x2032:{
+            case 0x3220:{
                switch (vbuf[18]){
                   case 0x36: idx=ts_6_2;break;//XML​Encoding
                   case 0x37: idx=ts_7_2;break;//SMPTE​ST​211020​Uncompressed​Interlaced​Active​Video
                   default: idx=ts_papyrus3ile;break;//error
                }};break;
-            case 0x2033: idx=ts_7_3;break;//SMPTE​ST​211030​PCMDigital​Audio
+            case 0x3320: idx=ts_7_3;break;//SMPTE​ST​211030​PCMDigital​Audio
             default    : idx=ts_papyrus3ile;break;//error
          }};break;
       case 23:{

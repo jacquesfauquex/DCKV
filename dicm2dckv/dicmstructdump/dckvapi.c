@@ -1,12 +1,9 @@
-//
-//  dckvapi.m
-//  dicm2dckv
-//
-//  Created by jacquesfauquex on 2024-04-04.
-//
+// project: dicm2dckv
+// target: dicmstructdump
+// file: dckvapi.m
+// created by jacquesfauquex on 2024-04-04.
 
 /*potencialmente multivalue: AE AS AT CS DA DS DT FD FL IS LO OW PN SH SV TM UC UI UV*/
-#include <Foundation/Foundation.h>
 
 #include "dckvapi.h"
 
@@ -150,12 +147,12 @@ bool appendkv(
                
          case kvUN:
          {
-            printf("%08X %c%c %04X {%llu,%u}\n",CFSwapInt32(*t),v,r,*l,vloc+12,vlen);
+            printf("%08X %c%c %04X {%llu,%u}\n", u32swap(*t),v,r,*l,vloc+12,vlen);
          } break;
          
          case kvSA://SQ head
          {
-            printf("%08X00000000\n", CFSwapInt32(*t));
+            printf("%08X00000000\n", u32swap(*t));
          }break;
 
          default: return false;
@@ -169,7 +166,7 @@ bool appendkv(
       switch (vrcat) {
          case kvFD://floating point double
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                double *v=(double*)vbuf;
@@ -185,7 +182,7 @@ bool appendkv(
             
          case kvFL://floating point single
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                float *v=(float*)vbuf;
@@ -201,7 +198,7 @@ bool appendkv(
             
          case kvSL://signed long
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                s32 *v=(s32*)vbuf;
@@ -217,7 +214,7 @@ bool appendkv(
             
          case kvSS://signed short
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                s16 *v=(s16*)vbuf;
@@ -233,7 +230,7 @@ bool appendkv(
             
          case kvUL://unsigned long
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                u32 *v=(u32*)vbuf;
@@ -249,7 +246,7 @@ bool appendkv(
             
          case kvUS://unsigned short
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                u16 *v=(u16*)vbuf;
@@ -265,7 +262,7 @@ bool appendkv(
             
          case kvAT://attribute tag
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                u16 *v=(u16*)vbuf;
@@ -284,7 +281,7 @@ bool appendkv(
          case kvIS://SeriesInstanceUID
          case kvUI://unique ID
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                printf(" (");
@@ -318,7 +315,7 @@ bool appendkv(
             
          case kvPN:
          {
-            printf("%08X %c%c %04X",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
             {
                printf(" (");
@@ -335,17 +332,17 @@ bool appendkv(
             
          case kvIA://item head
          {
-            printf("%08X %c%c %04X\n",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X\n",u32swap(*t),v,r,*l);
          }break;
             
          case kvIZ://item tail
          {
-            printf("%08X %c%c %04X\n",CFSwapInt32(*t),v,r,*l);
+            printf("%08X %c%c %04X\n",u32swap(*t),v,r,*l);
          }break;
             
          case kvSZ://SQ tail
          {
-            printf("%08XFFFFFFFF\n", CFSwapInt32(*t));
+            printf("%08XFFFFFFFF\n", u32swap(*t));
          }break;
 
          default: return false;

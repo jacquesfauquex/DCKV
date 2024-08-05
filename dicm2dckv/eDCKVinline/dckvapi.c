@@ -1,9 +1,7 @@
-//
-//  dckvapi.m
-//  eDCKVinline
-//
-
-//#include <Foundation/Foundation.h>
+// project: dicm2dckv
+// targets: eDCKVinline
+// file: dckvapi.m
+// created by jacquesfauquex on 2024-04-04.
 
 #include "dckvapi.h"
 
@@ -1408,10 +1406,23 @@ bool appendkv(
             case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
             case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
             case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
+            {
+                if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
+                memcpy(Ibuf+Iidx, &vlen, 4);
+                Iidx+=4;
+                memcpy(Ibuf+Iidx, vbuf, vlen);
+                Iidx+=vlen;
+            };break;
+
             case kv01://not representable
             {
-               if (vlen==0xFFFFFFFF)
+               
+               if (vlen==0xFFFFFFFF) //fragments
                {
+                  /*
+                   0 empty
+                   */
+                  printf("%s","fragments");
                   unsigned long long ulllen=0;
                   if (fromStdin)
                   {
@@ -1429,14 +1440,18 @@ bool appendkv(
                      memcpy(Ibuf+Iidx, &ulllen, 8);
                      Iidx+=8;
                   }
-                  else
+                  else //already in buffer
                   {
-                     if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-                     memcpy(Ibuf+Iidx, &vlen, 4);
-                     Iidx+=4;
-                     memcpy(Ibuf+Iidx, vbuf, vlen);
-                     Iidx+=vlen;
+
                   }
+               }
+               else //no fragments
+               {
+                  if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
+                  memcpy(Ibuf+Iidx, &vlen, 4);
+                  Iidx+=4;
+                  memcpy(Ibuf+Iidx, vbuf, vlen);
+                  Iidx+=vlen;
                }
             };break;
 
