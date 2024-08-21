@@ -56,7 +56,7 @@ const char *backslash = "\\";
 char *coma=" ";
 
 #pragma mark obligatorios formales
-bool createtx(
+bool createdckv(
    const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
@@ -75,12 +75,12 @@ bool createtx(
    return true;
 }
 
-bool committx(s16 *siidx){
+bool commitdckv(s16 *siidx){
    putchar('}');
    //if ((*sitot > 1) && (*siidx==*sitot)) putchar(']');
    return true;
 }
-bool closetx(s16 *siidx){return true;}
+bool closedckv(s16 *siidx){return true;}
 
 
 bool appendkv(

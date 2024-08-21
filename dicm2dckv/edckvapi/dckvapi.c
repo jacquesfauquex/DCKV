@@ -4,6 +4,7 @@
 // created by jacquesfauquex on 2024-04-04.
 
 #include "dckvapi.h"
+#include "edckvapi.h"
 
 
 
@@ -1020,7 +1021,7 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
 
 
 #pragma mark - static
-
+static u16 PCSidx;
 //trim string
 static unsigned long vlen2;
 static unsigned long vstart;
@@ -1033,12 +1034,6 @@ static unsigned long vtrim;
  */
 static u16 PCSidx=0;
 
-//prefix components
-static u16 Bcccc;//class index
-static s16 Bssss;//series number
-static s16 Brrrr;//relative to series number
-static u16 Bffff;//frame
-static s16 Biiii;//instance number
 
 //output files
 static uint8_t *Ebuf;
@@ -1054,15 +1049,23 @@ FILE *Efile;
 FILE *Sfile;
 FILE *Ifile;
 
+static u8 i0;
+static u8 i1;
+
+static u8 s0;
+static u8 s1;
+
+static u8 c0;
+static u8 c1;
 
 static size_t bytesWritten;
 
 const char *space=" ";
 const char *backslash = "\\";
 
-#pragma mark - methods
+#pragma mark - methods overriden by edckv
 
-bool createtx(
+bool createdckv(
    const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
@@ -1076,130 +1079,36 @@ bool createtx(
    s16 *siidx          // SOPinstance index
 )
 {
-   //prefix components
-   Bcccc=u16swap(*soidx);
-   Bffff=0x0000;//frame
-   Bssss=0x0100;//series number
-   Brrrr=0x0000;//relative to series number
-   Biiii=0x0100;//instance
-
-   //files contents buffer
-   Ebuf=malloc(0xFFFF);
-   Sbuf=malloc(0xFFFFFF);
-   Ibuf=malloc(0xFFFFFFFF);
-
-   //SOPInstanceUID
-   char *sopibuf = malloc(*silen);
-   memcpy(sopibuf, vbuf+*siloc+8, *silen);
-
-   //files path and opening
-   Epath=malloc(0xFF);
-   Spath=malloc(0xFF);
-   Ipath=malloc(0xFF);
-
-   strcat(Epath,dstdir);
-   strcat(Epath, "/");
-   strcat(Epath,sopibuf);
-   strcat(Epath, ".ekv");
-   Efile=fopen(Epath, "w");
-
-   strcat(Spath,dstdir);
-   strcat(Spath, "/");
-   strcat(Spath,sopibuf);
-   strcat(Spath, ".skv");
-   Sfile=fopen(Spath, "w");
-
-   strcat(Ipath,dstdir);
-   strcat(Ipath, "/");
-   strcat(Ipath,sopibuf);
-   strcat(Ipath, ".ikv");
-   Ifile=fopen(Ipath, "w");
-
-   free(sopibuf);
-   (*siidx)++;
-   I("#%d",*siidx);
-   return true;
+   PCSidx=0;//to determine if the attribute is patient, exam or series level
+   return createedckv(
+   dstdir,
+   vbuf,
+   soloc,
+   solen,
+   soidx,
+   siloc,
+   silen,
+   stloc,
+   stlen,
+   stidx,
+   siidx
+   );
 }
-bool committx(s16 *siidx)
+
+
+bool commitdckv(s16 *siidx)
 {
-#pragma mark fwrite
-   //bytesWritten=fputs(&klen, outFile);
-   bytesWritten=fwrite(Ebuf, 1, Eidx, Efile);
-   bytesWritten=fwrite(Sbuf, 1, Sidx, Sfile);
-   bytesWritten=fwrite(Ibuf ,1, Iidx , Ifile);
-   return closetx(siidx);
+   return commitedckv(siidx);
 }
-bool closetx(s16 *siidx)
+
+
+bool closedckv(s16 *siidx)
 {
-   fclose(Efile);
-   fclose(Sfile);
-   fclose(Ifile);
-   free(Ebuf);
-   free(Sbuf);
-   free(Ibuf);
-   free(Epath);
-   free(Spath);
-   free(Ipath);
-
-   I("!#%d",*siidx);
-   return true;
+   return closeedckv(siidx);
 }
 
 
-u64 edckvPrefix(u32 Btag,
-                u16 *PCSidx,
-                u16 Bcccc,
-                u16 Bffff,
-                s16 Bssss,
-                s16 Brrrr,
-                s16 Biiii
-                )
-{
-   //https://github.com/jacquesfauquex/DCKV/wiki/eDCKV
-   
-   u32 Ltag=u32swap(Btag);
-   if (Ltag < PCStag[*PCSidx])
-   {
-      //instance frame level
-      return
-        0x0300
-      + (Bssss*0x10000)
-      + (Bffff*0x100000000)
-      + (Biiii*0x1000000000000)
-      ;
-   }
-   else
-   {
-      while ((Ltag > PCStag[*PCSidx]) && (*PCSidx < 234)) (*PCSidx)++;
-      if (Ltag == PCStag[*PCSidx])
-      {
-         if (PCStype[*PCSidx]==0)//patient|study
-         {
-            return 0x0000000000000000;
-         }
-         else //series
-         {
-            return
-              0x0100
-            + (Bssss*0x10000)
-            + (Bcccc*0x100000000)
-            + (Brrrr*0x1000000000000)
-            ;
-         }
-      }
-      //instance level
-      return
-        0x0300
-      + (Bssss*0x10000)
-      + (Bffff*0x100000000)
-      + (Biiii*0x1000000000000)
-      ;
-   }
-      
-   return 0xFFFFFFFFFFFFFFFF;//should not be here
-}
-
-
+#pragma mark - method discriminating kv by types and calling corresponding edckv method
 bool appendkv(
               uint8_t           *kbuf,
               u32                kloc,
@@ -1211,30 +1120,58 @@ bool appendkv(
               uint8_t           *vbuf
               )
 {
-   D("%d",vrcat);
-   
-   //no need for sequence and item delimiters
+ 
+#pragma mark skip sequence and item delimiters
    if (vrcat==kvSA) return true;
    if (vrcat==kvIA) return true;
    if (vrcat==kvIZ) return true;
    if (vrcat==kvSZ) return true;
    
-   //does the attribute belong to patient-study, series levels ?
-   //put idx of next PCStag in PCSidx
-   u64 prefix=edckvPrefix(
-                           *(u32*)kbuf,//basetag
-                           &PCSidx,
-                            Bcccc,
-                            Bffff,
-                            Bssss,
-                            Brrrr,
-                            Biiii
-                           );
-   
-   
-   if (prefix==0)//atributo paciente estudio
+   u32 Ltag=u32swap(*(u32*)kbuf);//basetag
+
+#pragma mark skip group length
+   if ( 0 == Ltag % 0x10000 )
    {
-#pragma mark Patient Study (E)
+      fread(vbuf,1,vlen,stdin);
+      return true;
+   }
+   
+#pragma mark private
+   if (( vrcat == kvUN ) || (( Ltag / 0x10000 ) % 2) == 1)
+   {
+      return appendPRIVATEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+   }
+
+   //attribute 00020010,07E00010,...
+   {
+      if little endian
+   appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+   else
+   appendCOMPRESSEDkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+   
+#pragma mark prefix type
+
+   //the attribute belong to patient-study, series levels, ... ?
+   //PCSidx: index of next little endian tag in PCStag table (patient, clinical study, series)
+    if current tag is lower than PCStag[PCSidx], current tag es instance or frame tag
+    */
+       if (Ltag < PCStag[PCSidx]) appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+   else
+   {
+      while ((Ltag > PCStag[PCSidx]) && (PCSidx < 234)) (PCSidx)++;
+      if (Ltag == PCStag[PCSidx])
+      {
+         if (PCStype[PCSidx]==0) prefix=0x00;//patient|study
+         else prefix=0x01;//series
+      }
+      else prefix=0x03;//instance
+   }
+   D("%08lld %s %llu %08X",vloc,kvVRlabel(vrcat),prefix,Ltag);
+
+   switch (prefix) {
+      case 0://level patient study
+   {
+#pragma mark · Level Patient Study
       //key
       Ebuf[Eidx++]=kloc+16;
       memcpy(Ebuf+Eidx, &prefix, 8);
@@ -1325,6 +1262,7 @@ bool appendkv(
               Eidx+=vtrim;
             }break;
 
+               
             case kvdn://ST  DocumentTitle 00420010
             case kvHC://HL7InstanceIdentifier
             case kvEi://StudyID
@@ -1383,17 +1321,21 @@ bool appendkv(
             default: return false;
          }
       }
-   }
-   else if (prefix & 0x0300000000000000) //I atributo instancia
+   } break;
+         
+         
+      case 3://level instance
    {
-      Ibuf[Iidx++]=kloc+16;
-      memcpy(Ibuf+Iidx, &prefix, 8);
-      Iidx+=8;
-      memcpy(Ibuf+Iidx, kbuf, kloc+8);
-      Iidx+=kloc+8;
+#pragma mark · Level Instance
+      
       if (vlen==0){
          //value zero length
-         memcpy(Ibuf+Iidx, &vlen, 4);
+         Ibuf[Iidx++]=kloc+16;//key size
+         memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+         Iidx+=8;
+         memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+         Iidx+=kloc+8;
+         memcpy(Ibuf+Iidx, &vlen, 4);//value length
          Iidx+=4;
          return true;
       }
@@ -1407,6 +1349,11 @@ bool appendkv(
             case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
             case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
             {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
                 if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
                 memcpy(Ibuf+Iidx, &vlen, 4);
                 Iidx+=4;
@@ -1416,37 +1363,89 @@ bool appendkv(
 
             case kv01://not representable
             {
-               
-               if (vlen==0xFFFFFFFF) //fragments
+               if ( u32swap(((u32*)kbuf)[0]) == 0x7FE00010)
                {
-                  /*
-                   0 empty
-                   */
-                  printf("%s","fragments");
-                  unsigned long long ulllen=0;
-                  if (fromStdin)
+#pragma mark ·· 0x7FE00001
+                  if (vlen==0xFFFFFFFF) //fragments OB or OW
                   {
-#pragma mark TODO fragments
-                     //write size insteda of data
-                     size_t bytesread=0xFFFE;
-                     while (bytesread==0xFFFE)
+#pragma mark ··· fragments
+                     if (fromStdin)
                      {
-                        bytesread=fread(vbuf,1,0xFFFE,stdin);
-                        ulllen+=bytesread;
+                        u64 fragmentbytes=0;
+                        struct t4l4 *fragmentstruct=(struct t4l4*) &fragmentbytes;
+                        
+                        
+                        //fragmento 0
+                        if (fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
+                        if (fragmentstruct->t != 0xe000fffe) return false;
+                        //read (and ignore) neventually existing table
+                        if (   (fragmentstruct->l > 0)
+                            && (fread(vbuf,1,fragmentstruct->l,stdin) != fragmentstruct->l)
+                           ) return false;
+                        vloc+=20+fragmentstruct->l;
+
+                        
+                        //write iBuffer and reset index
+                        fwriteIfile();
+                        
+                        //read fragment 1
+                        if (fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
+                        
+                        while (fragmentstruct->t != 0xe0ddfffe)
+                        {
+                           if (fragmentstruct->t != 0xe000fffe) return false;
+                           prefix+=0x10000000000;
+                           Ibuf[Iidx++]=16;//key size
+                           memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+                           Iidx+=8;
+                           memcpy(Ibuf+Iidx, kbuf, 8);//copy key
+                           Iidx+=8;
+                           memcpy(Ibuf+Iidx, &(fragmentstruct->l), 4);//val length
+                           Iidx+=8;
+                           
+                           //write iBuffer and reset index
+                           fwriteIfile();
+                           
+                           D("%08lld %016llx %x %x\n",vloc,u64swap(prefix),fragmentstruct->t,fragmentstruct->l);
+                           if (fragmentstruct->l > 0)
+                           {
+                              size_t bytesremaing=fragmentstruct->l;
+                              while ( bytesremaing > 0xFFFD)
+                              {
+                                 if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
+                                 if (fwrite(vbuf ,1, 0xFFFE , Ifile)!=0xFFFE) return false;
+                                 bytesremaing-=0xFFFE;
+                              }
+                              if (bytesremaing > 0)
+                              {
+                                 if (fread(vbuf,1,bytesremaing,stdin)!=bytesremaing) return false;
+                                 if (fwrite(vbuf ,1, bytesremaing , Ifile)!=bytesremaing) return false;
+                              }
+
+                           }
+                           vloc+=8+fragmentstruct->l;//174674 en lugar de 172954 (dif 1720)
+                           if (fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
+                        }
                      }
-                     u32 eightBytes=8;
-                     memcpy(Ibuf+Iidx, &eightBytes, 4);
-                     Iidx+=4;
-                     memcpy(Ibuf+Iidx, &ulllen, 8);
-                     Iidx+=8;
+                     else //already in buffer
+                     {
+                     }
                   }
-                  else //already in buffer
+                  else
                   {
+#pragma mark ··· native
 
                   }
                }
-               else //no fragments
+               else
                {
+#pragma mark ·· other vl
+
+                  Ibuf[Iidx++]=kloc+16;//key size
+                  memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+                  Iidx+=8;
+                  memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+                  Iidx+=kloc+8;
                   if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
                   memcpy(Ibuf+Iidx, &vlen, 4);
                   Iidx+=4;
@@ -1458,6 +1457,11 @@ bool appendkv(
                
             case kvUN://not representable
             {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
                if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
                memcpy(Ibuf+Iidx, &vlen, 4);
                Iidx+=4;
@@ -1475,6 +1479,11 @@ bool appendkv(
             case kvEd://StudyDate
             case kvTP:
             {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
                if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
                memcpy(Ibuf+Iidx, &vlen, 4);
                Iidx+=4;
@@ -1487,6 +1496,11 @@ bool appendkv(
             case kvIS://SeriesInstanceUID
             case kvUI://unique ID
             {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
                if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
                vlen2=vlen - (vbuf[vlen - 1] == 0);
                memcpy(Ibuf+Iidx, &vlen2, 4);
@@ -1498,10 +1512,14 @@ bool appendkv(
             case kvSm://Modality
             case kvAt://AccessionNumberType
             case kvIs://SeriesNumber
-            case kvIi://InstanceNumber
             case kvIa://AcquisitionNumber
             case kvTA:
             {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
               
               // Trim leading space
@@ -1516,6 +1534,31 @@ bool appendkv(
               Iidx+=vtrim;
             }break;
 
+            case kvIi://InstanceNumber needed for prefix
+            {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
+              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
+              
+              // Trim leading space
+              vstart=0;
+              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
+              vstop = vlen - 1;
+              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
+              vtrim=vstop-vstart+1;
+              memcpy(Ibuf+Iidx, &vtrim, 4);
+              Iidx+=4;
+              memcpy(Ibuf+Iidx, vbuf+vstart, vtrim);
+              Iidx+=vtrim;
+              int Ii;
+              sscanf(vbuf,"%d",&Ii);
+              i0=Ii % 0x100;
+              i1=Ii / 0x100;
+            }break;
+
             case kvdn://ST  DocumentTitle 00420010
             case kvHC://HL7InstanceIdentifier
             case kvEi://StudyID
@@ -1524,6 +1567,11 @@ bool appendkv(
                
             case kvPN:
             {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
               
               // Trim leading space
@@ -1540,6 +1588,11 @@ bool appendkv(
 
             case kvTL://UC
             {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
               
               // Trim leading space
@@ -1556,6 +1609,11 @@ bool appendkv(
                
             case kvTU:
             {
+               Ibuf[Iidx++]=kloc+16;//key size
+               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
+               Iidx+=8;
+               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
+               Iidx+=kloc+8;
               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
               
               // Trim leading space
@@ -1574,9 +1632,11 @@ bool appendkv(
             default: return false;
          }
       }
-   }
-   else //SZ atributo serie
+   } break;
+         
+      default:
    {
+#pragma mark · Level Series
       Sbuf[Sidx++]=kloc+16;
       memcpy(Sbuf+Sidx, &prefix, 8);
       Sidx+=8;
@@ -1639,7 +1699,6 @@ bool appendkv(
                   
             case kvSm://Modality
             case kvAt://AccessionNumberType
-            case kvIs://SeriesNumber
             case kvIi://InstanceNumber
             case kvIa://AcquisitionNumber
             case kvTA:
@@ -1658,6 +1717,29 @@ bool appendkv(
               Sidx+=vtrim;
             }break;
 
+            case kvIs://SeriesNumber
+            {
+              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
+              
+              // Trim leading space
+              vstart=0;
+              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
+              vstop = vlen - 1;
+              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
+              vtrim=vstop-vstart+1;
+              memcpy(Sbuf+Sidx, &vtrim, 4);
+              Sidx+=4;
+              memcpy(Sbuf+Sidx, vbuf+vstart, vtrim);
+              Sidx+=vtrim;
+              
+              int Is;
+              sscanf(vbuf,"%d",&Is);
+              s0=Is % 0x100;//static for use in committx series prefix
+              s1=Is / 0x100;
+            }break;
+
+
+               
             case kvdn://ST  DocumentTitle 00420010
             case kvHC://HL7InstanceIdentifier
             case kvEi://StudyID
@@ -1717,6 +1799,6 @@ bool appendkv(
       }
 
    }
-
+   }
    return true;
 }

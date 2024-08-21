@@ -51,7 +51,7 @@ const char *space=" ";
 const char *backslash = "\\";
 
 #pragma mark obligatorios formales
-bool createtx(
+bool createdckv(
    const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
@@ -69,10 +69,10 @@ bool createtx(
    printf("     144 %s\n","00020001 OB 0000 {156,2}");
    return true;
 }
-bool committx(s16 *siidx){
-   return closetx(siidx);
+bool commitdckv(s16 *siidx){
+   return closedckv(siidx);
 }
-bool closetx(s16 *siidx){
+bool closedckv(s16 *siidx){
    I("!#%d",*siidx);
    
    return true;

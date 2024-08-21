@@ -62,7 +62,7 @@ static MDBX_dbi dbi = 0;
 static MDBX_cursor *cursor = NULL;
 static char *dbpath;
 
-bool createtx(
+bool createdckv(
    const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
@@ -104,13 +104,13 @@ bool createtx(
   rc = mdbx_dbi_open(txn, NULL, 0, &dbi);
   if (rc != MDBX_SUCCESS) {
      E("mdbx_dbi_open: (%d) %s\n", rc, mdbx_strerror(rc));
-     closetx(siidx);
+     closedckv(siidx);
      return false;
   }
    rc = mdbx_cursor_open(txn, dbi, &cursor);
    if (rc != MDBX_SUCCESS) {
       E("mdbx_cursor_open: (%d) %s\n", rc, mdbx_strerror(rc));
-      closetx(siidx);
+      closedckv(siidx);
       return false;
    }
    I("#%d",*siidx);
@@ -118,26 +118,26 @@ bool createtx(
 }
 
 
-bool committx(s16 *siidx)
+bool commitdckv(s16 *siidx)
 {
    rc = mdbx_txn_commit(txn);
    if (rc)
    {
       E("mdbx_txn_commit: (%d) %s\n", rc, mdbx_strerror(rc));
-      closetx(siidx);
+      closedckv(siidx);
       return false;
    }
    else
    {
       D("%s","txn commit");
 #pragma mark move db to final dest
-      closetx(siidx);
+      closedckv(siidx);
    }
    return true;
 }
 
 
-bool closetx(s16 *siidx)
+bool closedckv(s16 *siidx)
 {
    if (cursor)
      mdbx_cursor_close(cursor);

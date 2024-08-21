@@ -48,7 +48,7 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
    return true;
 }
 
-bool createtx(
+bool createdckv(
    const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
@@ -75,10 +75,10 @@ bool createtx(
 
    return true;
 }
-bool committx(s16 *siidx){
-   return closetx(siidx);
+bool commitdckv(s16 *siidx){
+   return closedckv(siidx);
 }
-bool closetx(s16 *siidx){
+bool closedckv(s16 *siidx){
    fclose(outFile);
    return true;
 }

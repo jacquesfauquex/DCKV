@@ -1,5 +1,5 @@
 // project: dicm2dckv
-// targets: dicm2cda, TODO eDCKVinline,dicm2mdbx,dicmstructdump,...
+// targets: dicm2cda,dicmstructdump,...
 // file: dckvapi.h
 // created by jacquesfauquex on 2024-04-04.
 
@@ -24,6 +24,8 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 
 
 #pragma mark - propietary vr
+
+
 
 enum kvVRcategory{
 kvFD,//FD 0 floating point double
@@ -93,7 +95,7 @@ kvSZ//38 SQ tail
 #pragma mark - TO BE IMPLEMENTED FOR EACH TARGET
 
 //called after preliminar parsing of class, sop instance and transfer syntax
-bool createtx(
+bool createdckv(
    const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in vbuf for sop class
@@ -108,10 +110,10 @@ bool createtx(
 );
 
 //called after parsing successfully all the attributes
-bool committx(s16 *siidx);//aplica a todos los kv
+bool commitdckv(s16 *siidx);//aplica a todos los kv
 
 //finalizes the opened tx
-bool closetx(s16 *siidx);//aplica a todos los kv
+bool closedckv(s16 *siidx);//aplica a todos los kv
 
 //appendkv called for each parsed attribute, with value already read in vbuf or not.
 //vbuf is 0xFFFE bytes long (máx short DICOM vl).

@@ -232,7 +232,7 @@ bool dicm2dckvInstance(
    s16 *siidx          // instance count
 )
 {
-   if (!createtx(
+   if (!createdckv(
                  dstdir,
                  vbuf,
                  soloc,         // offset in valbyes for sop class
@@ -255,21 +255,22 @@ bool dicm2dckvInstance(
       const u64 key00020010=0x0000495510000200;
       if(!appendkv((uint8_t*)&key00020010,0,isshort,kvUI, *stloc, *stlen,frombuffer,vbuf+*stloc+8)) return false;
 
-      if (   dicm2dckvDataset(
-                  kbuf,
-                  0,          //kloc
-                  firstattrread,
-                  0,          //keycs
-                  lbuf,
-                  vlen,
-                  vbuf,
-                  fromstdin,
-                  inloc,
-                  beforebyte, //beforebyte
-                  beforetag  //beforetag
-                 )
-          && committx(siidx)
-          ) return true;
+      if (!dicm2dckvDataset(
+                            kbuf,
+                            0,          //kloc
+                            firstattrread,
+                            0,          //keycs
+                            lbuf,
+                            vlen,
+                            vbuf,
+                            fromstdin,
+                            inloc,
+                            beforebyte, //beforebyte
+                            beforetag  //beforetag
+                            )
+          ) return false;
+      if (!commitdckv(siidx)) return false;
+      return true;
    }
    else //pure dataset
    {
@@ -285,9 +286,9 @@ bool dicm2dckvInstance(
                      inloc,
                      beforebyte, //beforebyte
                      beforetag  //beforetag
-                    ) && committx(siidx)) return true;
+                    ) && commitdckv(siidx)) return true;
    }
-   closetx(siidx);
+   closedckv(siidx);
    return false;
 }
 

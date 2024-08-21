@@ -31,10 +31,16 @@ struct t4r2l2 {
    u16 r;
    u16 l;
 };
+struct t4l4 {
+   u32 t;
+   u32 l;
+};
 
+const char *kvVRlabel(u16 idx);
 
 #pragma mark - endianness
 
+u64 u64swap(u64 x);
 u32 u32swap(u32 x);
 u16 u16swap(u16 x);
 

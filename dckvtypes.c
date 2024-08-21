@@ -4,22 +4,79 @@
 
 #include "dckvtypes.h"
 
+const char *kvVRlabels[]={
+   "kvFD",
+   "kvFL",
+   "kvSL",
+   "kvSS",
+   "kvUL",
+   "kvUS",
+   "kvAT",
+   "kvUI",
+   "kvII",
+   "kvIE",
+   "kvIS",
+   "kvTP",
+   "kvEd",
+   "kvTA",
+   "kvSm",
+   "kvAt",
+   "kvIs",
+   "kvIi",
+   "kvIa",
+   "kvTS",
+   "kvHC",
+   "kvEi",
+   "kvAn",
+   "kvdn",
+   "kvIN",
+   "kvTL",
+   "kvAl",
+   "kvAu",
+   "kvTU",
+   "kvPN",
+   "kved",
+   "kvfo",
+   "kvfl",
+   "kvft",
+   "kv01",
+   "kvUN",
+   "kvSA",
+   "kvIA",
+   "kvIZ",
+   "kvSZ"
+};
+const char *kvVRlabel(u16 idx)
+{
+   return kvVRlabels[idx];
+}
 
 #pragma mark - endianness
 
+u64 u64swap(u64 x)
+{
+   return ((x>>56) & 0xff)
+         |((x>>40) & 0xff00)
+         |((x>>24) & 0xff0000)
+         |((x>>8)  & 0xff000000)
+         |((x<<8)  & 0xff00000000)
+         |((x<<24) & 0xff0000000000)
+         |((x<<40) & 0xff000000000000)
+         |((x<<56) & 0xff00000000000000);
+}
 
 u32 u32swap(u32 x)
 {
-   return ((x>>24)&0xff)
-         |((x<<8)&0xff0000)
-         |((x>>8)&0xff00)
-         |((x<<24)&0xff000000);
+   return ((x>>24) & 0xff)
+         |((x>>8)  & 0xff00)
+         |((x<<8)  & 0xff0000)
+         |((x<<24) & 0xff000000);
 }
 
 u16 u16swap(u16 x)
 {
-   return ((x<<8)&0xff00)
-   |((x>>8)&0x00ff);
+   return ((x>>8) & 0xff)
+         |((x<<8) & 0xff00);
 }
 
 #pragma mark - main & log
