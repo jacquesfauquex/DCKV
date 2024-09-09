@@ -163,7 +163,7 @@ bool dicmuptosopts(
       E("%s","bad 00020002");
       return false;
    }
-   *soidx=scidx( vbuf+*inloc, *solen - (vbuf[*inloc + *solen - 1]==0x0) );
+   *soidx=sopclassidx( vbuf+*inloc, *solen - (vbuf[*inloc + *solen - 1]==0x0) );
    if (*soidx==0) return false;//no valid sopclass
    *inloc += *solen;
 
@@ -296,13 +296,13 @@ bool dicm2dckvInstance(
 
 bool dicm2dckvDataset(
    uint8_t *kbuf,
-   u32 kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
-   bool readfirstattr,    // true:read desde stream. false:ya está en kbuf
+   u32 kloc,           // offset actual en el búfer matriz (cambia con el nivel de recursión)
+   bool readfirstattr, // true:read desde stream. false:ya está en kbuf
    u16 keycs,          // key charset
    uint8_t *lbuf,
-   u32 *vlen,      // buffer lectura 4-bytes ll de atributos largos
-   uint8_t *vbuf,     // lectura del valor del atributo
-   bool fromStdin,        // ... o from vbuf
+   u32 *vlen,          // buffer lectura 4-bytes ll de atributos largos
+   uint8_t *vbuf,      // lectura del valor del atributo
+   bool fromStdin,     // ... o from vbuf
    u64 *inloc,
    u32 beforebyte,
    u32 beforetag
@@ -313,19 +313,12 @@ bool dicm2dckvDataset(
    //u16 vl=0;//keeps vl while overwritting it in kbuf
    u8 *attrbytes=kbuf+kloc;//subbuffer for attr reading
    struct t4r2l2 *attrstruct=(struct t4r2l2*) attrbytes;//corresponding struct
-   
-   //lbuf=kbuf+kloc+8;//subbuffer for ll reading
-   //vlen=(u32*)lbuf;
-   
-   //u32 *ll=(u32*)llbytes;//corresponding uin32
-
    if (readfirstattr && (! dckvapi_fread8(attrbytes, &bytescount))) return false;
    while (
-      (*inloc < beforebyte)
-   && ( u32swap(attrstruct->t) < beforetag)
+       (*inloc < beforebyte)
+    && (u32swap(attrstruct->t) < beforetag)
    )
    {
-      //((attrstruct->t >> 16)==0xFFFE ||
       switch (attrstruct->r) {
 #pragma mark vl num
          case FD://floating point double
@@ -405,13 +398,13 @@ bool dicm2dckvDataset(
                case B00081150:{
                   if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
                   
-                  u16 sopclassidx=scidx( vbuf, *vlen - (vbuf[*vlen - 1]==0x0) );
-                  if (sopclassidx==0x00)
+                  u16 scidx=sopclassidx( vbuf, *vlen - (vbuf[*vlen - 1]==0x0) );
+                  if (scidx==0x00)
                   {
                      E("bad sop class %.*s",(int)vlen,vbuf);
                      return false;
                   }
-                  else attrstruct->l=sopclassidx;
+                  else attrstruct->l=scidx;
                   if (!appendkv(kbuf,kloc,isshort,kvUI,*inloc,*vlen,frombuffer,vbuf)) return false;
                } break;
                   

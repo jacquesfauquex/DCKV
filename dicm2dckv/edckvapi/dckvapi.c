@@ -509,7 +509,7 @@ const u32 PCStag[]={
    L00080064S,//CS Conversion​Type
    L00080068S,//CS Presentation​Intent​Type
    L00080070S,//LO Manufacturer
-   L00080080S,//LO Institution​Name
+   L00080080S,//LO Institution​Name (standard is series S, moved it to Exam E)
    L00080081S,//ST Institution​Address
    L00080090E,//PN Referring​Physician​Name
    L00080096E,//SQ Referring​Physician​Identification​Sequence
@@ -751,7 +751,7 @@ const u8 PCStype[]={
    S,//CS Conversion​Type
    S,//CS Presentation​Intent​Type
    S,//LO Manufacturer
-   S,//LO Institution​Name
+   C,//LO Institution​Name  (is S in the standard but we put it in C)
    S,//ST Institution​Address
    C,//PN Referring​Physician​Name
    C,//SQ Referring​Physician​Identification​Sequence
@@ -988,80 +988,22 @@ size_t dckvapi_fread(
                      FILE * __restrict __stream
                      )
 {
-   return fread(__ptr,__size,__nitems,__stream);
+   return edckvapi_fread(__ptr,__size,__nitems,__stream);
 }
 
 //returns true when 8 bytes were read
-u8 swapchar;
 bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
 {
-   *bytesReadRef=fread(buffer, 1, 8, stdin);
-   if (ferror(stdin)){
-      E("%s","stdin error");
-      return false;
-   }
-   
-   if (*bytesReadRef==8){
-      swapchar=*buffer;
-      *buffer=*(buffer+1);
-      *(buffer+1)=swapchar;
-      swapchar=*(buffer+2);
-      *(buffer+2)=*(buffer+3);
-      *(buffer+3)=swapchar;
-   }
-   else
-   {
-      *buffer=0xFF;
-      *(buffer+1)=0xFF;
-      *(buffer+2)=0xFF;
-      *(buffer+3)=0xFF;
-   }
-   return true;
+   return edckvapi_fread8(buffer, bytesReadRef);
 }
 
 
 #pragma mark - static
+
 static u16 PCSidx;
-//trim string
-static unsigned long vlen2;
-static unsigned long vstart;
-static unsigned long vstop;
-static unsigned long vtrim;
-
-/*
- index of next little endian tag in PCStag table (patient, clinical study, series)
- if current tag is lower than PCStag[PCSidx], current tag es instance or frame tag
- */
-static u16 PCSidx=0;
-
-
-//output files
-static uint8_t *Ebuf;
-static uint8_t *Sbuf;
-static uint8_t *Ibuf;
-static u32 Eidx=0;
-static u32 Sidx=0;
-static u32 Iidx=0;
-static char *Epath;
-static char *Spath;
-static char *Ipath;
-FILE *Efile;
-FILE *Sfile;
-FILE *Ifile;
-
-static u8 i0;
-static u8 i1;
-
-static u8 s0;
-static u8 s1;
-
-static u8 c0;
-static u8 c1;
-
-static size_t bytesWritten;
-
-const char *space=" ";
-const char *backslash = "\\";
+static u16 dckvapistidx;
+static u16 dckvapisoidx;
+static u32 roottag;
 
 #pragma mark - methods overriden by edckv
 
@@ -1080,6 +1022,10 @@ bool createdckv(
 )
 {
    PCSidx=0;//to determine if the attribute is patient, exam or series level
+   dckvapisoidx=*soidx;//class
+   dckvapistidx=*stidx;//transfer syntax
+   //remember transfer syntax and if native or not
+   
    return createedckv(
    dstdir,
    vbuf,
@@ -1120,685 +1066,99 @@ bool appendkv(
               uint8_t           *vbuf
               )
 {
- 
-#pragma mark skip sequence and item delimiters
-   if (vrcat==kvSA) return true;
-   if (vrcat==kvIA) return true;
-   if (vrcat==kvIZ) return true;
-   if (vrcat==kvSZ) return true;
+   //skip sequence and item delimiters
+   if (vrcat==kvSA){D("%s","SA");return true;}
+   if (vrcat==kvIA){D("%s","IA");return true;}
+   if (vrcat==kvIZ){D("%s","IZ");return true;}
+   if (vrcat==kvSZ){D("%s","SZ");return true;}
    
-   u32 Ltag=u32swap(*(u32*)kbuf);//basetag
-
-#pragma mark skip group length
-   if ( 0 == Ltag % 0x10000 )
+   //skip group length
+   roottag=u32swap(*(u32*)kbuf);
+   if ( 0 == roottag % 0x10000 )
    {
       fread(vbuf,1,vlen,stdin);
       return true;
    }
    
+   /*
+    appendkv() forwarded to specialized functions
+    -> private
+    sopclassidxisimage
+      -> native
+      -> compressed
+    -> default
+    -> exam
+    -> series
+    -> default
+    */
+
+   
 #pragma mark private
-   if (( vrcat == kvUN ) || (( Ltag / 0x10000 ) % 2) == 1)
+   if (( vrcat == kvUN ) || (kbuf[1] & 1))
    {
+      D("P %08X",roottag);
       return appendPRIVATEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
    }
-
-   //attribute 00020010,07E00010,...
-   {
-      if little endian
-   appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
-   else
-   appendCOMPRESSEDkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
    
-#pragma mark prefix type
+#pragma mark image
+   if (sopclassidxisimage(dckvapisoidx))
+   {
+      if (
+            (roottag==0x00020010) //UI kvUI transfert syntax
+          ||(roottag==0x7E000010) //OB OW kv01 pixel
+          ||(roottag==0x00082111) //ST kvTS derivation description
+          ||(roottag==0x00204000) //LT image comment
+          ||(roottag==0x7E000008) //OF kv01 float pixel
+          ||(roottag==0x7E000009) //OD kv01 double float pixel
+          )
+      {
+         if (dckvapistidx==2)
+         {
+            //explicit little endian
+            D("N %08X",roottag);
+            return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         }
+         else
+         {
+            D("C %08X",roottag);
+            return appendCOMPRESSEDkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         }
+      }
+   }
 
-   //the attribute belong to patient-study, series levels, ... ?
-   //PCSidx: index of next little endian tag in PCStag table (patient, clinical study, series)
-    if current tag is lower than PCStag[PCSidx], current tag es instance or frame tag
-    */
-       if (Ltag < PCStag[PCSidx]) appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+#pragma mark exam series default
+//PCSidx: index of next little endian tag in PCStag table (patient, clinical study, series)
+
+   //if current tag is lower than PCStag[PCSidx], current tag es instance or frame tag
+   if (roottag < PCStag[PCSidx])
+   {
+      D("I %08X",roottag);
+      return appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+   }
    else
    {
-      while ((Ltag > PCStag[PCSidx]) && (PCSidx < 234)) (PCSidx)++;
-      if (Ltag == PCStag[PCSidx])
+      while ((roottag > PCStag[PCSidx]) && (PCSidx < 234)) (PCSidx)++;
+      if (roottag == PCStag[PCSidx])
       {
-         if (PCStype[PCSidx]==0) prefix=0x00;//patient|study
-         else prefix=0x01;//series
-      }
-      else prefix=0x03;//instance
-   }
-   D("%08lld %s %llu %08X",vloc,kvVRlabel(vrcat),prefix,Ltag);
-
-   switch (prefix) {
-      case 0://level patient study
-   {
-#pragma mark · Level Patient Study
-      //key
-      Ebuf[Eidx++]=kloc+16;
-      memcpy(Ebuf+Eidx, &prefix, 8);
-      Eidx+=8;
-      memcpy(Ebuf+Eidx, kbuf, kloc+8);
-      Eidx+=kloc+8;
-      if (vlen==0){
-         memcpy(Ebuf+Eidx, &vlen, 4);
-         Eidx+=4;
-         return true;
-      }
-      else {//value with contents
-         switch (vrcat)
+         if (PCStype[PCSidx]==0)
          {
-            case kvAl://AccessionNumberIssuer local 00080051.00400031
-            case kvAu://AccessionNumberIssuer universal 00080051.00400032
-            case kved://OB Encapsulated​Document 00420011
-            case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
-            case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
-            case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-            case kv01://OB OD OF OL OV OW SV UV
-            {
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               memcpy(Ebuf+Eidx, &vlen, 4);
-               Eidx+=4;
-               memcpy(Ebuf+Eidx, vbuf, vlen);
-               Eidx+=vlen;
-            };break;
-
-            case kvUN:
-            {
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               memcpy(Ebuf+Eidx, &vlen, 4);
-               Eidx+=4;
-               memcpy(Ebuf+Eidx, vbuf, vlen);
-               Eidx+=vlen;
-            };break;
-
-                  
-            case kvFD://floating point double
-            case kvFL://floating point single
-            case kvSL://signed long
-            case kvSS://signed short
-            case kvUL://unsigned long
-            case kvUS://unsigned short
-            case kvAT://attribute tag, 2 u16 hexa
-            case kvEd://StudyDate
-            case kvTP:
-            {
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               memcpy(Ebuf+Eidx, &vlen, 4);
-               Eidx+=4;
-               memcpy(Ebuf+Eidx, vbuf, vlen);
-               Eidx+=vlen;
-            };break;
-               
-            case kvII://SOPInstanceUID
-            case kvIE://StudyInstanceUID
-            case kvIS://SeriesInstanceUID
-            case kvUI://unique ID
-            {
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               vlen2=vlen - (vbuf[vlen - 1] == 0);
-               memcpy(Ebuf+Eidx, &vlen2, 4);
-               Eidx+=4;
-               memcpy(Ebuf+Eidx, vbuf, vlen2);
-               Eidx+=vlen2;
-            }break;
-
-            case kvSm://Modality
-            case kvAt://AccessionNumberType
-            case kvIs://SeriesNumber
-            case kvIi://InstanceNumber
-            case kvIa://AcquisitionNumber
-            case kvTA:
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen-1;
-              //while( (vstop > vstart) && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ebuf+Eidx, &vtrim, 4);
-              Eidx+=4;
-              memcpy(Ebuf+Eidx, vbuf+vstart, vtrim);
-              Eidx+=vtrim;
-            }break;
-
-               
-            case kvdn://ST  DocumentTitle 00420010
-            case kvHC://HL7InstanceIdentifier
-            case kvEi://StudyID
-            case kvAn://AccessionNumber
-            case kvTS:
-               
-            case kvPN:
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen-1;
-              while( (vstop > vstart) && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ebuf+Eidx, &vtrim, 4);
-              Eidx+=4;
-              memcpy(Ebuf+Eidx, vbuf+vstart, vtrim);
-              Eidx+=vtrim;
-            }break;
-               
-            case kvTL://UC
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen-1;
-              while( (vstop > vstart) && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ebuf+Eidx, &vtrim, 4);
-              Eidx+=4;
-              memcpy(Ebuf+Eidx, vbuf+vstart, vtrim);
-              Eidx+=vtrim;
-            }break;
-
-            case kvTU://url encoded
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen-1;
-              while( (vstop > vstart) && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ebuf+Eidx, &vtrim, 4);
-              Eidx+=4;
-              memcpy(Ebuf+Eidx, vbuf+vstart, vtrim);
-              Eidx+=vtrim;
-            }break;
-
-               
-            default: return false;
+            D("E %08X",roottag);
+            return appendEXAMkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         }
+         else
+         {
+            D("S %08X",roottag);
+            return appendSERIESkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
          }
       }
-   } break;
-         
-         
-      case 3://level instance
-   {
-#pragma mark · Level Instance
-      
-      if (vlen==0){
-         //value zero length
-         Ibuf[Iidx++]=kloc+16;//key size
-         memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-         Iidx+=8;
-         memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-         Iidx+=kloc+8;
-         memcpy(Ibuf+Iidx, &vlen, 4);//value length
-         Iidx+=4;
-         return true;
+      else
+      {
+         D("I %08X",roottag);
+         return appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
-      else {//value with contents
-         switch (vrcat)
-         {
-            case kvAl://AccessionNumberIssuer local 00080051.00400031
-            case kvAu://AccessionNumberIssuer universal 00080051.00400032
-            case kved://OB Encapsulated​Document 00420011
-            case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
-            case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
-            case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-                if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-                memcpy(Ibuf+Iidx, &vlen, 4);
-                Iidx+=4;
-                memcpy(Ibuf+Iidx, vbuf, vlen);
-                Iidx+=vlen;
-            };break;
-
-            case kv01://not representable
-            {
-               if ( u32swap(((u32*)kbuf)[0]) == 0x7FE00010)
-               {
-#pragma mark ·· 0x7FE00001
-                  if (vlen==0xFFFFFFFF) //fragments OB or OW
-                  {
-#pragma mark ··· fragments
-                     if (fromStdin)
-                     {
-                        u64 fragmentbytes=0;
-                        struct t4l4 *fragmentstruct=(struct t4l4*) &fragmentbytes;
-                        
-                        
-                        //fragmento 0
-                        if (fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
-                        if (fragmentstruct->t != 0xe000fffe) return false;
-                        //read (and ignore) neventually existing table
-                        if (   (fragmentstruct->l > 0)
-                            && (fread(vbuf,1,fragmentstruct->l,stdin) != fragmentstruct->l)
-                           ) return false;
-                        vloc+=20+fragmentstruct->l;
-
-                        
-                        //write iBuffer and reset index
-                        fwriteIfile();
-                        
-                        //read fragment 1
-                        if (fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
-                        
-                        while (fragmentstruct->t != 0xe0ddfffe)
-                        {
-                           if (fragmentstruct->t != 0xe000fffe) return false;
-                           prefix+=0x10000000000;
-                           Ibuf[Iidx++]=16;//key size
-                           memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-                           Iidx+=8;
-                           memcpy(Ibuf+Iidx, kbuf, 8);//copy key
-                           Iidx+=8;
-                           memcpy(Ibuf+Iidx, &(fragmentstruct->l), 4);//val length
-                           Iidx+=8;
-                           
-                           //write iBuffer and reset index
-                           fwriteIfile();
-                           
-                           D("%08lld %016llx %x %x\n",vloc,u64swap(prefix),fragmentstruct->t,fragmentstruct->l);
-                           if (fragmentstruct->l > 0)
-                           {
-                              size_t bytesremaing=fragmentstruct->l;
-                              while ( bytesremaing > 0xFFFD)
-                              {
-                                 if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
-                                 if (fwrite(vbuf ,1, 0xFFFE , Ifile)!=0xFFFE) return false;
-                                 bytesremaing-=0xFFFE;
-                              }
-                              if (bytesremaing > 0)
-                              {
-                                 if (fread(vbuf,1,bytesremaing,stdin)!=bytesremaing) return false;
-                                 if (fwrite(vbuf ,1, bytesremaing , Ifile)!=bytesremaing) return false;
-                              }
-
-                           }
-                           vloc+=8+fragmentstruct->l;//174674 en lugar de 172954 (dif 1720)
-                           if (fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
-                        }
-                     }
-                     else //already in buffer
-                     {
-                     }
-                  }
-                  else
-                  {
-#pragma mark ··· native
-
-                  }
-               }
-               else
-               {
-#pragma mark ·· other vl
-
-                  Ibuf[Iidx++]=kloc+16;//key size
-                  memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-                  Iidx+=8;
-                  memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-                  Iidx+=kloc+8;
-                  if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-                  memcpy(Ibuf+Iidx, &vlen, 4);
-                  Iidx+=4;
-                  memcpy(Ibuf+Iidx, vbuf, vlen);
-                  Iidx+=vlen;
-               }
-            };break;
-
-               
-            case kvUN://not representable
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               memcpy(Ibuf+Iidx, &vlen, 4);
-               Iidx+=4;
-               memcpy(Ibuf+Iidx, vbuf, vlen);
-               Iidx+=vlen;
-            };break;
-
-            case kvFD://floating point double
-            case kvFL://floating point single
-            case kvSL://signed long
-            case kvSS://signed short
-            case kvUL://unsigned long
-            case kvUS://unsigned short
-            case kvAT://attribute tag, 2 u16 hexa
-            case kvEd://StudyDate
-            case kvTP:
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               memcpy(Ibuf+Iidx, &vlen, 4);
-               Iidx+=4;
-               memcpy(Ibuf+Iidx, vbuf, vlen);
-               Iidx+=vlen;
-            };break;
-
-            case kvII://SOPInstanceUID
-            case kvIE://StudyInstanceUID
-            case kvIS://SeriesInstanceUID
-            case kvUI://unique ID
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               vlen2=vlen - (vbuf[vlen - 1] == 0);
-               memcpy(Ibuf+Iidx, &vlen2, 4);
-               Iidx+=4;
-               memcpy(Ibuf+Iidx, vbuf, vlen2);
-               Iidx+=vlen2;
-            }break;
-
-            case kvSm://Modality
-            case kvAt://AccessionNumberType
-            case kvIs://SeriesNumber
-            case kvIa://AcquisitionNumber
-            case kvTA:
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ibuf+Iidx, &vtrim, 4);
-              Iidx+=4;
-              memcpy(Ibuf+Iidx, vbuf+vstart, vtrim);
-              Iidx+=vtrim;
-            }break;
-
-            case kvIi://InstanceNumber needed for prefix
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ibuf+Iidx, &vtrim, 4);
-              Iidx+=4;
-              memcpy(Ibuf+Iidx, vbuf+vstart, vtrim);
-              Iidx+=vtrim;
-              int Ii;
-              sscanf(vbuf,"%d",&Ii);
-              i0=Ii % 0x100;
-              i1=Ii / 0x100;
-            }break;
-
-            case kvdn://ST  DocumentTitle 00420010
-            case kvHC://HL7InstanceIdentifier
-            case kvEi://StudyID
-            case kvAn://AccessionNumber
-            case kvTS://valores representadas por texto
-               
-            case kvPN:
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ibuf+Iidx, &vtrim, 4);
-              Iidx+=4;
-              memcpy(Ibuf+Iidx, vbuf+vstart, vtrim);
-              Iidx+=vtrim;
-            }break;
-
-            case kvTL://UC
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ibuf+Iidx, &vtrim, 4);
-              Iidx+=4;
-              memcpy(Ibuf+Iidx, vbuf+vstart, vtrim);
-              Iidx+=vtrim;
-            }break;
-               
-            case kvTU:
-            {
-               Ibuf[Iidx++]=kloc+16;//key size
-               memcpy(Ibuf+Iidx, &prefix, 8);//copy prefix
-               Iidx+=8;
-               memcpy(Ibuf+Iidx, kbuf, kloc+8);//copy key
-               Iidx+=kloc+8;
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Ibuf+Iidx, &vtrim, 4);
-              Iidx+=4;
-              memcpy(Ibuf+Iidx, vbuf+vstart, vtrim);
-              Iidx+=vtrim;
-            }break;
-               
-
-            default: return false;
-         }
-      }
-   } break;
-         
-      default:
-   {
-#pragma mark · Level Series
-      Sbuf[Sidx++]=kloc+16;
-      memcpy(Sbuf+Sidx, &prefix, 8);
-      Sidx+=8;
-      memcpy(Sbuf+Sidx, kbuf, kloc+8);
-      Sidx+=kloc+8;
-      if (vlen==0){
-         memcpy(Sbuf+Sidx, &vlen, 4);
-         Sidx+=4;
-         return true;
-      }
-      else {//value with contents
-         switch (vrcat)
-         {
-            case kvAl://AccessionNumberIssuer local 00080051.00400031
-            case kvAu://AccessionNumberIssuer universal 00080051.00400032
-            case kved://OB Encapsulated​Document 00420011
-            case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
-            case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
-            case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-            case kv01://OB OD OF OL OV OW SV UV
-
-            case kvUN:
-            {
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               memcpy(Sbuf+Sidx, &vlen, 4);
-               Sidx+=4;
-               memcpy(Sbuf+Sidx, vbuf, vlen);
-               Sidx+=vlen;
-            };break;
-
-            case kvFD://floating point double
-            case kvFL://floating point single
-            case kvSL://signed long
-            case kvSS://signed short
-            case kvUL://unsigned long
-            case kvUS://unsigned short
-            case kvAT://attribute tag, 2 u16 hexa
-            case kvEd://StudyDate
-            case kvTP:
-            {
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               memcpy(Sbuf+Sidx, &vlen, 4);
-               Sidx+=4;
-               memcpy(Sbuf+Sidx, vbuf, vlen);
-               Sidx+=vlen;
-            };break;
-
-            case kvII://SOPInstanceUID
-            case kvIE://StudyInstanceUID
-            case kvIS://SeriesInstanceUID
-            case kvUI://unique ID
-            {
-               if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-               vlen2=vlen - (vbuf[vlen - 1] == 0);
-               memcpy(Sbuf+Sidx, &vlen2, 4);
-               Sidx+=4;
-               memcpy(Sbuf+Sidx, vbuf, vlen2);
-               Sidx+=vlen2;
-            }break;
-                  
-            case kvSm://Modality
-            case kvAt://AccessionNumberType
-            case kvIi://InstanceNumber
-            case kvIa://AcquisitionNumber
-            case kvTA:
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Sbuf+Sidx, &vtrim, 4);
-              Sidx+=4;
-              memcpy(Sbuf+Sidx, vbuf+vstart, vtrim);
-              Sidx+=vtrim;
-            }break;
-
-            case kvIs://SeriesNumber
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Sbuf+Sidx, &vtrim, 4);
-              Sidx+=4;
-              memcpy(Sbuf+Sidx, vbuf+vstart, vtrim);
-              Sidx+=vtrim;
-              
-              int Is;
-              sscanf(vbuf,"%d",&Is);
-              s0=Is % 0x100;//static for use in committx series prefix
-              s1=Is / 0x100;
-            }break;
-
-
-               
-            case kvdn://ST  DocumentTitle 00420010
-            case kvHC://HL7InstanceIdentifier
-            case kvEi://StudyID
-            case kvAn://AccessionNumber
-            case kvTS://valores representadas por texto
-            case kvIN://InstitutionName
-            case kvPN:
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Sbuf+Sidx, &vtrim, 4);
-              Sidx+=4;
-              memcpy(Sbuf+Sidx, vbuf+vstart, vtrim);
-              Sidx+=vtrim;
-            }break;
-
-            case kvTL://UC
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Sbuf+Sidx, &vtrim, 4);
-              Sidx+=4;
-              memcpy(Sbuf+Sidx, vbuf+vstart, vtrim);
-              Sidx+=vtrim;
-            }break;
-
-            case kvTU://url encoded
-            {
-              if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-              
-              // Trim leading space
-              vstart=0;
-              while(isspace((unsigned char)*(vbuf+vstart))) vstart++;
-              vstop = vlen - 1;
-              while(vstop > vstart && isspace((unsigned char)*(vbuf+vstop))) vstop--;
-              vtrim=vstop-vstart+1;
-              memcpy(Sbuf+Sidx, &vtrim, 4);
-              Sidx+=4;
-              memcpy(Sbuf+Sidx, vbuf+vstart, vtrim);
-              Sidx+=vtrim;
-            }break;
-
-            default: return false;
-         }
-      }
-
    }
-   }
-   return true;
+   E("dckvapi unknown or misplaced %08X\n",roottag);
+
+   return false;//should not be here
 }
+

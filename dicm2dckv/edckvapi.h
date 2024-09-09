@@ -8,6 +8,17 @@
 
 #include "dckvapi.h"
 
+#pragma mark - possibility to overwrite any  read
+size_t edckvapi_fread(
+                     void * __restrict __ptr,
+                     size_t __size,
+                     size_t __nitems,
+                     FILE * __restrict __stream
+                      );
+bool edckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
+
+
+
 //called after preliminar parsing of class, sop instance and transfer syntax
 bool createedckv(
    const char * dstdir,
