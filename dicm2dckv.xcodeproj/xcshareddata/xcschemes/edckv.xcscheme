@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A80996C2BD0A5DA0042CAC1"
-               BuildableName = "dicm2jsonbinref"
-               BlueprintName = "dicm2jsonbinref"
+               BlueprintIdentifier = "4A39E43C2C2998F7004DE4FB"
+               BuildableName = "edckv"
+               BlueprintName = "edckv"
                ReferencedContainer = "container:dicm2dckv.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,9 +44,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A80996C2BD0A5DA0042CAC1"
-            BuildableName = "dicm2jsonbinref"
-            BlueprintName = "dicm2jsonbinref"
+            BlueprintIdentifier = "4A39E43C2C2998F7004DE4FB"
+            BuildableName = "edckv"
+            BlueprintName = "edckv"
             ReferencedContainer = "container:dicm2dckv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -56,15 +56,39 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-"
-            isEnabled = "YES">
+            argument = "- "
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jacquesfauquex/mdbx"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG-large.ele.dcm"
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG1.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/heka/GDCM/Testing/Data/GE_DLX-8-MONO2-Multiframe-Jpeg_Lossless.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/VL4.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/heka/GDCM/Testing/Data/D_CLUNIE_RG1_RLE.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/j2kr/VL4.j2kr.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/Shared/Sup223_DLB5_InventoryIODandServices.pdf"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/dscd.dcm"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -79,9 +103,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A80996C2BD0A5DA0042CAC1"
-            BuildableName = "dicm2jsonbinref"
-            BlueprintName = "dicm2jsonbinref"
+            BlueprintIdentifier = "4A39E43C2C2998F7004DE4FB"
+            BuildableName = "edckv"
+            BlueprintName = "edckv"
             ReferencedContainer = "container:dicm2dckv.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -38,9 +38,7 @@ While the transaction remains open, the implementation of the api receives for e
 Examples of targets adopting this api include:
 
 - structdump (textual dump in stdout)
-- dicm2xml
-- dicm2json
-- dicm2cda
+- dicm2cda (extraction of encapsulatedCDA)
 
 ## edckvapi
 
@@ -63,7 +61,6 @@ alternative to dckvapi where the appendkv callback is replaced by several callba
 - appendDEFAULTkv: (any other instance level attribute)
   
  
- Examples of targets adopting this api include:
+ Example of target adopting this api:
  
-- eDCKVinline
-- dicm2mdbx
+- edckv
