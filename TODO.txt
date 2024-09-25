@@ -1,2 +1,0 @@
-- generador de eDCKV inline
-- pixel attribute frames

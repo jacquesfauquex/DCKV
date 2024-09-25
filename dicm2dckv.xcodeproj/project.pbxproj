@@ -74,7 +74,6 @@
 		4A8097B12BC4079A0042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
 		4A8097F92BC90A370042CAC1 /* dicmstructdump */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicmstructdump; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A8098142BC90B320042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4A8098152BC90B6A0042CAC1 /* TODO.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
 		4A80992B2BCE913C0042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A8099B62BDBEEC80042CAC1 /* dcmtk */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dcmtk; sourceTree = "<group>"; };
 		4ABA009D2C0A1CB80066AED3 /* doc_fread.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = doc_fread.txt; sourceTree = "<group>"; };
@@ -177,7 +176,6 @@
 			children = (
 				4A8099B62BDBEEC80042CAC1 /* dcmtk */,
 				4A8097AA2BC189A20042CAC1 /* README.md */,
-				4A8098152BC90B6A0042CAC1 /* TODO.txt */,
 				4ABA009D2C0A1CB80066AED3 /* doc_fread.txt */,
 				4ACCCA002BBF098900670A7F /* dckvtypes.h */,
 				4A0AA46A2C5ADFDC002979A3 /* dckvtypes.c */,
