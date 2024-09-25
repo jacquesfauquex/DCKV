@@ -1004,6 +1004,7 @@ static u16 PCSidx;
 static u16 dckvapistidx;
 static u16 dckvapisoidx;
 static u32 roottag;
+static bool isimage;
 
 #pragma mark - methods overriden by edckv
 
@@ -1025,6 +1026,7 @@ bool createdckv(
    dckvapisoidx=*soidx;//class
    dckvapistidx=*stidx;//transfer syntax
    //remember transfer syntax and if native or not
+   isimage=sopclassidxisimage(dckvapisoidx);
    
    return createedckv(
    dstdir,
@@ -1080,85 +1082,81 @@ bool appendkv(
       return true;
    }
    
-   /*
-    appendkv() forwarded to specialized functions
-    -> private
-    sopclassidxisimage
-      -> native
-      -> compressed
-    -> default
-    -> exam
-    -> series
-    -> default
-    */
-
-   
 #pragma mark private
-   if (( vrcat == kvUN ) || (kbuf[1] & 1))
+   if (kbuf[1] & 1)
    {
       D("P %08X",roottag);
       return appendPRIVATEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
    }
-   
-#pragma mark image
-   if (sopclassidxisimage(dckvapisoidx))
-   {
-      if (
-            (roottag==0x00020010) //UI kvUI transfert syntax
-          ||(roottag==0x7E000010) //OB OW kv01 pixel
-          ||(roottag==0x00082111) //ST kvTS derivation description
-          ||(roottag==0x00204000) //LT image comment
-          ||(roottag==0x7E000008) //OF kv01 float pixel
-          ||(roottag==0x7E000009) //OD kv01 double float pixel
-          )
+
+   switch (vrcat) {
+      case kvUN:{
+         D("P %08X",roottag);
+         return appendPRIVATEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvNM:{
+         D("NM %08X",roottag);
+         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvNB:{
+         D("NB %08X",roottag);
+         return appendNATIVE01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvNW:{
+         D("NW %08X",roottag);
+         return appendNATIVE01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvNF:{
+         D("NF %08X",roottag);
+         return appendNATIVE01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvND:{
+         D("ND %08X",roottag);
+         return appendNATIVE01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvCM:{
+         D("CM %08X",roottag);
+         return appendCOMPRESSEDkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvCB:{
+         D("CB %08X",roottag);
+         return appendCOMPRESSED01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+
+      default:
       {
-         if (dckvapistidx==2)
+         //PCSidx: index of next little endian tag in PCStag table (patient, clinical study, series)
+         //if current tag is lower than PCStag[PCSidx], current tag es instance or frame tag
+         if (roottag < PCStag[PCSidx])
          {
-            //explicit little endian
-            D("N %08X",roottag);
-            return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+            D("I %08X",roottag);
+            return appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
          }
          else
          {
-            D("C %08X",roottag);
-            return appendCOMPRESSEDkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+            while ((roottag > PCStag[PCSidx]) && (PCSidx < 234)) (PCSidx)++;
+            if (roottag == PCStag[PCSidx])
+            {
+               if (PCStype[PCSidx]==0)
+               {
+                  D("E %08X",roottag);
+                  return appendEXAMkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+               }
+               else
+               {
+                  D("S %08X",roottag);
+                  return appendSERIESkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+               }
+            }
+            else
+            {
+               D("I %08X",roottag);
+               return appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+            }
          }
+         E("dckvapi unknown or misplaced %08X\n",roottag);
+         return false;//should not be here
       }
    }
-
-#pragma mark exam series default
-//PCSidx: index of next little endian tag in PCStag table (patient, clinical study, series)
-
-   //if current tag is lower than PCStag[PCSidx], current tag es instance or frame tag
-   if (roottag < PCStag[PCSidx])
-   {
-      D("I %08X",roottag);
-      return appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
-   }
-   else
-   {
-      while ((roottag > PCStag[PCSidx]) && (PCSidx < 234)) (PCSidx)++;
-      if (roottag == PCStag[PCSidx])
-      {
-         if (PCStype[PCSidx]==0)
-         {
-            D("E %08X",roottag);
-            return appendEXAMkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
-         }
-         else
-         {
-            D("S %08X",roottag);
-            return appendSERIESkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
-         }
-      }
-      else
-      {
-         D("I %08X",roottag);
-         return appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
-      }
-   }
-   E("dckvapi unknown or misplaced %08X\n",roottag);
-
-   return false;//should not be here
 }
 

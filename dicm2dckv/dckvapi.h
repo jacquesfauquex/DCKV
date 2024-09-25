@@ -64,21 +64,20 @@ kvHC,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
 kvEi,//SH 21 StudyID
 kvAn,//SH 22 AccessionNumber 00080050
 kvdn,//ST 23 DocumentTitle 00420010
-kvIN,//LO InstitutionName 00080080
+kvIN,//LO 24 InstitutionName 00080080
    
-kvTL,//UC UT 24 text long charset
-kvAl,//UT 25 AccessionNumberIssuer local 00080051.00400031
-kvAu,//UT 26 AccessionNumberIssuer universal 00080051.00400032
+kvTL,//UC UT 25 text long charset
+kvAl,//UT 26 AccessionNumberIssuer local 00080051.00400031
+kvAu,//UT 27 AccessionNumberIssuer universal 00080051.00400032
    
-kvTU,//UR 27 text long url-encoded
+kvTU,//UR 28 text long url-encoded
    
-kvPN,//PN 28 person name has a special treatment in json and xml
+kvPN,//PN 29 person name has a special treatment in json and xml
 
-kved,//OB 29 Encapsulated​Document 00420011
-kvfo,//OV 30 Extended​Offset​Table fragments offset 7FE00001
-kvfl,//OV 31 Extended​Offset​TableLengths fragments offset 7FE00002
-kvft,//UV 32 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-kv01,//OB OD OF OL OV OW SV UV 33 binary, not textually represented
+kved,//OB 30 Encapsulated​Document 00420011
+kvfo,//OV 31 Extended​Offset​Table fragments offset 7FE00001
+kvfl,//OV 32 Extended​Offset​TableLengths fragments offset 7FE00002
+kvft,//UV 33 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
    
 kvUN,//UN 34
    
@@ -88,7 +87,36 @@ kvIA,//36 item head
    
 kvIZ,//37 item tail
    
-kvSZ//38 SQ tail
+kvSZ,//38 SQ tail
+   
+kvNM,//39 image native metadata
+      //incluye
+      //0x00020010: //UI transfert syntax
+      //0x00204000: //LT image comment
+      //0x00280002: //US samples
+      //0x00280010: //US rows
+      //0x00280011: //US columns
+      //0x00280101: //US bits
+      //0x00280103: //US sign
+kvNB, //40 0x7FE00010: //OB
+kvNW, //41 0x7FE00010: //OW
+kvNF, //42 0x7FE00008: //OF float
+kvND, //43 0x7FE00009: //OD double
+   
+kvCM, //44 image compressed
+      //incluye
+      //0x00020010://UI transfert syntax
+      //0x00082111: //ST kvTS derivation description
+      //0x00204000: //LT image comment
+      //0x00280002: //US samples
+      //0x00280010: //US rows
+      //0x00280011: //US columns
+      //0x00280101: //US bits
+      //0x00280103: //US sign
+kvCB, //45 0x7E000010: //OB
+
+kv01  //46 other OB OD OF OL OV OW SV UV 34 binary, not textually represented
+
 };
 
 

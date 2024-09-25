@@ -40,6 +40,19 @@ const u32 B7FE00001=0x0100E07F;//kvfo Extended​Offset​Table
 const u32 B7FE00002=0x0200E07F;//kvfl Extended​Offset​TableLengths
 const u32 B7FE00003=0x0300E07F;//kvft Encapsulated​Pixel​Data​Value​Total​Length
 
+const u32 B00020010=0x10000200;//kvC or kvC UI transfert syntax
+const u32 B00082111=0x11210800;//kvC        ST derivation description
+const u32 B00204000=0x00402000;//kvN or kvC LT image comment
+const u32 B00280002=0x02002800;//kvN or kvC US samples
+const u32 B00280010=0x10002800;//kvN or kvC US rows
+const u32 B00280011=0x11002800;//kvN or kvC US columns
+const u32 B00280101=0x01012800;//kvN or kvC US bits
+const u32 B00280103=0x03012800;//kvN or kvC US sign
+const u32 B7FE00008=0x0800E07F;//kvN OF
+const u32 B7FE00009=0x0900E07F;//kvN OD
+const u32 B7FE00010=0x1000E07F;//kvN OB or OW or kvC
+
+
 const u64 SZbytes=0xDDE0FEFF;//FFFEE0DD00000000
 const u64 IAbytes=0xFFFFFFFF00E0FEFF;//FFFEE000FFFFFFFF
 const u64 IZbytes=0x0DE0FEFF;//FFFEE00D00000000
@@ -253,8 +266,19 @@ bool dicm2dckvInstance(
       const u64 key00020003=0x0000495503000200;
       if(!appendkv((uint8_t*)&key00020003,0,isshort,kvUI, *siloc, *silen,frombuffer,vbuf+*siloc+8)) return false;
       const u64 key00020010=0x0000495510000200;
-      if(!appendkv((uint8_t*)&key00020010,0,isshort,kvUI, *stloc, *stlen,frombuffer,vbuf+*stloc+8)) return false;
-
+      if (sopclassidxisimage(*soidx))
+      {
+         if(*stidx==2)
+         {
+            if(!appendkv((uint8_t*)&key00020010,0,isshort,kvNM, *stloc, *stlen,frombuffer,vbuf+*stloc+8)) return false;
+         }
+         else
+         {
+            if(!appendkv((uint8_t*)&key00020010,0,isshort,kvCM, *stloc, *stlen,frombuffer,vbuf+*stloc+8)) return false;
+         }
+      }
+      //do not write transfert syntax (which is always explicit little endian) in dicm2dckv
+      
       if (!dicm2dckvDataset(
                             kbuf,
                             0,          //kloc
@@ -266,7 +290,9 @@ bool dicm2dckvInstance(
                             fromstdin,
                             inloc,
                             beforebyte, //beforebyte
-                            beforetag  //beforetag
+                            beforetag,  //beforetag
+                            soidx,
+                            stidx
                             )
           ) return false;
       if (!commitdckv(siidx)) return false;
@@ -285,7 +311,9 @@ bool dicm2dckvInstance(
                      true,       //fromStdin
                      inloc,
                      beforebyte, //beforebyte
-                     beforetag  //beforetag
+                     beforetag,  //beforetag
+                     soidx,
+                     stidx
                     ) && commitdckv(siidx)) return true;
    }
    closedckv(siidx);
@@ -305,7 +333,9 @@ bool dicm2dckvDataset(
    bool fromStdin,     // ... o from vbuf
    u64 *inloc,
    u32 beforebyte,
-   u32 beforetag
+   u32 beforetag,       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
+   u16 *soidx,     // index in const char *scstr[]
+  u16 *stidx      // index in const char *csstr[]
 )
 {
    //inits
@@ -370,11 +400,40 @@ bool dicm2dckvDataset(
          {
             *vlen=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,kloc,isshort,kvUS,*inloc,*vlen,fromStdin,vbuf)) return false;
+            
+            switch (attrstruct->t) {
+               case B00280002:
+               case B00280010:
+               case B00280011:
+               case B00280101:
+               case B00280103:
+               {
+                  if (sopclassidxisimage(*soidx))
+                  {
+                     if(*stidx==2)
+                     {
+                        if (!appendkv(kbuf,kloc,isshort,kvNM,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     }
+                     else
+                     {
+                        if(!appendkv(kbuf,kloc,isshort,kvCM,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     }
+                  }
+               } break;
+               
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvUS,*inloc,*vlen,fromStdin,vbuf)) return false;
+            }
             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
 
+            
+            
+
+            
+            
+            
 #pragma mark vl tag code
          case AT://attribute tag
          {
@@ -530,6 +589,21 @@ bool dicm2dckvDataset(
                case B00080080://institution name
                   if (!appendkv(kbuf,kloc,isshort,kvIN,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
+               case B00204000://image comment
+               {
+                  if (sopclassidxisimage(*soidx))
+                  {
+                     if(*stidx==2)
+                     {
+                        if (!appendkv(kbuf,kloc,isshort,kvNM,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     }
+                     else
+                     {
+                        if(!appendkv(kbuf,kloc,isshort,kvCM,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     }
+                  }
+               }
+                  break;
                default:
                   if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
@@ -606,6 +680,17 @@ bool dicm2dckvDataset(
                case B00420011:
                   if (!appendkv(kbuf,kloc,islong,kved,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
+               case B7FE00010:
+               {
+                  if(*stidx==2)
+                  {
+                     if (!appendkv(kbuf,kloc,islong,kvNB,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  }
+                  else
+                  {
+                     if(!appendkv(kbuf,kloc,islong,kvCB,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  }
+               } break;
                default:
                   if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
@@ -613,12 +698,82 @@ bool dicm2dckvDataset(
             *inloc += 12 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
+  
+            
+         case OW://other word
+         {
+            attrstruct->l=REPERTOIRE_GL;
 
+            lbuf=kbuf+kloc+8;//subbuffer for ll reading
+            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+               E("%s","stream end instead of vll");
+               return false;
+            }
+            *vlen=*(u32*)lbuf;
+            switch (attrstruct->t) {
+               case B7FE00010:
+               {
+                  if (!appendkv(kbuf,kloc,islong,kvNW,*inloc,*vlen,fromStdin,vbuf)) return false;
+               } break;
+               default:
+                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
+                  break;
+            }
+            *inloc += 12 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+
+         } break;
             
          case OD://other double
+         {
+            attrstruct->l=REPERTOIRE_GL;
+
+            lbuf=kbuf+kloc+8;//subbuffer for ll reading
+            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+               E("%s","stream end instead of vll");
+               return false;
+            }
+            *vlen=*(u32*)lbuf;
+            switch (attrstruct->t) {
+               case B7FE00010:
+               {
+                  if (!appendkv(kbuf,kloc,islong,kvND,*inloc,*vlen,fromStdin,vbuf)) return false;
+               } break;
+               default:
+                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
+                  break;
+            }
+            *inloc += 12 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+
+         } break;
+            
          case OF://other float
+         {
+            attrstruct->l=REPERTOIRE_GL;
+
+            lbuf=kbuf+kloc+8;//subbuffer for ll reading
+            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+               E("%s","stream end instead of vll");
+               return false;
+            }
+            *vlen=*(u32*)lbuf;
+            switch (attrstruct->t) {
+               case B7FE00010:
+               {
+                  if (!appendkv(kbuf,kloc,islong,kvNF,*inloc,*vlen,fromStdin,vbuf)) return false;
+               } break;
+               default:
+                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
+                  break;
+            }
+            *inloc += 12 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+
+         } break;
+
+            
          case OL://other long
-         case OW://other word
          case SV://signed 64-bit very long
          {
             attrstruct->l=REPERTOIRE_GL;
@@ -635,7 +790,6 @@ bool dicm2dckvDataset(
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
 
          } break;
-
 
             
          case OV://other 64-bit very long
@@ -864,7 +1018,9 @@ bool dicm2dckvDataset(
                         fromstdin,
                         inloc,
                         (u32)beforebyteIT,
-                        fffee00d
+                        fffee00d,
+                        soidx,
+                        stidx
                         );
                   //Atención!!! attr still is the first attr of the first item
                   //the attr of the recursion is not available

@@ -44,17 +44,6 @@ bool closeedckv(s16 *siidx);//aplica a todos los kv
 
 #pragma mark replace appendkv of dckvapi (which should not be implemented directly)
 
-bool appendPRIVATEkv( //odd group and UN attributes
-   uint8_t            *kbuf,    //contextualized key value buffer
-   u32                kloc,     //offset of current attribute in key
-   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-   enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-   u64                vloc,     //value location in input stream
-   u32                vlen,     //value length
-   bool               fromStdin,//value to be read, or already read in vbuf
-   uint8_t            *vbuf     //buffer for values
-);
-
 bool appendEXAMkv( //patient and study level attributes
    uint8_t            *kbuf,    //contextualized key value buffer
    u32                kloc,     //offset of current attribute in key
@@ -77,20 +66,7 @@ bool appendSERIESkv( //series level attributes. We add to this category the inst
   uint8_t            *vbuf     //buffer for values
 );
 
-
-bool appendNATIVEkv( //bitmap representatio 7FE0,0010 and 0002,0010="1.2.840.10008.1.2.1"
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-);
-
-
-bool appendCOMPRESSEDkv( //bitmap representatio 7FE0,0010 any other  0002,0010
+bool appendPRIVATEkv( //odd group and UN attributes
    uint8_t            *kbuf,    //contextualized key value buffer
    u32                kloc,     //offset of current attribute in key
    bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -100,7 +76,6 @@ bool appendCOMPRESSEDkv( //bitmap representatio 7FE0,0010 any other  0002,0010
    bool               fromStdin,//value to be read, or already read in vbuf
    uint8_t            *vbuf     //buffer for values
 );
-
 
 bool appendDEFAULTkv( //any other instance level attribute
    uint8_t            *kbuf,    //contextualized key value buffer
@@ -112,5 +87,50 @@ bool appendDEFAULTkv( //any other instance level attribute
    bool               fromStdin,//value to be read, or already read in vbuf
    uint8_t            *vbuf     //buffer for values
 );
+
+bool appendNATIVEkv(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+);
+bool appendNATIVE01(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+);
+
+bool appendCOMPRESSEDkv(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+);
+bool appendCOMPRESSED01(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+);
+
+
+
 
 #endif /* edckvapi_h */

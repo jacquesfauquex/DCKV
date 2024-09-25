@@ -8,13 +8,13 @@
 
 #pragma mark - C
 
-#include <stdio.h>
+#include <stdio.h>  //puts() printf()
 #include <stdbool.h>
 #include <stdlib.h> //malloc()
 #include <string.h>
 #include <ctype.h>
 //#include <sys/time.h>
-//#include <uuid/uuid.h>//For uuid_generate() and uuid_unparse()
+#include <uuid/uuid.h>//For uuid_generate() and uuid_unparse()
 
 typedef char                s8;//%c
 typedef unsigned char       u8;//%c

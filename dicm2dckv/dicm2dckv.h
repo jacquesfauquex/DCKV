@@ -64,7 +64,9 @@ bool dicm2dckvDataset(
    bool fromStdin,        // ... o from vbuf
    u64 *inloc,           // offstet en stream
    u32 beforebyte,     // limite superior de lectura
-   u32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
+   u32 beforetag,       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
+   u16 *soidx,     // index in const char *scstr[]
+   u16 *stidx      // index in const char *csstr[]
 );
 
 
