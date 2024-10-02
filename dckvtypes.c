@@ -79,6 +79,136 @@ u16 u16swap(u16 x)
          |((x<<8) & 0xff00);
 }
 
+#pragma mark - uid shrink
+
+
+const char  b64char[64]="-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+
+char u8u4( const char *byte_array, u8 *idx) {
+    // returns half_byte corresponding to one char
+    // updates idx
+    
+    // u4=half byte (0-15)
+   
+    // 0x0   1.2.840.10008.
+    // 0x1   .
+    // 0x2   0.
+    // 0x3   0
+    // 0x4   1.
+    // 0x5   1
+    // 0x6   2.
+    // 0x7   2
+    // 0x8   3.
+    // 0x9   3
+    // 0xA   4
+    // 0xB   5
+    // 0xC   6
+    // 0xD   7
+    // 0xE   8
+    // 0xF   9
+    
+    char cur_byte = byte_array[*idx];
+    switch (cur_byte) {
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            *idx += 1;
+            return cur_byte - 0x2A;
+        case '.':
+            *idx += 1;
+            return 0x01;
+        case '0':
+        case '2':
+        case '3': {
+            if (byte_array[*idx+1] == '.')  {
+                *idx += 2;
+                return cur_byte + cur_byte - 0x5E;
+            } else {
+                *idx += 1;
+                return cur_byte + cur_byte - 0x5D;
+            }
+        }
+        case '1': {
+            if (byte_array[*idx+1] == '.') {
+                if (   sizeof(byte_array) - *idx > 14
+                    && byte_array[*idx+2]  == '2'
+                    && byte_array[*idx+3]  == '.'
+                    && byte_array[*idx+4]  == '8'
+                    && byte_array[*idx+5]  == '4'
+                    && byte_array[*idx+6]  == '0'
+                    && byte_array[*idx+7]  == '.'
+                    && byte_array[*idx+8]  == '1'
+                    && byte_array[*idx+9]  == '0'
+                    && byte_array[*idx+10] == '0'
+                    && byte_array[*idx+11] == '0'
+                    && byte_array[*idx+12] == '8'
+                    && byte_array[*idx+13] == '.'
+                    )
+                {
+                    *idx += 14;
+                    return 0x0;
+                }
+                else
+                {
+                    *idx += 2;
+                    return 0x4;
+                }
+            }
+            else
+            {
+                *idx += 1;
+                return cur_byte + cur_byte - 0x5D;
+            }
+        }
+       case ' ':
+          *idx += 1;
+          return 0x01;
+
+        default:
+            return 0xFF;//bad input char
+    }
+}
+
+//buffer uid 66 bytes length
+//buffer b64 44 bytes
+bool ui2b64( char *ui, const u8 uilength, char *b64, u8 *b64length )
+{
+   //input size limitations
+   if ((uilength == 0) || (uilength > 64))
+   {
+      b64length = 0;
+      return false;
+   }
+   
+   //normalize overflow chars of last triad
+   ui[uilength]=' ';
+   ui[uilength+1]=' ';
+   
+   //loop
+   *b64length=0;
+   unsigned char u4a,u4b,u4c;
+   u8 uiidx=0;
+   while (uiidx < uilength)
+   {
+      //read 3 half chars
+      u4a=u8u4(ui,&uiidx);
+      if (u4a > 0x10) return false;
+      u4b=u8u4(ui,&uiidx);
+      if (u4b > 0x10) return false;
+      u4c=u8u4(ui,&uiidx);
+      if (u4c > 0x10) return false;
+      
+      //write 3 b64 chars
+      b64[*b64length++]=b64char[(u4a<<2) + (u4b>>2)];
+      b64[*b64length++]=b64char[((u4b & 0x03) << 4) + u4c];
+   }
+   return true;
+}
+
+
 #pragma mark - main & log
 
 enum DIWEFenum DIWEF;

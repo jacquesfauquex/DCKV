@@ -45,6 +45,12 @@ u32 u32swap(u32 x);
 u16 u16swap(u16 x);
 
 
+#pragma mark - uid shrink
+
+extern char const  base64EncodingTable[65];
+extern char const  base64DecodingTable[128];
+bool ui2b64( char *ui, const u8 uilength, char *b64, u8 *b64length );
+
 #pragma mark - main & log
 
 enum exitValue{
