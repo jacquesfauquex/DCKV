@@ -84,7 +84,7 @@ u16 u16swap(u16 x)
 
 const char  b64char[64]="-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
-char u8u4( const char *byte_array, u8 *idx) {
+char u8u4( const unsigned char *byte_array, u8 *idx) {
     // returns half_byte corresponding to one char
     // updates idx
     
@@ -174,7 +174,7 @@ char u8u4( const char *byte_array, u8 *idx) {
 
 //buffer uid 66 bytes length
 //buffer b64 44 bytes
-bool ui2b64( char *ui, const u8 uilength, char *b64, u8 *b64length )
+bool ui2b64( unsigned char *ui, u8 uilength, unsigned char *b64, u8 *b64length )
 {
    //input size limitations
    if ((uilength == 0) || (uilength > 64))
@@ -202,8 +202,10 @@ bool ui2b64( char *ui, const u8 uilength, char *b64, u8 *b64length )
       if (u4c > 0x10) return false;
       
       //write 3 b64 chars
-      b64[*b64length++]=b64char[(u4a<<2) + (u4b>>2)];
-      b64[*b64length++]=b64char[((u4b & 0x03) << 4) + u4c];
+      b64[*b64length]=b64char[(u4a<<2) + (u4b>>2)];
+      *b64length+=1;
+      b64[*b64length]=b64char[((u4b & 0x03) << 4) + u4c];
+      *b64length+=1;
    }
    return true;
 }

@@ -14,7 +14,9 @@
 #include <string.h>
 #include <ctype.h>
 //#include <sys/time.h>
-#include <uuid/uuid.h>//For uuid_generate() and uuid_unparse()
+#include <uuid/uuid.h>//for uuid_generate() and uuid_unparse()
+#include <sys/stat.h>//for directory creation
+#include <time.h>
 
 typedef char                s8;//%c
 typedef unsigned char       u8;//%c
@@ -49,7 +51,7 @@ u16 u16swap(u16 x);
 
 extern char const  base64EncodingTable[65];
 extern char const  base64DecodingTable[128];
-bool ui2b64( char *ui, const u8 uilength, char *b64, u8 *b64length );
+bool ui2b64( unsigned char *ui, const u8 uilength, unsigned char *b64, u8 *b64length );
 
 #pragma mark - main & log
 
@@ -71,39 +73,42 @@ enum DIWEFenum {D,I,W,E,F};
 extern enum DIWEFenum DIWEF;
 bool loglevel(const char * logletter);
 
-#define D(format, ...) do {           \
-  if (DIWEF <= D){         \
+#define D(format, ...) do {                 \
+  if (DIWEF <= D){                          \
     fprintf(stderr, (format), __VA_ARGS__); \
-    fputc('\n', stderr);                      \
-  }\
+    fputc('\n', stderr);                    \
+  }                                         \
 } while (0)
 
 
-#define I(format, ...) do {           \
-  if (DIWEF <= I){         \
+#define I(format, ...) do {                 \
+  if (DIWEF <= I){                          \
     fprintf(stderr, (format), __VA_ARGS__); \
-    fputc('\n', stderr);                      \
-  }\
+    fputc('\n', stderr);                    \
+  }                                         \
 } while (0)
 
 
-#define W(format, ...) do {           \
-  if (DIWEF <= W){         \
+#define W(format, ...) do {                 \
+  if (DIWEF <= W){                          \
     fprintf(stderr, (format), __VA_ARGS__); \
-    fputc('\n', stderr);                      \
-  }\
+    fputc('\n', stderr);                    \
+  }                                         \
 } while (0)
 
 
-#define E(format, ...) do {           \
-  if (DIWEF <= E){         \
+#define E(format, ...) do {                 \
+  if (DIWEF <= E){                          \
     fprintf(stderr, (format), __VA_ARGS__); \
-    fputc('\n', stderr);                      \
-  }\
+    fputc('\n', stderr);                    \
+  }                                         \
+  false;                                    \
 } while (0)
 
 
-#define F(format, ...) do { fprintf(stderr, @"%@", __FAULT__); } while (0)
+#define F(format, ...) do {                \
+  fprintf(stderr, @"%@", __FAULT__);       \
+} while (0)
 
 
 

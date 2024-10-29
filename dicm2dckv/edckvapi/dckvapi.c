@@ -497,6 +497,13 @@ const u32 L00541220X=0x20125400;//CS Secondary​Counts​Type
 const u32 L00800013X=0x00800013;//SQ Referenced​Surface​Data​Sequence
 const u32 L300A0700X=0x300A0700;//UI Treatment​Session​UID
 
+#pragma mark Opendicom CDA series instead of instance
+const u32 L0040E001X=0x0040E001;//ST HL7InstanceIdentifier 0040E001  root^extension
+const u32 L00420010X=0x00420010;//ST DocumentTitel
+const u32 L00420011X=0x00420011;//OB Encapsulated​Document
+const u32 L00420012X=0x00420012;//LO mime type
+
+
 //Patient Clinical(Study) and Series tags
 const u32 PCStag[]={
    L00080020E,//DA Study​Date
@@ -702,6 +709,12 @@ const u32 PCStag[]={
    L00400275S,//SQ Request​Attributes​Sequence
    L00400280S,//ST Comments​On​The​Performed​Procedure​Step
    L00401012E,//SQ Reason​For​Performed​Procedure​Code​Sequence
+
+   L0040E001X,//ST HL7InstanceIdentifier 0040E001  root^extension
+   L00420010X,//ST DocumentTitel
+   L00420011X,//OB Encapsulated​Document
+   L00420012X,//LO Mime type
+
    L00540013X,//SQ Energy​Window​Range​Sequence
    L00540014X,//DS Energy​Window​Lower​Limit
    L00540015X,//DS Energy​Window​Upper​Limit
@@ -944,6 +957,12 @@ const u8 PCStype[]={
    S,//SQ Request​Attributes​Sequence
    S,//ST Comments​On​The​Performed​Procedure​Step
    C,//SQ Reason​For​Performed​Procedure​Code​Sequence
+   
+   X,//ST HL7InstanceIdentifier 0040E001  root^extension
+   X,//ST DocumentTitel
+   X,//OB Encapsulated​Document
+   X,//LO Mime type
+   
    X,//SQ Energy​Window​Range​Sequence
    X,//DS Energy​Window​Lower​Limit
    X,//DS Energy​Window​Upper​Limit

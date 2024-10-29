@@ -96,7 +96,7 @@ bool appendkv(
 {
    switch (vrcat) {
          
-      /*
+      
       case kvdn://ST  DocumentTitle 00420010
       {
          if (vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
@@ -114,7 +114,7 @@ bool appendkv(
          }
          printf("\n");
       } break;
-      */
+      
          
       case kved://OB encapsulaed document
       {

@@ -27,7 +27,7 @@ command loglevel outdir [testfile]
 ## APIs
 
 The basic API exposes handlers which manages the input instances in separate transactions framed by three handlers:
--  createdckv (which provides file meta information)
+- createdckv (which provides file meta information)
 - commitdckv
 - closedckv (automatically called by commitdckv, or executed alone)
 

@@ -18,6 +18,15 @@
 		4A2BF7F02C5E5B850031A838 /* dicm2dckv.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A2BF8102C6636060031A838 /* edckvapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A2BF80F2C6636060031A838 /* edckvapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A2BF82D2C66A4D90031A838 /* edckvapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A2BF82C2C66A4D90031A838 /* edckvapi.c */; };
+		4A3339242CAD7C3600AEB9A4 /* blake3_sse2_x86-64_unix.S in Sources */ = {isa = PBXBuildFile; fileRef = 4A3338FA2CAD7C3600AEB9A4 /* blake3_sse2_x86-64_unix.S */; };
+		4A3339262CAD7C3600AEB9A4 /* blake3_sse41_x86-64_unix.S in Sources */ = {isa = PBXBuildFile; fileRef = 4A3338FE2CAD7C3600AEB9A4 /* blake3_sse41_x86-64_unix.S */; };
+		4A3339272CAD7C3600AEB9A4 /* blake3.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A33390A2CAD7C3600AEB9A4 /* blake3.h */; };
+		4A3339282CAD7C3600AEB9A4 /* blake3_dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A33390B2CAD7C3600AEB9A4 /* blake3_dispatch.c */; };
+		4A33392B2CAD7C3700AEB9A4 /* blake3_portable.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A3339102CAD7C3600AEB9A4 /* blake3_portable.c */; };
+		4A3339312CAD7C3700AEB9A4 /* blake3_avx2_x86-64_unix.S in Sources */ = {isa = PBXBuildFile; fileRef = 4A3339192CAD7C3600AEB9A4 /* blake3_avx2_x86-64_unix.S */; };
+		4A3339332CAD7C3700AEB9A4 /* blake3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A33391B2CAD7C3600AEB9A4 /* blake3.c */; };
+		4A3339352CAD7C3700AEB9A4 /* blake3_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A33391D2CAD7C3600AEB9A4 /* blake3_impl.h */; };
+		4A3339392CAD7C3700AEB9A4 /* blake3_avx512_x86-64_unix.S in Sources */ = {isa = PBXBuildFile; fileRef = 4A3339212CAD7C3600AEB9A4 /* blake3_avx512_x86-64_unix.S */; };
 		4A39E45F2C299A69004DE4FB /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.c */; };
 		4A39E4652C299A8F004DE4FB /* dicm2dckv.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.c */; };
 		4A8098032BC90A540042CAC1 /* dckvapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A8097AF2BC4079A0042CAC1 /* dckvapi.c */; };
@@ -64,14 +73,20 @@
 		4A2BF80F2C6636060031A838 /* edckvapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = edckvapi.h; sourceTree = "<group>"; };
 		4A2BF8242C66A4C70031A838 /* dckvapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dckvapi.c; sourceTree = "<group>"; };
 		4A2BF82C2C66A4D90031A838 /* edckvapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = edckvapi.c; sourceTree = "<group>"; };
-		4A39E4282C20669B004DE4FB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A3338FA2CAD7C3600AEB9A4 /* blake3_sse2_x86-64_unix.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = "blake3_sse2_x86-64_unix.S"; sourceTree = "<group>"; };
+		4A3338FE2CAD7C3600AEB9A4 /* blake3_sse41_x86-64_unix.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = "blake3_sse41_x86-64_unix.S"; sourceTree = "<group>"; };
+		4A33390A2CAD7C3600AEB9A4 /* blake3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blake3.h; sourceTree = "<group>"; };
+		4A33390B2CAD7C3600AEB9A4 /* blake3_dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = blake3_dispatch.c; sourceTree = "<group>"; };
+		4A3339102CAD7C3600AEB9A4 /* blake3_portable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = blake3_portable.c; sourceTree = "<group>"; };
+		4A3339132CAD7C3600AEB9A4 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A3339192CAD7C3600AEB9A4 /* blake3_avx2_x86-64_unix.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = "blake3_avx2_x86-64_unix.S"; sourceTree = "<group>"; };
+		4A33391B2CAD7C3600AEB9A4 /* blake3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = blake3.c; sourceTree = "<group>"; };
+		4A33391D2CAD7C3600AEB9A4 /* blake3_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blake3_impl.h; sourceTree = "<group>"; };
+		4A3339212CAD7C3600AEB9A4 /* blake3_avx512_x86-64_unix.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = "blake3_avx512_x86-64_unix.S"; sourceTree = "<group>"; };
 		4A39E43D2C2998F7004DE4FB /* edckv */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = edckv; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A39E44F2C299968004DE4FB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4A6982AC2C1CE43A0094F9D9 /* mdbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdbx.h; sourceTree = "<group>"; };
-		4A6982AD2C1CE43A0094F9D9 /* mdbx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mdbx.c; sourceTree = "<group>"; };
 		4A8097AA2BC189A20042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A8097AF2BC4079A0042CAC1 /* dckvapi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dckvapi.c; sourceTree = "<group>"; };
-		4A8097B12BC4079A0042CAC1 /* dckvapi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dckvapi.m; sourceTree = "<group>"; };
 		4A8097F92BC90A370042CAC1 /* dicmstructdump */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dicmstructdump; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A8098142BC90B320042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A80992B2BCE913C0042CAC1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -116,10 +131,26 @@
 			isa = PBXGroup;
 			children = (
 				4A2BF8242C66A4C70031A838 /* dckvapi.c */,
-				4A8097B02BC4079A0042CAC1 /* dicm2mdbx */,
 				4A39E44E2C299968004DE4FB /* edckv */,
 			);
 			path = edckvapi;
+			sourceTree = "<group>";
+		};
+		4A3338F72CAD7C3600AEB9A4 /* blake3 */ = {
+			isa = PBXGroup;
+			children = (
+				4A3338FA2CAD7C3600AEB9A4 /* blake3_sse2_x86-64_unix.S */,
+				4A3338FE2CAD7C3600AEB9A4 /* blake3_sse41_x86-64_unix.S */,
+				4A33390A2CAD7C3600AEB9A4 /* blake3.h */,
+				4A33390B2CAD7C3600AEB9A4 /* blake3_dispatch.c */,
+				4A3339102CAD7C3600AEB9A4 /* blake3_portable.c */,
+				4A3339132CAD7C3600AEB9A4 /* README.md */,
+				4A3339192CAD7C3600AEB9A4 /* blake3_avx2_x86-64_unix.S */,
+				4A33391B2CAD7C3600AEB9A4 /* blake3.c */,
+				4A33391D2CAD7C3600AEB9A4 /* blake3_impl.h */,
+				4A3339212CAD7C3600AEB9A4 /* blake3_avx512_x86-64_unix.S */,
+			);
+			path = blake3;
 			sourceTree = "<group>";
 		};
 		4A39E44E2C299968004DE4FB /* edckv */ = {
@@ -140,17 +171,6 @@
 				4A2BF81D2C664D740031A838 /* edckvapi */,
 			);
 			name = dckvvapi;
-			sourceTree = "<group>";
-		};
-		4A8097B02BC4079A0042CAC1 /* dicm2mdbx */ = {
-			isa = PBXGroup;
-			children = (
-				4A6982AD2C1CE43A0094F9D9 /* mdbx.c */,
-				4A6982AC2C1CE43A0094F9D9 /* mdbx.h */,
-				4A8097B12BC4079A0042CAC1 /* dckvapi.m */,
-				4A39E4282C20669B004DE4FB /* README.md */,
-			);
-			path = dicm2mdbx;
 			sourceTree = "<group>";
 		};
 		4A8097FA2BC90A370042CAC1 /* dicmstructdump */ = {
@@ -174,6 +194,7 @@
 		4ACCC9DB2BBDC40A00670A7F = {
 			isa = PBXGroup;
 			children = (
+				4A3338F72CAD7C3600AEB9A4 /* blake3 */,
 				4A8099B62BDBEEC80042CAC1 /* dcmtk */,
 				4A8097AA2BC189A20042CAC1 /* README.md */,
 				4ABA009D2C0A1CB80066AED3 /* doc_fread.txt */,
@@ -228,6 +249,8 @@
 				4A2BF7F02C5E5B850031A838 /* dicm2dckv.h in Headers */,
 				4A2BF7E92C5E5B7C0031A838 /* dckvapi.h in Headers */,
 				4A2BF8102C6636060031A838 /* edckvapi.h in Headers */,
+				4A3339352CAD7C3700AEB9A4 /* blake3_impl.h in Headers */,
+				4A3339272CAD7C3600AEB9A4 /* blake3.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,6 +351,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A3339332CAD7C3700AEB9A4 /* blake3.c in Sources */,
+				4A3339282CAD7C3600AEB9A4 /* blake3_dispatch.c in Sources */,
+				4A33392B2CAD7C3700AEB9A4 /* blake3_portable.c in Sources */,
+				4A3339242CAD7C3600AEB9A4 /* blake3_sse2_x86-64_unix.S in Sources */,
+				4A3339262CAD7C3600AEB9A4 /* blake3_sse41_x86-64_unix.S in Sources */,
+				4A3339312CAD7C3700AEB9A4 /* blake3_avx2_x86-64_unix.S in Sources */,
+				4A3339392CAD7C3700AEB9A4 /* blake3_avx512_x86-64_unix.S in Sources */,
 				4AB952E22C74B765004970CA /* dckvapi.c in Sources */,
 				4A2BF82D2C66A4D90031A838 /* edckvapi.c in Sources */,
 				4A0AA46F2C5ADFDC002979A3 /* dckvtypes.c in Sources */,

@@ -8,6 +8,22 @@
 
 #include "dckvapi.h"
 
+#include "blake3.h"
+#include <errno.h>
+#include <unistd.h>
+
+enum kvfamily{
+   kvE, //exam
+   kvS, //series
+   kvP, //private
+   kvI, //instance
+   kvN, //native
+   kvC, //compressed
+   kvF, //fastquality j2k
+   kvH, //highquality j2k
+   kvO, //originalquality j2k
+};
+   
 #pragma mark - possibility to overwrite any  read
 size_t edckvapi_fread(
                      void * __restrict __ptr,

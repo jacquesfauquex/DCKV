@@ -91,10 +91,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/jacquesfauquex/dcvvparser/dcvvparser/sr.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/dscd.dcm"
             isEnabled = "YES">
          </CommandLineArgument>

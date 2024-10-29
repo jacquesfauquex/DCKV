@@ -25,9 +25,12 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 
 #pragma mark - propietary vr
 
-
+//cat  e    s    i    f
 
 enum kvVRcategory{
+kvUI,//UI 7 unique ID eventualmente terminado por 0x00
+               kvII,//UI 8 SOPInstanceUID
+     kvIE,//UI 9 StudyInstanceUID
 kvFD,//FD 0 floating point double
    
 kvFL,//FL 1 floating point single
@@ -42,42 +45,39 @@ kvUS,//US 5 unsigned short
    
 kvAT,//AT 6 attribute tag, 2 u16 hexa
    
-kvUI,//UI 7 unique ID eventualmente terminado por 0x00
-kvII,//UI 8 SOPInstanceUID
-kvIE,//UI 9 StudyInstanceUID
-kvIS,//UI 10 SeriesInstanceUID
+          kvIS,//UI 10 SeriesInstanceUID
      //kvPU,//UI 00080019 PyramidUID
 
 kvTP,//AS DT TM DA 11 text short ascii pair length
-kvEd,//DA 12 StudyDate
+     kvEd,//DA 12 StudyDate
 
 kvTA,//AE DS IS CS 13 text short ascii
-kvSm,//CS 14 Modality
-kvAt,//CS 15 AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400,X500,...)
-kvIs,//IS 16 SeriesNumber
-kvIi,//IS 17 InstanceNumber
-kvIa,//IS 18 AcquisitionNumber
+          kvSm,//CS 14 Modality
+     kvAt,//CS 15 AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400,X500,...)
+          kvIs,//IS 16 SeriesNumber
+               kvIi,//IS 17 InstanceNumber
+     kvIa,//IS 18 AcquisitionNumber
      //kvIT,//CS 00080008 ImageType
 
 kvTS,//LO LT SH ST 19 text short charset
-kvHC,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
-kvEi,//SH 21 StudyID
-kvAn,//SH 22 AccessionNumber 00080050
-kvdn,//ST 23 DocumentTitle 00420010
-kvIN,//LO 24 InstitutionName 00080080
+          kvHC,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
+     kvEi,//SH 21 StudyID
+     kvAn,//SH 22 AccessionNumber 00080050
+          kvdn,//ST 23 DocumentTitle 00420010
+     kvIN,//LO 24 InstitutionName 00080080
    
 kvTL,//UC UT 25 text long charset
-kvAl,//UT 26 AccessionNumberIssuer local 00080051.00400031
-kvAu,//UT 27 AccessionNumberIssuer universal 00080051.00400032
+     kvAl,//UT 26 AccessionNumberIssuer local 00080051.00400031
+     kvAu,//UT 27 AccessionNumberIssuer universal 00080051.00400032
    
 kvTU,//UR 28 text long url-encoded
    
 kvPN,//PN 29 person name has a special treatment in json and xml
 
-kved,//OB 30 Encapsulated​Document 00420011
-kvfo,//OV 31 Extended​Offset​Table fragments offset 7FE00001
-kvfl,//OV 32 Extended​Offset​TableLengths fragments offset 7FE00002
-kvft,//UV 33 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
+          kved,//OB 30 Encapsulated​Document 00420011
+               kvfo,//OV 31 Extended​Offset​Table fragments offset 7FE00001
+               kvfl,//OV 32 Extended​Offset​TableLengths fragments offset 7FE00002
+               kvft,//UV 33 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
    
 kvUN,//UN 34
    
@@ -89,7 +89,7 @@ kvIZ,//37 item tail
    
 kvSZ,//38 SQ tail
    
-kvNM,//39 image native metadata
+                    kvNM,//39 image native metadata
       //incluye
       //0x00020010: //UI transfert syntax
       //0x00204000: //LT image comment
@@ -98,12 +98,12 @@ kvNM,//39 image native metadata
       //0x00280011: //US columns
       //0x00280101: //US bits
       //0x00280103: //US sign
-kvNB, //40 0x7FE00010: //OB
-kvNW, //41 0x7FE00010: //OW
-kvNF, //42 0x7FE00008: //OF float
-kvND, //43 0x7FE00009: //OD double
+                    kvNB, //40 0x7FE00010: //OB
+                    kvNW, //41 0x7FE00010: //OW
+                    kvNF, //42 0x7FE00008: //OF float
+                    kvND, //43 0x7FE00009: //OD double
    
-kvCM, //44 image compressed
+                    kvCM, //44 image compressed
       //incluye
       //0x00020010://UI transfert syntax
       //0x00082111: //ST kvTS derivation description
@@ -113,7 +113,7 @@ kvCM, //44 image compressed
       //0x00280011: //US columns
       //0x00280101: //US bits
       //0x00280103: //US sign
-kvCB, //45 0x7E000010: //OB
+                    kvCB, //45 0x7E000010: //OB
 
 kv01  //46 other OB OD OF OL OV OW SV UV 34 binary, not textually represented
 
