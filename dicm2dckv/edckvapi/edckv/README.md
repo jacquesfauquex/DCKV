@@ -1,4 +1,4 @@
-# eDCKVinline
+# edckv
 
 - prefixes DCKV with e. The 'e' refers to an **e**xam (study) to which all the attributes  listed belong. DCKV is the format of one instance only.
 - eDCKV is a multi instances format

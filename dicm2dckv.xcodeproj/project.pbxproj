@@ -13,6 +13,11 @@
 		4A0AA4842C5AF4D7002979A3 /* dckvtypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA002BBF098900670A7F /* dckvtypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4A72C5AF507002979A3 /* dckvapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA032BBF3F1900670A7F /* dckvapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A0AA4AE2C5AF517002979A3 /* dicm2dckv.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A13071A2CE55B9F00C419E3 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A1307182CE55B9F00C419E3 /* sqlite3.c */; };
+		4A13071B2CE55B9F00C419E3 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A1307182CE55B9F00C419E3 /* sqlite3.c */; };
+		4A13071C2CE55B9F00C419E3 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4A1307182CE55B9F00C419E3 /* sqlite3.c */; };
+		4A13071D2CE55B9F00C419E3 /* sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A1307192CE55B9F00C419E3 /* sqlite3.h */; };
+		4A13071E2CE55B9F00C419E3 /* sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A1307192CE55B9F00C419E3 /* sqlite3.h */; };
 		4A2BF7E22C5E5B660031A838 /* dckvtypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA002BBF098900670A7F /* dckvtypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A2BF7E92C5E5B7C0031A838 /* dckvapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA032BBF3F1900670A7F /* dckvapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A2BF7F02C5E5B850031A838 /* dicm2dckv.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -70,9 +75,12 @@
 
 /* Begin PBXFileReference section */
 		4A0AA46A2C5ADFDC002979A3 /* dckvtypes.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = dckvtypes.c; sourceTree = "<group>"; };
+		4A1307182CE55B9F00C419E3 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqlite3.c; sourceTree = "<group>"; };
+		4A1307192CE55B9F00C419E3 /* sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite3.h; sourceTree = "<group>"; };
 		4A2BF80F2C6636060031A838 /* edckvapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = edckvapi.h; sourceTree = "<group>"; };
 		4A2BF8242C66A4C70031A838 /* dckvapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dckvapi.c; sourceTree = "<group>"; };
 		4A2BF82C2C66A4D90031A838 /* edckvapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = edckvapi.c; sourceTree = "<group>"; };
+		4A2CA9FC2CEE88CC0033EE3C /* snippets.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = snippets.txt; sourceTree = "<group>"; };
 		4A3338FA2CAD7C3600AEB9A4 /* blake3_sse2_x86-64_unix.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = "blake3_sse2_x86-64_unix.S"; sourceTree = "<group>"; };
 		4A3338FE2CAD7C3600AEB9A4 /* blake3_sse41_x86-64_unix.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = "blake3_sse41_x86-64_unix.S"; sourceTree = "<group>"; };
 		4A33390A2CAD7C3600AEB9A4 /* blake3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blake3.h; sourceTree = "<group>"; };
@@ -127,6 +135,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4A1307172CE55B9F00C419E3 /* sqlite */ = {
+			isa = PBXGroup;
+			children = (
+				4A1307182CE55B9F00C419E3 /* sqlite3.c */,
+				4A1307192CE55B9F00C419E3 /* sqlite3.h */,
+				4A2CA9FC2CEE88CC0033EE3C /* snippets.txt */,
+			);
+			path = sqlite;
+			sourceTree = "<group>";
+		};
 		4A2BF81D2C664D740031A838 /* edckvapi */ = {
 			isa = PBXGroup;
 			children = (
@@ -194,6 +212,7 @@
 		4ACCC9DB2BBDC40A00670A7F = {
 			isa = PBXGroup;
 			children = (
+				4A1307172CE55B9F00C419E3 /* sqlite */,
 				4A3338F72CAD7C3600AEB9A4 /* blake3 */,
 				4A8099B62BDBEEC80042CAC1 /* dcmtk */,
 				4A8097AA2BC189A20042CAC1 /* README.md */,
@@ -235,6 +254,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A13071E2CE55B9F00C419E3 /* sqlite3.h in Headers */,
 				4A0AA4842C5AF4D7002979A3 /* dckvtypes.h in Headers */,
 				4A0AA4AE2C5AF517002979A3 /* dicm2dckv.h in Headers */,
 				4A0AA4A72C5AF507002979A3 /* dckvapi.h in Headers */,
@@ -246,6 +266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A2BF7E22C5E5B660031A838 /* dckvtypes.h in Headers */,
+				4A13071D2CE55B9F00C419E3 /* sqlite3.h in Headers */,
 				4A2BF7F02C5E5B850031A838 /* dicm2dckv.h in Headers */,
 				4A2BF7E92C5E5B7C0031A838 /* dckvapi.h in Headers */,
 				4A2BF8102C6636060031A838 /* edckvapi.h in Headers */,
@@ -360,6 +381,7 @@
 				4A3339392CAD7C3700AEB9A4 /* blake3_avx512_x86-64_unix.S in Sources */,
 				4AB952E22C74B765004970CA /* dckvapi.c in Sources */,
 				4A2BF82D2C66A4D90031A838 /* edckvapi.c in Sources */,
+				4A13071B2CE55B9F00C419E3 /* sqlite3.c in Sources */,
 				4A0AA46F2C5ADFDC002979A3 /* dckvtypes.c in Sources */,
 				4A39E4652C299A8F004DE4FB /* dicm2dckv.c in Sources */,
 				4A39E45F2C299A69004DE4FB /* main.c in Sources */,
@@ -374,6 +396,7 @@
 				4A0AA46C2C5ADFDC002979A3 /* dckvtypes.c in Sources */,
 				4A80980E2BC90AB50042CAC1 /* main.c in Sources */,
 				4A8098032BC90A540042CAC1 /* dckvapi.c in Sources */,
+				4A13071A2CE55B9F00C419E3 /* sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,6 +408,7 @@
 				4A0AA4702C5ADFDC002979A3 /* dckvtypes.c in Sources */,
 				4AC9A51C2C5451EE0078C566 /* main.c in Sources */,
 				4AC9A53F2C54532C0078C566 /* dckvapi.c in Sources */,
+				4A13071C2CE55B9F00C419E3 /* sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

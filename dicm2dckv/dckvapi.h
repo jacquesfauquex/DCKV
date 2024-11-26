@@ -30,7 +30,10 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 enum kvVRcategory{
 kvUI,//UI 7 unique ID eventualmente terminado por 0x00
                kvII,//UI 8 SOPInstanceUID
+          kvIS,//UI 10 SeriesInstanceUID
      kvIE,//UI 9 StudyInstanceUID
+//kvIP,//UI 00080019 PyramidUID
+
 kvFD,//FD 0 floating point double
    
 kvFL,//FL 1 floating point single
@@ -45,9 +48,6 @@ kvUS,//US 5 unsigned short
    
 kvAT,//AT 6 attribute tag, 2 u16 hexa
    
-          kvIS,//UI 10 SeriesInstanceUID
-     //kvPU,//UI 00080019 PyramidUID
-
 kvTP,//AS DT TM DA 11 text short ascii pair length
      kvEd,//DA 12 StudyDate
 

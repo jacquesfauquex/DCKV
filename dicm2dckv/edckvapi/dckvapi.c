@@ -1110,42 +1110,42 @@ bool appendkv(
 
    switch (vrcat) {
       case kvUN:{
-         D("P %08X",roottag);
+         D("P %08X",roottag);//private unknown
          return appendPRIVATEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvNM:{
-         D("NM %08X",roottag);
+         D("N %08X",roottag);//native metadata
          return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvNB:{
-         D("NB %08X",roottag);
-         return appendNATIVE01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("B %08X",roottag);//native byte
+         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvNW:{
-         D("NW %08X",roottag);
-         return appendNATIVE01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("W %08X",roottag);//native word
+         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvNF:{
-         D("NF %08X",roottag);
-         return appendNATIVE01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("F %08X",roottag);//native float
+         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvND:{
-         D("ND %08X",roottag);
-         return appendNATIVE01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("D %08X",roottag);//native double
+         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvCM:{
-         D("CM %08X",roottag);
+         D("C %08X",roottag);//comprimido metadata
          return appendCOMPRESSEDkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvCB:{
-         D("CB %08X",roottag);
+         D("E %08X",roottag);//encapsulado
          return appendCOMPRESSED01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
 
       default:
       {
          //PCSidx: index of next little endian tag in PCStag table (patient, clinical study, series)
-         //if current tag is lower than PCStag[PCSidx], current tag es instance or frame tag
+         //if current tag is lower than PCStag[PCSidx], current tag is instance or frame tag
          if (roottag < PCStag[PCSidx])
          {
             D("I %08X",roottag);

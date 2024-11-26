@@ -17,6 +17,19 @@ int main(int argc, const char * argv[]) {
    2 outdir
    3 (opcional) infile
    */
+
+#pragma mark home dir
+   struct stat statparam={0};//for directory creation
+   if (stat(argv[2], &statparam)==-1)
+   {
+      I("create %s",argv[2]);
+      if (mkdir(argv[2], 0777)==-1)
+      {
+         E("%s","failed");
+         exit(1);
+      }
+   }
+  
    if (argc < 3){
       return dckvErrorArgs;
    }

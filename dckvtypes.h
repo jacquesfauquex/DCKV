@@ -17,6 +17,7 @@
 #include <uuid/uuid.h>//for uuid_generate() and uuid_unparse()
 #include <sys/stat.h>//for directory creation
 #include <time.h>
+#include <sqlite3.h>
 
 typedef char                s8;//%c
 typedef unsigned char       u8;//%c
@@ -26,6 +27,7 @@ typedef int                s32;//%d
 typedef unsigned int       u32;//%u
 typedef long long          s64;//%lld
 typedef unsigned long long u64;//%llu
+
 
 //DICOM atribute header 8 bytes tag vr vl
 struct t4r2l2 {

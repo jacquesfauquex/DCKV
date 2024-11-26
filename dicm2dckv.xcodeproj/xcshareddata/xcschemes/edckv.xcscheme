@@ -61,7 +61,39 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/jacquesfauquex/mdbx"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jacquesfauquex/sqlite_edckv"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/5063730.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/CT1.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/CT2.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MR1.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/SC1.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/SC2.french.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/XA1.ele.dcm"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG1.ele.dcm"

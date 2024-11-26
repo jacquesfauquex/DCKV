@@ -114,16 +114,6 @@ bool appendNATIVEkv(
   bool               fromStdin,//value to be read, or already read in vbuf
   uint8_t            *vbuf     //buffer for values
 );
-bool appendNATIVE01(
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-);
 
 bool appendCOMPRESSEDkv(
   uint8_t            *kbuf,    //contextualized key value buffer

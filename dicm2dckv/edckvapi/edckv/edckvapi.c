@@ -48,10 +48,19 @@ bool edckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
 
 
 
-#pragma mark static
+#pragma mark - static
+
+#pragma mark sql
+static sqlite3      *db;
+static char         *dberr = 0;
+static int           dbrc  = 0;//return code
+static sqlite3_stmt *eblake3stmt;
+static sqlite3_stmt *einsertstmt;
+
+
 static bool isexplicit;
 
-static unsigned long vlen2;
+static u32 vlenNoPadding;
 
 //static size_t bytesWritten;
 
@@ -83,8 +92,17 @@ static u32 Cmax=0;
 static char pid[20];
 static u8   pidlength;//int pid=getpid()
 static char edate[8];//when study date is known (or current date if empty)
-static unsigned char euidb64[44];
+
+static char euidb64[44];
 static u8   euidb64length;
+//suidb64length[0] unused
+//length 0 after last valid index up to 256
+static char suidb64[256][44];
+static u8   suidb64length[256];
+//compound suidb64_iuidb64
+static char iuidb64[256][89];
+static u8   iuidb64length[256];
+
 static u64 prefix=0x00;
 static blake3_hasher hasher;
 static uint8_t hashbytes[BLAKE3_OUT_LEN];//32 bytes
@@ -120,6 +138,71 @@ bool createedckv(
    s16 *siidx          // SOPinstance index
 )
 {
+#pragma mark sqlite
+   I("sqlite %s\n", sqlite3_libversion());
+   
+   //db path
+   u8 argv2strlen=strlen(dstdir);
+   char dbpath[argv2strlen+10];
+   memcpy(dbpath,dstdir,argv2strlen);
+   if (dbpath[argv2strlen-1]!='/') dbpath[argv2strlen++]='/';
+   memcpy(dbpath+argv2strlen, "edckv.db", 8);
+   dbpath[argv2strlen+8]=0x00;
+
+   sqlite3 *db;
+   char *dberr = 0;
+   int   dbrc  = 0;//return code
+   
+   if (stat(dbpath, &st)==-1)
+   {
+#pragma mark todo create default db from a dedicated file in the  project
+      I("create edckv.db in %s",dstdir);
+      dbrc = sqlite3_open_v2(dbpath, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+      if (dbrc == SQLITE_OK)
+      {
+         if (sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS hola (id INTEGER PRIMARY KEY AUTOINCREMENT)", NULL, NULL, &dberr) != SQLITE_OK)
+         {
+             sqlite3_close(db);
+             E("Table failed to create %s","hola");
+         }
+      }
+   }
+   else dbrc = sqlite3_open_v2(dbpath, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+   
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot open database: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
+   
+//blake3
+   //char x[]="SELECT da, ui, blake3 FROM E WHERE da=141101;";
+   //char x[]="SELECT da, ui, blake3 FROM E WHERE ui='aa';";
+   char eblake3[]="SELECT da, ui, blake3 FROM E WHERE ui=?;";
+   
+   dbrc = sqlite3_prepare_v2(db, eblake3, sizeof(eblake3), &eblake3stmt, 0);
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot initialize eblake3stmt: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
+//insert
+   char einsert[] = "INSERT INTO E(dckv) VALUES(?)";
+   dbrc=sqlite3_prepare(db, einsert, -1, &einsertstmt, 0);
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot prepare einsertStmt: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
+
+   
+   
+   
+   
+   
    isexplicit=*stidx==2;
 
    //static sopclass idx
@@ -129,8 +212,8 @@ bool createedckv(
    strcat(dirpath,dstdir);
    dirpathlength=strlen(dstdir);
    if (dirpath[dirpathlength-1]!='/') dirpath[dirpathlength++]='/';
-   dirpath[dirpathlength]=0x00;
-   if ((stat(dirpath, &st)==-1) && (mkdir(dirpath, 0777)==-1)) return false;
+   //dirpath[dirpathlength]=0x00;
+   //if ((stat(dirpath, &st)==-1) && (mkdir(dirpath, 0777)==-1)) return false;
    sprintf(pid, "%d", getpid());
    pidlength=strlen(pid);
    if (pidlength==0) return false;
@@ -313,13 +396,75 @@ bool commitedckv(s16 *siidx)
    
    if (Eidx>0)
    {
+#pragma mark E
+      //   sqlite3_bind_int(eblake3stmt,1,141001);
+//blake3 hashbytes[BLAKE3_OUT_LEN]
+      /*
+       exists
+         equals
+         not equals
+       does not
+       */
+      blake3_hasher_reset(&hasher);
+      blake3_hasher_update(&hasher, Ebuf, Eidx);
+      blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
+/*
+      //does euidb64[euidb64length] exist in sqlite3 and what is its blake3 ?
+      sqlite3_bind_text(eblake3stmt, 1, euidb64,euidb64length, NULL);
+      int step = sqlite3_step(eblake3stmt);
+      if (step != SQLITE_ROW) //does not
+      {
+         //register E
+         
+      }
+      else //exists
+      {
+         printf("%s:%d\n",
+                sqlite3_column_name(eblake3stmt, 0),
+                sqlite3_column_int(eblake3stmt, 0)
+                );
+         printf("%s:%s\n",
+                sqlite3_column_name(eblake3stmt, 1 ),
+                (char *)(sqlite3_column_text(eblake3stmt, 1))
+                );
+         printf("%s:%s\n",
+                sqlite3_column_name(eblake3stmt, 2 ),
+                sqlite3_column_text(eblake3stmt, 2)
+                );
+      }
+      sqlite3_reset(eblake3stmt);
+
+      
+      
+//insert
+      sqlite3_bind_blob(einsertstmt, 1, Ebuf, Eidx, NULL);//SQLITE_STATIC);
+      dbrc = sqlite3_step(einsertstmt);
+      sqlite3_reset(einsertstmt);
+      
+      
+      
+      const char ui[]="ui";
+      
+        
+       if (dbrc != SQLITE_OK ) {
+           
+           fprintf(stderr, "SQL error: %s\n", dberr);
+           
+           sqlite3_free(dberr);
+           sqlite3_close(db);
+           
+           return 1;
+       }
+
+*/
+      
       // /studydate/.studyiuid/0000000000000000.
       snprintf(filepath+dirpathlength,17,"0000000000000000");
       filepath[dirpathlength+16]='.';
       //add blake3 to final name
-      blake3_hasher_reset(&hasher);
-      blake3_hasher_update(&hasher, Ebuf, Eidx);
-      blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
+      
+      
+      
       for (i = 0; i < BLAKE3_OUT_LEN; i++) {
          sprintf(filepath+dirpathlength+17+i+i ,"%02x", hashbytes[i]);
       }
@@ -508,9 +653,16 @@ bool commitedckv(s16 *siidx)
 
 bool closeedckv(s16 *siidx)
 {
+   sqlite3_finalize(eblake3stmt);
+   sqlite3_finalize(einsertstmt);
+   sqlite3_free(dberr);
+   sqlite3_close(db);
+
    I("!#%d",*siidx);
    return true;
 }
+
+#pragma mark -
 
 
 #pragma mark -
@@ -549,16 +701,26 @@ bool appendEXAMkv( //patient and study level attributes
    //value with contents
    switch (vrcat)
    {
-#pragma mark generic
+#pragma mark UID
       case kvUI://unique ID
       {
-         if (fromStdin){if(edckvapi_fread(vbuf,1,vlen,stdin)!=vlen) return false;}
-         vlen2=  vlen - (vbuf[vlen+3] == 0);
-         memcpy(Ebuf+Eidx-4, &vlen2, 4);
-         memcpy(Ebuf+Eidx, vbuf, vlen2);
-         Eidx+=vlen2;
-      }break;
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         Eidx+=vlen;
+      };break;
          
+      case kvIE://StudyInstanceUID
+      {
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         
+         vlenNoPadding=  vlen - (Ebuf[Eidx+vlen-1] == 0);
+         if (!ui2b64( Ebuf+Eidx, vlenNoPadding, euidb64, &euidb64length )) return false;
+         
+         Eidx+=vlen;
+      };break;
+
+#pragma mark generic
       case kvFD://floating point double
       case kvFL://floating point single
       case kvSL://signed long
@@ -595,18 +757,6 @@ bool appendEXAMkv( //patient and study level attributes
          memcpy(edate, Ebuf+Eidx, vlen);
          Eidx+=vlen;
       };break;
-
-
-      case kvIE://StudyInstanceUID
-      {
-         if (fromStdin){if(edckvapi_fread(vbuf+4,1,vlen,stdin)!=vlen) return false;}
-         vlen2=  vlen - (vbuf[vlen+3] == 0);
-         memcpy(Ebuf+Eidx-4, &vlen2, 4);
-         memcpy(Ebuf+Eidx, vbuf, vlen2);
-         Eidx+=vlen2;
-         //retain study uid
-         if (!ui2b64( vbuf, vlen2, euidb64, &euidb64length )) return false;
-      }break;
          
       default: return false;
    }
@@ -646,6 +796,27 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
    //value with contents
    switch (vrcat)
    {
+#pragma mark UID
+      case kvUI://unique ID
+      {
+         if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
+         Sidx+=vlen;
+      };break;
+         
+      case kvIS://SeriesInstanceUID
+      {
+         if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
+         
+         vlenNoPadding=  vlen - (Sbuf[Sidx+vlen-1] == 0);
+#pragma mark TODO         //series index
+         //if (!ui2b64( Sbuf+Sidx, vlenNoPadding, euidb64, &euidb64length )) return false;
+         
+         Eidx+=vlen;
+      };break;
+
+
 #pragma mark generic
       case kvFD://floating point double
       case kvFL://floating point single
@@ -672,17 +843,6 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
          Sidx+=vlen;
       };break;
 
-      case kvUI://unique ID
-      case kved://OB Encapsulated​Document 00420011
-      case kvIS://SeriesInstanceUID
-      {
-         if (fromStdin){if(edckvapi_fread(vbuf,1,vlen,stdin)!=vlen) return false;}
-         vlen2=  vlen - (vbuf[vlen+3] == 0);
-         memcpy(Sbuf+Sidx-4, &vlen2, 4);
-         memcpy(Sbuf+Sidx, vbuf, vlen2);
-         Sidx+=vlen2;
-      }break;
-
       case kvIs://SeriesNumber
       {
          if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
@@ -694,7 +854,24 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
          sscanf((char*)vbuf,"%hd",&Shd);
          ps16=Shd+0x8000;
       }break;
+         
+      case kved://OB Encapsulated​Document 00420011
+      {
+         if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
+         
+         //replace everything after last > with spaces
+         vlenNoPadding=Sidx+vlen-1;
+         while (Sbuf[vlenNoPadding]!='>')
+         {
+            Sbuf[vlenNoPadding]=' ';
+            vlenNoPadding--;
+         }
+         
+         Sidx+=vlen;
+      };break;
 
+         
       default: return false;
    }
    return true;
@@ -733,6 +910,14 @@ bool appendPRIVATEkv( //odd group and UN attributes
    //value with contents
    switch (vrcat)
    {
+#pragma mark UID
+      case kvUI://unique ID
+      {
+         if (fromStdin){if(edckvapi_fread(Pbuf+Pidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Pbuf+Pidx, vbuf, vlen);//from vbuf
+         Pidx+=vlen;
+      };break;
+
 #pragma mark generic
       case kvFD://floating point double
       case kvFL://floating point single
@@ -754,15 +939,6 @@ bool appendPRIVATEkv( //odd group and UN attributes
          else memcpy(Pbuf+Pidx, vbuf, vlen);//from vbuf
          Pidx+=vlen;
       };break;
-
-      case kvUI://unique ID
-      {
-         if (fromStdin){if(edckvapi_fread(vbuf,1,vlen,stdin)!=vlen) return false;}
-         vlen2=  vlen - (vbuf[vlen+3] == 0);
-         memcpy(Pbuf+Pidx-4, &vlen2, 4);
-         memcpy(Pbuf+Pidx, vbuf, vlen2);
-         Pidx+=vlen2;
-      }break;
 
       default: return false;
 
@@ -807,17 +983,16 @@ bool appendDEFAULTkv( //any other instance level attribute
 
    switch (vrcat)
    {
-#pragma mark generic
+#pragma mark UID
       case kvII://SOPInstanceUID
       case kvUI://unique ID
       {
-         if (fromStdin){if(edckvapi_fread(vbuf,1,vlen,stdin)!=vlen) return false;}
-         vlen2=  vlen - (vbuf[vlen+3] == 0);
-         memcpy(Ibuf+Iidx-4, &vlen2, 4);
-         memcpy(Ibuf+Iidx, vbuf, vlen2);
-         Iidx+=vlen2;
-      }break;
-         
+         if (fromStdin){if(edckvapi_fread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ibuf+Iidx, vbuf, vlen);//from vbuf
+         Iidx+=vlen;
+      };break;
+
+#pragma mark generic
       case kvFD://floating point double
       case kvFL://floating point single
       case kvSL://signed long
@@ -894,6 +1069,15 @@ bool appendNATIVEkv(
    //value with contents
    switch (vrcat)
    {
+#pragma mark UID
+      case kvNM:
+      case kvUI://unique ID (transfert syntax)
+      {
+         if (fromStdin){if(edckvapi_fread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Nbuf+Nidx, vbuf, vlen);//from vbuf
+         Nidx+=vlen;
+      };break;
+         
 #pragma mark generic
       case kvUS://unsigned short
       case kvTS://LO LT SH ST 19 text short charset
@@ -909,151 +1093,11 @@ bool appendNATIVEkv(
          Nidx+=vlen;
       };break;
 
-      case kvUI://unique ID (transfert syntax)
-      {
-         if (fromStdin){if(edckvapi_fread(vbuf,1,vlen,stdin)!=vlen) return false;}
-         vlen2=  vlen - (vbuf[vlen+3] == 0);
-         memcpy(Nbuf+Nidx-4, &vlen2, 4);
-         memcpy(Nbuf+Nidx, vbuf, vlen2);
-         Nidx+=vlen2;
-      }break;
-
       default: return false;
    }
    return true;
 }
-bool appendNATIVE01(
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-)
-{
-/*
-   //Nprefix=0x04;
-   memcpy(Nbuf+Nidx, &vlen, 4);//value length
-   Nidx+=4;
 
-   //value
-   if (vlen)
-   {
-      if (fromStdin)
-      {
-         if (vlen > 0xFFFE)
-         {
-            u32 remaining=vlen;
-            while (remaining > 0xFFFE)
-            {
-               if (!fwriteNfile(false)) return false;
-               if (edckvapi_fread(Nbuf+Nidx,1,0xFFFE,stdin)!=0xFFFE) return false;
-               remaining-=0xFFFE;
-            }
-            if (remaining > 0)
-            {
-               if (!fwriteNfile(false)) return false;
-               if (edckvapi_fread(Nbuf+Nidx,1,remaining,stdin)!=remaining) return false;
-            }
-            if (!fwriteNfile(false)) return false;
-         }
-         else
-         {
-            if ((vlen + Nidx > 0xFFFE) && !fwriteNfile(false)) return false;//freeing buffer necesary?
-            if (edckvapi_fread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;
-            Nidx+=vlen;
-         }
-      }
-      else //from vbuf
-      {
-         if ((vlen + Nidx > 0xFFFE) && !fwriteNfile(false)) return false;//freeing buffer necesary?
-         memcpy(Nbuf+Nidx, vbuf, vlen);
-         Nidx+=vlen;
-      }
-   }
-*/
-   return true;
-}
-
-/*
-         if ( u32swap(((u32*)kbuf)[0]) == 0x7FE00010)
-         {
-#pragma mark ·· 0x7FE00001
-            if (vlen==0xFFFFFFFF) //fragments OB or OW
-            {
-#pragma mark ··· fragments
-               if (fromStdin)
-               {
-                  u64 fragmentbytes=0;
-                  struct t4l4 *fragmentstruct=(struct t4l4*) &fragmentbytes;
-                  
-                  
-                  //fragmento 0
-                  if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
-                  if (fragmentstruct->t != 0xe000fffe) return false;
-                  //read (and ignore) neventually existing table
-                  if (   (fragmentstruct->l > 0)
-                      && (edckvapi_fread(vbuf,1,fragmentstruct->l,stdin) != fragmentstruct->l)
-                     ) return false;
-                  vloc+=20+fragmentstruct->l;
-
-                  
-                  //write iBuffer and reset index
-                  fwriteIfile(false);
-                  
-                  //read fragment 1
-                  if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
-                  
-                  while (fragmentstruct->t != 0xe0ddfffe)
-                  {
-                     if (fragmentstruct->t != 0xe000fffe) return false;
-#pragma mark TODO fragment number
-//Iprefix+=0x10000000000;
-                     Ibuf[Iidx++]=16;//key size
-                     memcpy(Ibuf+Iidx, &Iprefix, 8);//copy Iprefix
-                     Iidx+=8;
-                     memcpy(Ibuf+Iidx, kbuf, 8);//copy key
-                     Iidx+=8;
-                     memcpy(Ibuf+Iidx, &(fragmentstruct->l), 4);//val length
-                     Iidx+=8;
-                     
-                     //write iBuffer and reset index
-                     fwriteIfile(false);
-                     
-                     D("%08lld %016llx %x %x\n",vloc,u64swap(Iprefix),fragmentstruct->t,fragmentstruct->l);
-                     if (fragmentstruct->l > 0)
-                     {
-                        size_t bytesremaing=fragmentstruct->l;
-                        while ( bytesremaing > 0xFFFD)
-                        {
-                           if (edckvapi_fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
-#pragma mark TODO                               if (fwrite(vbuf ,1, 0xFFFE , Ifile)!=0xFFFE) return false;
-                           bytesremaing-=0xFFFE;
-                        }
-                        if (bytesremaing > 0)
-                        {
-                           if (edckvapi_fread(vbuf,1,bytesremaing,stdin)!=bytesremaing) return false;
-#pragma mark TODO                               if (fwrite(vbuf ,1, bytesremaing , Ifile)!=bytesremaing) return false;
-                        }
-
-                     }
-                     vloc+=8+fragmentstruct->l;//174674 en lugar de 172954 (dif 1720)
-                     if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
-                  }
-               }
-               else //already in buffer
-               {
-               }
-            }
-            else
-            {
-#pragma mark ··· native
-
-            }
-         }
-*/
 bool appendCOMPRESSEDkv(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
@@ -1087,26 +1131,22 @@ bool appendCOMPRESSEDkv(
    //value with contents
    switch (vrcat)
    {
+#pragma mark UID
+      case kvUI://unique ID (transfert syntax)
+      {
+         if (fromStdin){if(edckvapi_fread(Cbuf+Cidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Cbuf+Cidx, vbuf, vlen);//from vbuf
+         Cidx+=vlen;
+      };break;
+
 #pragma mark generic
       case kvUS://unsigned short
       case kvTS://LO LT SH ST 19 text short charset
-      case kv01://OB OD OF OL OV OW SV UV
-#pragma mark special
-      case kvCB://40 0x7FE00010: //OB
       {
          if (fromStdin){if(edckvapi_fread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Nbuf+Nidx, vbuf, vlen);//from vbuf
          Nidx+=vlen;
       };break;
-
-      case kvUI://unique ID (transfert syntax)
-      {
-         if (fromStdin){if(edckvapi_fread(vbuf,1,vlen,stdin)!=vlen) return false;}
-         vlen2=  vlen - (vbuf[vlen+3] == 0);
-         memcpy(Nbuf+Nidx-4, &vlen2, 4);
-         memcpy(Nbuf+Nidx, vbuf, vlen2);
-         Nidx+=vlen2;
-      }break;
 
       default: return false;
    }
@@ -1123,45 +1163,79 @@ bool appendCOMPRESSED01(
   uint8_t            *vbuf     //buffer for values
 )
 {
-/*
- memcpy(Cbuf+Cidx, &vlen, 4);//value length
-   Cidx+=4;
+   //https://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_A.4
+   if (vlen!=0xFFFFFFFF) return false; //0x7FE00010 fragments vlen is undefined
 
-   //value
-   if (vlen)
+   if (fromStdin)
    {
-      if (fromStdin)
+      /*
+       our codification does not follow the standard
+       u32 number of fragments
+       u32 offset of fragment (repeated)
+       u32 offset after last fragment
+       fragments data
+       */
+      
+      
+      u64 fragmentbytes=0;
+      struct t4l4 *fragmentstruct=(struct t4l4*) &fragmentbytes;
+      
+      
+      //fragmento 0
+      if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
+      if (fragmentstruct->t != 0xe000fffe) return false;
+      //read (and ignore) neventually existing table
+      if (   (fragmentstruct->l > 0)
+          && (edckvapi_fread(vbuf,1,fragmentstruct->l,stdin) != fragmentstruct->l)
+         ) return false;
+      vloc+=20+fragmentstruct->l;
+
+      
+      //write iBuffer and reset index
+      //fwriteIfile(false);
+      
+      //read fragment 1
+      if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
+      
+      while (fragmentstruct->t != 0xe0ddfffe)
       {
-         if (vlen > 0xFFFE)
+         if (fragmentstruct->t != 0xe000fffe) return false;
+#pragma mark TODO fragment number
+//Iprefix+=0x10000000000;
+         Ibuf[Iidx++]=16;//key size
+         //memcpy(Ibuf+Iidx, &Iprefix, 8);//copy Iprefix
+         Iidx+=8;
+         memcpy(Ibuf+Iidx, kbuf, 8);//copy key
+         Iidx+=8;
+         memcpy(Ibuf+Iidx, &(fragmentstruct->l), 4);//val length
+         Iidx+=8;
+         
+         //write iBuffer and reset index
+         //fwriteIfile(false);
+         
+         //D("%08lld %016llx %x %x\n",vloc,u64swap(Iprefix),fragmentstruct->t,fragmentstruct->l);
+         if (fragmentstruct->l > 0)
          {
-            u32 remaining=vlen;
-            while (remaining > 0xFFFE)
+            size_t bytesremaing=fragmentstruct->l;
+            while ( bytesremaing > 0xFFFD)
             {
-               if (!fwriteCfile(false)) return false;
-               if (edckvapi_fread(Cbuf+Cidx,1,0xFFFE,stdin)!=0xFFFE) return false;
-               remaining-=0xFFFE;
+               if (edckvapi_fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
+#pragma mark TODO                               if (fwrite(vbuf ,1, 0xFFFE , Ifile)!=0xFFFE) return false;
+               bytesremaing-=0xFFFE;
             }
-            if (remaining > 0)
+            if (bytesremaing > 0)
             {
-               if (!fwriteCfile(false)) return false;
-               if (edckvapi_fread(Cbuf+Cidx,1,remaining,stdin)!=remaining) return false;
+               if (edckvapi_fread(vbuf,1,bytesremaing,stdin)!=bytesremaing) return false;
+#pragma mark TODO                               if (fwrite(vbuf ,1, bytesremaing , Ifile)!=bytesremaing) return false;
             }
-            if (!fwriteCfile(false)) return false;
+
          }
-         else
-         {
-            if ((vlen + Cidx > 0xFFFE) && !fwriteCfile(false)) return false;//freeing buffer necesary?
-            if (edckvapi_fread(Cbuf+Cidx,1,vlen,stdin)!=vlen) return false;
-            Cidx+=vlen;
-         }
-      }
-      else //from vbuf
-      {
-         if ((vlen + Cidx > 0xFFFE) && !fwriteCfile(false)) return false;//freeing buffer necesary?
-         memcpy(Cbuf+Cidx, vbuf, vlen);
-         Cidx+=vlen;
+         vloc+=8+fragmentstruct->l;//174674 en lugar de 172954 (dif 1720)
+         if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
       }
    }
-*/
+   else //already in buffer
+   {
+   }
    return true;
 }
