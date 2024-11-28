@@ -28,47 +28,54 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 //cat  e    s    i    f
 
 enum kvVRcategory{
-kvUI,//UI 7 unique ID eventualmente terminado por 0x00
-               kvII,//UI 8 SOPInstanceUID
-          kvIS,//UI 10 SeriesInstanceUID
-     kvIE,//UI 9 StudyInstanceUID
-//kvIP,//UI 00080019 PyramidUID
+kvUI,//UI 0 unique ID eventualmente terminado por 0x00
+               kvII,//UI 1 SOPInstanceUID
+          kvIS,//UI 2 SeriesInstanceUID
+     kveuid,//UI 3 StudyInstanceUID
+kvIP,//UI 4 00080019 PyramidUID
 
-kvFD,//FD 0 floating point double
-   
-kvFL,//FL 1 floating point single
-   
-kvSL,//SL 2 signed long
-   
-kvSS,//SS 3 signed short
-   
-kvUL,//UL 4 unsigned long
-   
-kvUS,//US 5 unsigned short
-   
-kvAT,//AT 6 attribute tag, 2 u16 hexa
-   
+kvFD,//FD 5 floating point double
+kvFL,//FL 6 floating point single
+kvSL,//SL 7 signed long
+kvSS,//SS 8 signed short
+kvUL,//UL 9 unsigned long
+kvUS,//US 10 unsigned short
+kvAT,//AT 11 attribute tag, 2 u16 hexa
+
+kvpname,//PN patient name
+kvpide,//SH patient id extension
+kvpidr,//LO patient id root issuer
+kvpbirth,//DA patient birthdate
+kvpsex,//CS patient sex
+
+kvedesc,//LO Study name
+kvecode,//SQ Study code
+kvref,//PN referring
+kvreq,//PN requesting
+kvcda,//PN CDA
+kvpay,//LO insurance
+
 kvTP,//AS DT TM DA 11 text short ascii pair length
-     kvEd,//DA 12 StudyDate
+    kvedate,//DA 12 StudyDate
 
 kvTA,//AE DS IS CS 13 text short ascii
           kvSm,//CS 14 Modality
-     kvAt,//CS 15 AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400,X500,...)
+     kveat,//CS 15 AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400,X500,...)
           kvIs,//IS 16 SeriesNumber
                kvIi,//IS 17 InstanceNumber
      kvIa,//IS 18 AcquisitionNumber
-     //kvIT,//CS 00080008 ImageType
+     kvIT,//CS 00080008 ImageType
 
 kvTS,//LO LT SH ST 19 text short charset
           kvHC,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
-     kvEi,//SH 21 StudyID
-     kvAn,//SH 22 AccessionNumber 00080050
+     kveid,//SH 21 StudyID
+     kvean,//SH 22 AccessionNumber 00080050
           kvdn,//ST 23 DocumentTitle 00420010
-     kvIN,//LO 24 InstitutionName 00080080
+     kvimg,//LO 24 InstitutionName 00080080
    
 kvTL,//UC UT 25 text long charset
-     kvAl,//UT 26 AccessionNumberIssuer local 00080051.00400031
-     kvAu,//UT 27 AccessionNumberIssuer universal 00080051.00400032
+     kveal,//UT 26 AccessionNumberIssuer local 00080051.00400031
+     kveau,//UT 27 AccessionNumberIssuer universal 00080051.00400032
    
 kvTU,//UR 28 text long url-encoded
    

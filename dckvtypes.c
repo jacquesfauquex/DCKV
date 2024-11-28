@@ -5,6 +5,12 @@
 #include "dckvtypes.h"
 
 const char *kvVRlabels[]={
+   "kvUI",
+   "kvII",
+   "kveuid",
+   "kvIS",
+   "kvIP",
+   
    "kvFD",
    "kvFL",
    "kvSL",
@@ -12,39 +18,70 @@ const char *kvVRlabels[]={
    "kvUL",
    "kvUS",
    "kvAT",
-   "kvUI",
-   "kvII",
-   "kvIE",
-   "kvIS",
+   
+   "kvpname",
+   "kvpide",
+   "kvpidr",
+   "kvpbirth",
+   "kvpsex",
+   
+   "kvedesc",
+   "kvecode",
+   "kvref",
+   "kvreq",
+   "kvcda",
+   "kvpay",
+
    "kvTP",
    "kvEd",
+   
    "kvTA",
    "kvSm",
-   "kvAt",
+   "kveat",
    "kvIs",
    "kvIi",
    "kvIa",
+   "kvIT",
+   
    "kvTS",
    "kvHC",
-   "kvEi",
-   "kvAn",
+   "kveid",
+   "kvean",
    "kvdn",
-   "kvIN",
+   "kvimg",
+   
    "kvTL",
-   "kvAl",
-   "kvAu",
+   "kveal",
+   "kveau",
+   
    "kvTU",
+   
    "kvPN",
+   
    "kved",
    "kvfo",
    "kvfl",
    "kvft",
-   "kv01",
+   
    "kvUN",
    "kvSA",
    "kvIA",
    "kvIZ",
-   "kvSZ"
+   "kvSZ",
+   
+   "kvNM",
+   
+   "kvNB",
+   "kvNW",
+   "kvNF",
+   "kvND",
+   
+   "kvCM",
+   
+   "kvCB",
+
+   "kv01",
+
 };
 const char *kvVRlabel(u16 idx)
 {

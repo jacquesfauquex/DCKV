@@ -133,8 +133,8 @@ bool appendkv(
       }
       switch (vrcat) {
              
-         case kvAl://AccessionNumberIssuer local 00080051.00400031
-         case kvAu://AccessionNumberIssuer universal 00080051.00400032
+         case kveal://AccessionNumberIssuer local 00080051.00400031
+         case kveau://AccessionNumberIssuer universal 00080051.00400032
          case kvTL://UC
 
          case kvTU://UR
@@ -277,7 +277,7 @@ bool appendkv(
          }break;
             
          case kvII://SOPInstanceUID
-         case kvIE://StudyInstanceUID
+         case kveuid://StudyInstanceUID
          case kvIS://SeriesInstanceUID
          case kvUI://unique ID
          {
@@ -295,12 +295,13 @@ bool appendkv(
             }
             printf("\n");
          }break;
-            
-         case kvEd://StudyDate
+         
+         case kvpbirth://Patient birthdate
+         case kvedate://StudyDate
          case kvTP:
             
          case kvSm://Modality
-         case kvAt://AccessionNumberType
+         case kveat://AccessionNumberType
          case kvIs://SeriesNumber
          case kvIi://InstanceNumber
          case kvIa://AcquisitionNumber
@@ -308,9 +309,9 @@ bool appendkv(
             
          case kvdn://ST  DocumentTitle 00420010
          case kvHC://HL7InstanceIdentifier
-         case kvEi://StudyID
-         case kvAn://AccessionNumber
-         case kvIN://InstitutionName
+         case kveid://StudyID
+         case kvean://AccessionNumber
+         case kvimg://InstitutionName
          case kvTS://LO LT SH ST
             
          case kvPN:

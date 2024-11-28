@@ -89,12 +89,49 @@ static u32 Pmax=0;
 static u32 Nmax=0;
 static u32 Cmax=0;
 
-static char pid[20];
-static u8   pidlength;//int pid=getpid()
-static char edate[8];//when study date is known (or current date if empty)
+//variables for E sqlite
+static char procid[20];//1
+static u8   procidlength;//int procid=getpid()
 
-static char euidb64[44];
+static char pname[256];//6 patient id LO
+static u8   pnamelength;
+static char pide[256];//7 patient id LO
+static u8   pidelength;
+static char pidr[256];//8 patient id issuer LO
+static u8   pidrlength;
+static char pbirth[]={ 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0 };//9
+static char psex=0;//10 CS
+
+static char edate[]={ 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0 };//2 or current date if study date is empty
+static char euidb64[44];//3
 static u8   euidb64length;
+static char eid[17];//11 study id
+static u8   eidlength;
+static char ean[17];//12 accession number
+static u8   eanlength;
+static char eal[256];//13 issuer local
+static u8   eallength;
+static char eau[256];//14 issuer universal
+static u8   eaulength;
+static char eat[17];//15 issuer type
+static u8   eatlength;
+
+static char img[256];//16 realisation
+static u8   imglength;
+static char cda[256];//17 cda (reading)
+static u8   cdalength;
+static char req[256];//18 requesting
+static u8   reqlength;
+static char ref[256];//19 requesting
+static u8   reflength;
+static char pay[256];//20 patient id LO
+static u8   paylength;
+static char edesc[256];//21 patient id LO
+static u8   edesclength;
+static char ecode[256];//22 patient id LO
+static u8   ecodelength;
+
+
 //suidb64length[0] unused
 //length 0 after last valid index up to 256
 static char suidb64[256][44];
@@ -123,6 +160,45 @@ static u64 pf16=0;
 
 
 #pragma mark - methods
+
+
+bool einsert()
+{
+   // int pk
+   sqlite3_bind_text(einsertstmt, 1, procid,procidlength, NULL);
+   sqlite3_bind_int(einsertstmt,  2, atoi(edate));
+   sqlite3_bind_text(einsertstmt, 3, euidb64,euidb64length, NULL);
+   sqlite3_bind_blob(einsertstmt, 4, Ebuf, Eidx, NULL);//3 dckv
+   sqlite3_bind_blob(einsertstmt, 5, hashbytes,BLAKE3_OUT_LEN, NULL);
+   sqlite3_bind_text(einsertstmt, 6, pname,pnamelength, NULL);//patient name
+   sqlite3_bind_text(einsertstmt, 7, pide,pidelength, NULL);//patient id extension
+   sqlite3_bind_text(einsertstmt, 8, pidr,pidrlength, NULL);//patient id root (issuer)
+   sqlite3_bind_int(einsertstmt,  9, atoi(pbirth));//patient birthdate
+   sqlite3_bind_int(einsertstmt, 10, psex);//patient sex 1=M, 2=F, 9=O
+   sqlite3_bind_text(einsertstmt,11, eid,eidlength, NULL);
+   sqlite3_bind_text(einsertstmt,12, ean,eanlength, NULL);
+   sqlite3_bind_text(einsertstmt,13, eal,eallength, NULL);
+   sqlite3_bind_text(einsertstmt,14, eau,eaulength, NULL);
+   sqlite3_bind_text(einsertstmt,15, eat,eatlength, NULL);
+   sqlite3_bind_text(einsertstmt,16, img,imglength, NULL);//12 img (org^branch^rad)
+   sqlite3_bind_text(einsertstmt,17, cda,cdalength, NULL);//13 cda (org^branch^rad)
+   sqlite3_bind_text(einsertstmt,18, req,reqlength, NULL);//14 ref (org^branch^rad)
+   sqlite3_bind_text(einsertstmt,19, ref,reflength, NULL);//14 ref (org^branch^rad)
+   sqlite3_bind_text(einsertstmt,20, pay,paylength, NULL);//15 pay (org^branch^rad)
+   sqlite3_bind_text(einsertstmt,21, edesc,edesclength, NULL);
+   sqlite3_bind_text(einsertstmt,22, ecode,ecodelength, NULL);
+   //mods
+
+   dbrc = sqlite3_step(einsertstmt);
+   if (dbrc != SQLITE_DONE )
+   {
+      fprintf(stderr, "einsertstmt error: %s\n", dberr);
+      return false;
+   }
+   sqlite3_reset(einsertstmt);
+   return true;
+}
+
 
 bool createedckv(
    const char * dstdir,
@@ -176,11 +252,8 @@ bool createedckv(
       exit(1);
    }
    
-//blake3
-   //char x[]="SELECT da, ui, blake3 FROM E WHERE da=141101;";
-   //char x[]="SELECT da, ui, blake3 FROM E WHERE ui='aa';";
-   char eblake3[]="SELECT da, ui, blake3 FROM E WHERE ui=?;";
-   
+//blake3 stmt
+   char eblake3[]="SELECT eblake3 FROM E WHERE euid=?;";
    dbrc = sqlite3_prepare_v2(db, eblake3, sizeof(eblake3), &eblake3stmt, 0);
    if (dbrc != SQLITE_OK)
    {
@@ -188,8 +261,9 @@ bool createedckv(
       sqlite3_close_v2(db);
       exit(1);
    }
-//insert
-   char einsert[] = "INSERT INTO E(dckv) VALUES(?)";
+//insert stmt
+   //char einsert[] = "INSERT INTO E(da,ui) VALUES(?,?)";
+   char einsert[] = "INSERT INTO E(procid,edate,euid,edckv,eblake3,pname,pide,pidr,pbirth,psex,eid,ean,eal,eau,eat,img,cda,req,ref,pay,edesc,ecode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
    dbrc=sqlite3_prepare(db, einsert, -1, &einsertstmt, 0);
    if (dbrc != SQLITE_OK)
    {
@@ -214,11 +288,11 @@ bool createedckv(
    if (dirpath[dirpathlength-1]!='/') dirpath[dirpathlength++]='/';
    //dirpath[dirpathlength]=0x00;
    //if ((stat(dirpath, &st)==-1) && (mkdir(dirpath, 0777)==-1)) return false;
-   sprintf(pid, "%d", getpid());
-   pidlength=strlen(pid);
-   if (pidlength==0) return false;
-   memcpy(dirpath+dirpathlength, pid, pidlength);
-   dirpathlength+=pidlength;
+   sprintf(procid, "%d", getpid());
+   procidlength=strlen(procid);
+   if (procidlength==0) return false;
+   memcpy(dirpath+dirpathlength, procid, procidlength);
+   dirpathlength+=procidlength;
    dirpath[dirpathlength++]='/';
    dirpath[dirpathlength]=0x00;
    if ((stat(dirpath, &st)==-1) && (mkdir(dirpath, 0777)==-1)) return false;
@@ -397,7 +471,6 @@ bool commitedckv(s16 *siidx)
    if (Eidx>0)
    {
 #pragma mark E
-      //   sqlite3_bind_int(eblake3stmt,1,141001);
 //blake3 hashbytes[BLAKE3_OUT_LEN]
       /*
        exists
@@ -408,15 +481,11 @@ bool commitedckv(s16 *siidx)
       blake3_hasher_reset(&hasher);
       blake3_hasher_update(&hasher, Ebuf, Eidx);
       blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
-/*
+
       //does euidb64[euidb64length] exist in sqlite3 and what is its blake3 ?
       sqlite3_bind_text(eblake3stmt, 1, euidb64,euidb64length, NULL);
       int step = sqlite3_step(eblake3stmt);
-      if (step != SQLITE_ROW) //does not
-      {
-         //register E
-         
-      }
+      if ((step != SQLITE_ROW) && !einsert()) return false;
       else //exists
       {
          printf("%s:%d\n",
@@ -436,27 +505,8 @@ bool commitedckv(s16 *siidx)
 
       
       
-//insert
-      sqlite3_bind_blob(einsertstmt, 1, Ebuf, Eidx, NULL);//SQLITE_STATIC);
-      dbrc = sqlite3_step(einsertstmt);
-      sqlite3_reset(einsertstmt);
-      
-      
-      
-      const char ui[]="ui";
-      
-        
-       if (dbrc != SQLITE_OK ) {
-           
-           fprintf(stderr, "SQL error: %s\n", dberr);
-           
-           sqlite3_free(dberr);
-           sqlite3_close(db);
-           
-           return 1;
-       }
 
-*/
+
       
       // /studydate/.studyiuid/0000000000000000.
       snprintf(filepath+dirpathlength,17,"0000000000000000");
@@ -664,7 +714,6 @@ bool closeedckv(s16 *siidx)
 
 #pragma mark -
 
-
 #pragma mark -
 
 
@@ -709,7 +758,7 @@ bool appendEXAMkv( //patient and study level attributes
          Eidx+=vlen;
       };break;
          
-      case kvIE://StudyInstanceUID
+      case kveuid://StudyInstanceUID
       {
          if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
@@ -733,23 +782,79 @@ bool appendEXAMkv( //patient and study level attributes
       case kvTS://LO LT SH ST 19 text short charset
       case kvTL://UC UT 25 text long charset
       case kvTU://url encoded
-      case kvPN://person name
       //   kvUN only private
       case kv01://OB OD OF OL OV OW SV UV
-#pragma mark special
-      case kvIN://InstitutionName (placed in exam instead of series)
-      case kvEi://StudyID
-      case kvAt://AccessionNumberType
-      case kvAn://AccessionNumber
-      case kvAl://AccessionNumberIssuer local 00080051.00400031
-      case kvAu://AccessionNumberIssuer universal 00080051.00400032
       {
          if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
          Eidx+=vlen;
       };break;
 
-      case kvEd://StudyDate
+#pragma mark special
+      case kvPN://person name
+      {
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         Eidx+=vlen;
+      };break;
+
+      case kvimg://InstitutionName (placed in exam instead of series)
+      {
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain institution name
+         memcpy(img, Ebuf+Eidx, vlen);
+         imglength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kveid://StudyID
+      {
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain study date
+         memcpy(eid, Ebuf+Eidx, vlen);
+         eidlength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvean://AccessionNumber
+      {
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         memcpy(ean, Ebuf+Eidx, vlen);
+         eanlength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kveal://AccessionNumberIssuer local 00080051.00400031
+      {
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         memcpy(eal, Ebuf+Eidx, vlen);
+         eallength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kveau://AccessionNumberIssuer universal 00080051.00400032
+      {
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         memcpy(eau, Ebuf+Eidx, vlen);
+         eaulength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kveat://AccessionNumberType
+      {
+         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         memcpy(eat, Ebuf+Eidx, vlen);
+         eatlength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvedate://StudyDate
       {
          if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
@@ -757,7 +862,123 @@ bool appendEXAMkv( //patient and study level attributes
          memcpy(edate, Ebuf+Eidx, vlen);
          Eidx+=vlen;
       };break;
-         
+
+      case kvpbirth://Patient birthdate
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         memcpy(pbirth, Ebuf+Eidx, vlen);
+         Eidx+=vlen;
+      };break;
+
+      case kvpname://Patient name
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         memcpy(pname, Ebuf+Eidx, vlen);
+         pnamelength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvpide://Patient id extension
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         memcpy(pide, Ebuf+Eidx, vlen);
+         pidelength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvpidr://Patient root id issuer
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         memcpy(pidr, Ebuf+Eidx, vlen);
+         pidrlength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvpsex://Patient sex
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         u8 sexchar=*(Ebuf+Eidx);
+         if (sexchar=='M') psex=1;
+         else if (sexchar=='F') psex=2;
+         else if (sexchar=='O') psex=9;
+         else psex=0;
+         Eidx+=vlen;
+      };break;
+
+      case kvref://study referring
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         memcpy(ref, Ebuf+Eidx, vlen);
+         reflength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvreq://study requesting
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         memcpy(req, Ebuf+Eidx, vlen);
+         reqlength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvcda://study CDA (reading)
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         memcpy(cda, Ebuf+Eidx, vlen);
+         cdalength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvedesc://study description
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         memcpy(edesc, Ebuf+Eidx, vlen);
+         edesclength=vlen;
+         Eidx+=vlen;
+      };break;
+
+      case kvecode://study code
+      {
+         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+         //retain
+         u8 *codebytes=kbuf+kloc;//subbuffer for attr reading
+         struct t4r2l2 *codestruct=(struct t4r2l2*) codebytes;
+         switch (codestruct->t) {
+            case 0x04010800:
+               memcpy(ecode+ecodelength, Ebuf+Eidx, vlen);
+               ecodelength+=vlen;
+               ecode[ecodelength]=0x00;
+               break;
+               
+            default:
+            {
+               memcpy(ecode+ecodelength, Ebuf+Eidx, vlen);
+               ecodelength+=vlen;
+               ecode[ecodelength++]='^';
+            }
+               break;
+         }
+         Eidx+=vlen;
+      };break;
+
       default: return false;
    }
    return true;
