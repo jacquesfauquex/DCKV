@@ -158,6 +158,17 @@ enum repertoireenum{
 
 u32 repertoireidx( uint8_t *vbuf, u16 vallength );
 
+bool utf8
+(
+ u8 repidx,
+ const u8  *charbytes,
+ const u32  charstart,
+ size_t     charlength,
+ 
+ char      *utf8bytes,
+ const u8   utf8start,
+ size_t    *utf8length
+ );
 
 
 #pragma mark - SopClasses

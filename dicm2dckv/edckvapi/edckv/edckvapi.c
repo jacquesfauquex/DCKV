@@ -89,6 +89,7 @@ static u32 Pmax=0;
 static u32 Nmax=0;
 static u32 Cmax=0;
 
+static size_t utf8length;
 //variables for E sqlite
 static char procid[20];//1
 static u8   procidlength;//int procid=getpid()
@@ -877,8 +878,11 @@ bool appendEXAMkv( //patient and study level attributes
          if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
          //retain
-         memcpy(pname, Ebuf+Eidx, vlen);
-         pnamelength=vlen;
+         u8 *keybytes=kbuf+kloc;//subbuffer for attr reading
+         struct t4r2l2 *keystruct=(struct t4r2l2*) keybytes;
+         utf8(keystruct->l,Ebuf,Eidx,vlen,pname,0,&utf8length);
+         pnamelength=utf8length;
+         pname[pnamelength]=0x00;
          Eidx+=vlen;
       };break;
 
@@ -959,22 +963,16 @@ bool appendEXAMkv( //patient and study level attributes
          if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
          //retain
-         u8 *codebytes=kbuf+kloc;//subbuffer for attr reading
-         struct t4r2l2 *codestruct=(struct t4r2l2*) codebytes;
-         switch (codestruct->t) {
-            case 0x04010800:
-               memcpy(ecode+ecodelength, Ebuf+Eidx, vlen);
-               ecodelength+=vlen;
-               ecode[ecodelength]=0x00;
-               break;
-               
-            default:
-            {
-               memcpy(ecode+ecodelength, Ebuf+Eidx, vlen);
-               ecodelength+=vlen;
-               ecode[ecodelength++]='^';
-            }
-               break;
+         u8 *keybytes=kbuf+kloc;//subbuffer for attr reading
+         struct t4r2l2 *keystruct=(struct t4r2l2*) keybytes;
+         utf8(keystruct->l,Ebuf,Eidx,vlen,ecode,ecodelength,&utf8length);
+         ecodelength+=utf8length;
+         switch (keystruct->t) {
+            case 0x00010800:
+            case 0x02010800:ecode[ecodelength++]='^';break;
+            case 0x04010800:ecode[ecodelength]=0x00;break;
+            default:E("kvecode unknown tag %08X",keystruct->t);
+            break;
          }
          Eidx+=vlen;
       };break;
