@@ -28,6 +28,7 @@ typedef unsigned int       u32;//%u
 typedef long long          s64;//%lld
 typedef unsigned long long u64;//%llu
 
+u8 intdecsize(int i);
 
 //DICOM atribute header 8 bytes tag vr vl
 struct t4r2l2 {
@@ -53,7 +54,7 @@ u16 u16swap(u16 x);
 
 extern char const  base64EncodingTable[65];
 extern char const  base64DecodingTable[128];
-bool ui2b64( unsigned char *ui, const u8 uilength, unsigned char *b64, u8 *b64length );
+bool ui2b64( char *ui, const u8 uilength, char *b64, u8 *b64length );
 
 #pragma mark - main & log
 
@@ -160,14 +161,14 @@ u32 repertoireidx( uint8_t *vbuf, u16 vallength );
 
 bool utf8
 (
- u8 repidx,
- const u8  *charbytes,
- const u32  charstart,
- size_t     charlength,
+ u32         repidx,
+ const char *charbytes,
+ const u32   charstart,
+ size_t      charlength,
  
  char      *utf8bytes,
- const u8   utf8start,
- size_t    *utf8length
+ u32        utf8start,
+ u32       *utf8length
  );
 
 
