@@ -899,28 +899,20 @@ bool appendEXAMkv( //patient and study level attributes
    Eidx+=4;
    if (vlen==0) return true;
    //value with contents
+
+   if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+   else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
+   
    switch (vrcat)
    {
-#pragma mark UID
-      case kvUI://unique ID
-      {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         Eidx+=vlen;
-      };break;
-         
       case kveuid://StudyInstanceUID
       {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
          vlenNoPadding=  vlen - (Ebuf[Eidx+vlen-1] == 0);
          if (!ui2b64( Ebuf+Eidx, vlenNoPadding, euidb64, &euidb64length )) return false;
-         
-         Eidx+=vlen;
       };break;
 
 #pragma mark generic
+      case kvUI://unique ID
       case kvFD://floating point double
       case kvFL://floating point single
       case kvSL://signed long
@@ -935,253 +927,140 @@ bool appendEXAMkv( //patient and study level attributes
       case kvTU://url encoded
       //   kvUN only private
       case kv01://OB OD OF OL OV OW SV UV
-      {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         Eidx+=vlen;
-      };break;
       case kvPN://person name
-      {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         Eidx+=vlen;
-      };break;
+         break;
 
-#pragma mark special
-
-      case kvedate://StudyDate
-      {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain study date
-         //memcpy(edate, Ebuf+Eidx, vlen);
-         edate=atoi(Ebuf+Eidx);
-         
-         Eidx+=vlen;
-      };break;
+      case kvedate: edate=atoi(Ebuf+Eidx);
+         ;break;
 
       case kvpname://Patient name
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain
          pname[0]=Eidx;
          pname[1]=vlen;
          pname[2]=kbuf[kloc+6];
-
-         Eidx+=vlen;
       };break;
 
       case kvpide://Patient id extension
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          pide[0]=Eidx;
          pide[1]=vlen;
          pide[2]=kbuf[kloc+6];
-
-         Eidx+=vlen;
       };break;
 
       case kvpidr://Patient root id issuer
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          pidr[0]=Eidx;
          pidr[1]=vlen;
-         pidr[2]=kbuf[kloc+6];;
-         
-         Eidx+=vlen;
+         pidr[2]=kbuf[kloc+6];
       };break;
 
-      case kvpbirth://Patient birthdate
-      {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         //retain
-         pbirth=atoi(Ebuf+Eidx);
-         Eidx+=vlen;
-      };break;
+      case kvpbirth: pbirth=atoi(Ebuf+Eidx);
+         break;
 
       case kvpsex://Patient sex
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         u8 sexchar=*(Ebuf+Eidx);
-         if (sexchar=='M') psex=1;
-         else if (sexchar=='F') psex=2;
-         else if (sexchar=='O') psex=9;
-         else psex=0;
-         Eidx+=vlen;
+         switch (*(Ebuf+Eidx)) {
+            case 'M':psex=1;
+               break;
+            case 'F':psex=2;
+               break;
+            case 'O':psex=9;
+               break;
+            default:psex=0;
+               break;
+         }
       };break;
 
       case kveid://StudyID
       {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-
-         //retain
          eid[0]=Eidx;
          eid[1]=vlen;
-         eid[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         eid[2]=kbuf[kloc+6];
       };break;
 
       case kvean://AccessionNumber
       {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          ean[0]=Eidx;
          ean[1]=vlen;
-         ean[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         ean[2]=kbuf[kloc+6];
       };break;
 
       case kveal://AccessionNumberIssuer local 00080051.00400031
       {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         memcpy(eal, Ebuf+Eidx, vlen);
-
-         //retain static
          eal[0]=Eidx;
          eal[1]=vlen;
-         eal[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         eal[2]=kbuf[kloc+6];
       };break;
 
       case kveau://AccessionNumberIssuer universal 00080051.00400032
       {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          eau[0]=Eidx;
          eau[1]=vlen;
-         eau[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         eau[2]=kbuf[kloc+6];
       };break;
 
       case kveat://AccessionNumberType
       {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          eat[0]=Eidx;
          eat[1]=vlen;
-         eat[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         eat[2]=kbuf[kloc+6];
       };break;
 
 
       case kvimg://InstitutionName (placed in exam instead of series)
       {
-         if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-
-         //retain
          img[0]=Eidx;
          img[1]=vlen;
-         img[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         img[2]=kbuf[kloc+6];
       };break;
 
       case kvcda://study CDA (reading)
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          cda[0]=Eidx;
          cda[1]=vlen;
-         cda[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         cda[2]=kbuf[kloc+6];
       };break;
 
       case kvreq://study requesting
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          req[0]=Eidx;
          req[1]=vlen;
-         req[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         req[2]=kbuf[kloc+6];
       };break;
          
       case kvref://study referring
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          ref[0]=Eidx;
          ref[1]=vlen;
-         ref[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         ref[2]=kbuf[kloc+6];
       };break;
 
          
       case kvpay://00101050 kvpay LO pay insurance plan identification
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          pay[0]=Eidx;
          pay[1]=vlen;
-         pay[2]=kbuf[kloc+6];;
-
-         Eidx+=vlen;
+         pay[2]=kbuf[kloc+6];
       };break;
 
       case kvedesc://study description
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         
-         //retain static
          edesc[0]=Eidx;
          edesc[1]=vlen;
          edesc[2]=kbuf[kloc+6];
-
-         Eidx+=vlen;
       };break;
 
       case kvecode://study code
       {
-         if (fromStdin){if (edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-         //retain
          utf8(kbuf[kloc+6],Ebuf,Eidx,vlen,ecode,ecodelength,&utf8length);
          ecodelength+=utf8length;
          ecode[ecodelength++]='^';
          ecodecharset=kbuf[kloc+6];
-         
-         Eidx+=vlen;
       };break;
 
       default: return false;
    }
+   Eidx+=vlen;
    return true;
 }
 
