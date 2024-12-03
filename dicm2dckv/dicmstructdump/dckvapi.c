@@ -139,7 +139,7 @@ bool appendkv(
 
          case kvTU://UR
             
-         case kved://OB Encapsulated​Document 00420011
+         case kvsxml://OB Encapsulated​Document 00420011
          case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
          case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
          case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
@@ -276,9 +276,9 @@ bool appendkv(
             printf("\n");
          }break;
             
-         case kvII://SOPInstanceUID
+         case kviuid://SOPInstanceUID
          case kveuid://StudyInstanceUID
-         case kvIS://SeriesInstanceUID
+         case kvsuid://SeriesInstanceUID
          case kvUI://unique ID
          {
             printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
@@ -300,15 +300,15 @@ bool appendkv(
          case kvedate://StudyDate
          case kvTP:
             
-         case kvSm://Modality
+         case kvsmod://Modality
          case kveat://AccessionNumberType
-         case kvIs://SeriesNumber
-         case kvIi://InstanceNumber
-         case kvIa://AcquisitionNumber
+         case kvsnumber://SeriesNumber
+         case kvinumber://InstanceNumber
+         case kvianumber://AcquisitionNumber
          case kvTA://AE DS IS CS
             
-         case kvdn://ST  DocumentTitle 00420010
-         case kvHC://HL7InstanceIdentifier
+         case kvsdoctitle://ST  DocumentTitle 00420010
+         case kvscdaid://HL7InstanceIdentifier
          case kveid://StudyID
          case kvean://AccessionNumber
          case kvimg://InstitutionName

@@ -13,11 +13,11 @@ const u32 B00080100=0x00010800;//code
 const u32 B00080102=0x02010800;//domain
 const u32 B00080104=0x04010800;//title
 
-const u32 B00080018=0x18000800;//kvII UI SOPInstanceUID
+const u32 B00080018=0x18000800;//kviuid UI SOPInstanceUID
 const u32 B0020000D=0x0D002000;//kveuid UI StudyInstanceUID
-const u32 B0020000E=0x0E002000;//kvIS UI SeriesInstanceUID
+const u32 B0020000E=0x0E002000;//kvsuid UI SeriesInstanceUID
 
-const u32 B0040E001=0x0E002000;//kvHC ST CDA root^extension
+const u32 B0040E001=0x0E002000;//kvscdaid ST CDA root^extension
 
 const u32 B00100010=0x10001000;//kvpname PN Patient nanme
 const u32 B00100020=0x20001000;//kvpide LO Patient id
@@ -25,7 +25,9 @@ const u32 B00100021=0x21001000;//kvpidr LO Patient id issuer
 const u32 B00100030=0x30001000;//kvpbirth DA Patient bBirthdate
 const u32 B00100040=0x40001000;//kvpsex CS Patient sex
 
-const u32 B00080020=0x20000800;//kvEd DA StudyDate
+const u32 B00080020=0x20000800;//kvedate DA StudyDate
+const u32 B00080021=0x21000800;//kvsdate DA SeriesDate
+const u32 B00080031=0x31000800;//kvstime DA SeriesTime
 const u32 B00200010=0x10002000;//kveid SH StudyID
 const u32 B00081030=0x30100800;//kvedesc LO Study name
 const u32 B00081032=0x32100800;//kvecode SQ Study code
@@ -34,11 +36,12 @@ const u32 B00321032=0x32103200;//kvreq PN requesting
 
 const u32 B00081060=0x60100800;//kvcda PN CDA writer (reading)
 const u32 B00101050=0x50101000;//kvpay LO pay insurance plan identification
-const u32 B00080060=0x60000800;//kvSm CS Modality
+const u32 B00080060=0x60000800;//kvsmod CS Modality
 
-const u32 B00200011=0x11002000;//kvIs IS SeriesNumber
-const u32 B00200012=0x12002000;//kvIa IS AcquisitionNumber
-const u32 B00200013=0x13002000;//kvIi IS InstanceNumber
+const u32 B00200011=0x11002000;//kvsnumber IS SeriesNumber
+const u32 B00200012=0x12002000;//kvianumber IS AcquisitionNumber
+const u32 B00200013=0x13002000;//kvinumber IS InstanceNumber
+const u32 B0008103E=0x3E100800;//kvedesc LO Series name
 
 const u32 B00080050=0x50000800;//kvean SH Accession​Number
 const u32 B00080051=0x51000800;//kvean SQ Accession​NumberIssuer
@@ -50,8 +53,8 @@ const u32 B00400033=0x33004000;//kveat CS Accession​Number type
 
 const u32 B00081150=0x50110800;
 
-const u32 B00420010=0x10004200;//kvdn ST DocumentTitle
-const u32 B00420011=0x11004200;//kved OB EncapsulatedDocument
+const u32 B00420010=0x10004200;//kvsdoctitle ST DocumentTitle
+const u32 B00420011=0x11004200;//kvsxml OB EncapsulatedDocument
 
 const u32 B7FE00001=0x0100E07F;//kvfo Extended​Offset​Table
 const u32 B7FE00002=0x0200E07F;//kvfl Extended​Offset​TableLengths
@@ -468,9 +471,9 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
             
             switch (attrstruct->t) {
-               case B00080018: if (!appendkv(kbuf,kloc,isshort,kvII,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00080018: if (!appendkv(kbuf,kloc,isshort,kviuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                case B0020000D: if (!appendkv(kbuf,kloc,isshort,kveuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
-               case B0020000E: if (!appendkv(kbuf,kloc,isshort,kvIS,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B0020000E: if (!appendkv(kbuf,kloc,isshort,kvsuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                case B00081150:{
                   if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
                   
@@ -498,7 +501,7 @@ bool dicm2dckvDataset(
             *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
-               case B00080060: if (!appendkv(kbuf,kloc,isshort,kvSm,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00080060: if (!appendkv(kbuf,kloc,isshort,kvsmod,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                case B00100040: if (!appendkv(kbuf,kloc,isshort,kvpsex,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                   
                case B00400033:{ //kveat CS Accession​Number type
@@ -540,12 +543,26 @@ bool dicm2dckvDataset(
 #pragma mark vl ascii
          case AS://age string
          case DT://date time
-         case TM://time
          {
             *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             if (!appendkv(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
+            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+         } break;
+         case TM://time
+         {
+            *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
+            attrstruct->l=REPERTOIRE_GL;
+            switch (attrstruct->t) {
+               case B00080031:
+                  if (!appendkv(kbuf,kloc,isshort,kvstime,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               default:
+                  if (!appendkv(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+            }
+             *inloc += 8 + *vlen;
             if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
          } break;
          case DA://date
@@ -555,6 +572,9 @@ bool dicm2dckvDataset(
             switch (attrstruct->t) {
                case B00080020:
                   if (!appendkv(kbuf,kloc,isshort,kvedate,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               case B00080021:
+                  if (!appendkv(kbuf,kloc,isshort,kvsdate,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00100030:
                   if (!appendkv(kbuf,kloc,isshort,kvpbirth,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -584,13 +604,13 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
                case B00200011:
-                  if (!appendkv(kbuf,kloc,isshort,kvIs,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!appendkv(kbuf,kloc,isshort,kvsnumber,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00200012:
-                  if (!appendkv(kbuf,kloc,isshort,kvIa,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!appendkv(kbuf,kloc,isshort,kvianumber,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00200013:
-                  if (!appendkv(kbuf,kloc,isshort,kvIi,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!appendkv(kbuf,kloc,isshort,kvinumber,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
                   if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -636,6 +656,9 @@ bool dicm2dckvDataset(
                   break;
                case B00081030://study description
                   if (!appendkv(kbuf,kloc,isshort,kvedesc,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  break;
+               case B0008103E://series description
+                  if (!appendkv(kbuf,kloc,isshort,kvsdesc,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00101050://insurance plan identification
                   if (!appendkv(kbuf,kloc,isshort,kvpidr,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -708,11 +731,11 @@ bool dicm2dckvDataset(
             *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=keycs;
             switch (attrstruct->t) {
-               case B0040E001://kvHC ST CDA root^extension
-                  if (!appendkv(kbuf,kloc,isshort,kvHC,*inloc,*vlen,fromStdin,vbuf)) return false;
+               case B0040E001://kvscdaid ST CDA root^extension
+                  if (!appendkv(kbuf,kloc,isshort,kvscdaid,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
-               case B00420010://kvdn ST DocumentTitle 00420010
-                  if (!appendkv(kbuf,kloc,isshort,kvdn,*inloc,*vlen,fromStdin,vbuf)) return false;
+               case B00420010://kvsdoctitle ST DocumentTitle 00420010
+                  if (!appendkv(kbuf,kloc,isshort,kvsdoctitle,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
                   if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
@@ -768,7 +791,7 @@ bool dicm2dckvDataset(
             *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B00420011:
-                  if (!appendkv(kbuf,kloc,islong,kved,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!appendkv(kbuf,kloc,islong,kvsxml,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B7FE00010:
                {

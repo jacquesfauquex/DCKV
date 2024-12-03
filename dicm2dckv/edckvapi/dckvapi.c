@@ -524,7 +524,8 @@ const u32 PCStag[]={
    L0008009DE,//SQ Consulting​Physician​Identification​Sequence
    L00081010S,//SH Station​Name
    L00081030E,//LO Study​Description
-   L00081032E,//SQ Procedure​Code​Sequence   L0008103ES,//LO Series​Description
+   L00081032E,//SQ Procedure​Code​Sequence
+   L0008103ES,//LO Series​Description
    L0008103FS,//SQ Series​Description​Code​Sequence
    L00081040S,//LO Institutional​Department​Name
    L00081041S,//SQ Institutional​Department​Type​Code​Sequence
@@ -772,7 +773,8 @@ const u8 PCStype[]={
    C,//SQ Consulting​Physician​Identification​Sequence
    S,//SH Station​Name
    C,//LO Study​Description
-   C,//SQ Procedure​Code​Sequence   L0008103ES,//LO Series​Description
+   C,//SQ Procedure​Code​Sequence
+   S,//LO Series​Description
    S,//SQ Series​Description​Code​Sequence
    S,//LO Institutional​Department​Name
    S,//SQ Institutional​Department​Type​Code​Sequence

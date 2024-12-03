@@ -69,11 +69,6 @@ static bool isexplicit;
 
 static u32 vlenNoPadding;
 
-//static size_t bytesWritten;
-
-const char *space=" ";
-const char *backslash = "\\";
-
 //buffers ...
 //start with 0xFFFF size
 //and is reallocated with same increment in size each time the current space is filled up
@@ -98,25 +93,6 @@ static u32 Cmax=0;
 
 static u32 utf8length;
 static char utf8bytes[256];
-
-//variables for E sqlite
-
-
-
-
-static char sdate[]={ 0x0,0x0,0x0,0x0,0x0,0x0,0x0 };
-static char stime[]={ 0x0,0x0,0x0,0x0,0x0,0x0,0x0 };
-static char suidb64[44];
-static u8   suidb64length;
-static char snumber[17];//15 issuer type
-static u8   snumberlength;
-static char sclass[17];//15 issuer type
-static u8   sclasslength;
-static char smod[17];//15 issuer type
-static u8   smodlength;
-static char sdescc[256];//15 issuer type
-static u8   sdesclength;
-
 
 static char iuidb64[44];
 static u8   iuidb64length;
@@ -143,29 +119,46 @@ static u64 pf16=0;
 
 #pragma mark - methods
 
-//e static
-static u32  edate;//9
+//pk
+//procid
+static u32  edate;
 static char euidb64[44];
 static u8   euidb64length;
-static u32  pname[3];//7 patient name [0] offset [1] length [2] charset
-static u32  pide[3];//7 patient id LO
-static u32  pidr[3];//8 patient id issuer LO
-static u32  pbirth;//9
-static u8   psex=0;//10 CS
-static u32  eid[3];//11 study id
-static u32  ean[3];//12 accession number
-static u32  eal[3];//13 issuer local
-static u32  eau[3];//14 issuer universal
-static u32  eat[3];//15 issuer type
-static u32  img[3];//16 realisationstatic u8   imglength;
-static u32  cda[3];//17 cda (reading)
-static u32  req[3];//18 requesting
-static u32  ref[3];//19 requesting
-static u32  pay[3];//20 patient id LO
-static u32  edesc[3];//21 patient id LO
-static char ecode[256];//22 code^lexique^title
+static u32  pname[3];// patient name [0] offset [1] length [2] charset
+static u32  pide[3];// patient id LO
+static u32  pidr[3];// patient id issuer LO
+static u32  pbirth;//
+static u8   psex=0;// CS
+static u32  eid[3];// study id
+static u32  ean[3];// accession number
+static u32  eal[3];// issuer local
+static u32  eau[3];// issuer universal
+static u32  eat[3];// issuer type
+static u32  img[3];// realisationstatic
+static u32  cda[3];// cda (reading)
+static u32  req[3];// requesting
+static u32  ref[3];// requesting
+static u32  pay[3];// patient id LO
+static u32  edesc[3];// patient id LO
+static char ecode[256];// code^lexique^title
 static u8   ecodelength;
 static u8   ecodecharset;
+//emoods
+
+//fk
+//pk
+static u32  sdate;
+static u32  stime;
+static char suidb64[44];
+static u8   suidb64length;
+static u32  sxml[2];
+//static u32  spdf[3];
+static u32  snumber;//unsigned because we sum up 0x8000
+//static u32  doctitle[3];
+static u32  sopidx;
+static u32  smod[2];
+static u32  sdesc[3];
+//sframes
 bool createedckv(
    const char * dstdir,
    uint8_t    * vbuf,
@@ -267,7 +260,7 @@ bool createedckv(
 
    //static sopclass idx
    pc16=*soidx;
-
+   sopidx=*soidx;
    //static base/pid path
    strcat(dirpath,dstdir);
    dirpathlength=strlen(dstdir);
@@ -337,52 +330,73 @@ bool einsert()
    // int pk
    sqlite3_bind_int(einsertstmt,  1, getpid());
    sqlite3_bind_int(einsertstmt,  2, edate);
+   edate=0;
    sqlite3_bind_text(einsertstmt, 3, euidb64,euidb64length, NULL);
    sqlite3_bind_blob(einsertstmt, 4, Ebuf, Eidx, NULL);//3 dckv
    sqlite3_bind_blob(einsertstmt, 5, hashbytes,BLAKE3_OUT_LEN, NULL);
    
    utf8(pname[2],Ebuf,pname[0],pname[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt, 6, utf8bytes,utf8length, SQLITE_TRANSIENT);//patient name
+   pname[0]=pname[1]=pname[2]=0;
    
    sqlite3_bind_text(einsertstmt, 7, Ebuf+pide[0],pide[1], NULL);//id extension
+   pide[0]=pide[1]=0;
+   
    sqlite3_bind_text(einsertstmt, 8, Ebuf+pidr[0],pidr[1], NULL);//id root (issuer)
-   sqlite3_bind_int(einsertstmt,  9, pbirth);//patient birthdate
-   sqlite3_bind_int(einsertstmt, 10, psex);//patient sex 1=M, 2=F, 9=O
+   pidr[0]=pidr[1]=0;
 
+   sqlite3_bind_int(einsertstmt,  9, pbirth);//patient birthdate
+   pbirth=0;
+   
+   sqlite3_bind_int(einsertstmt, 10, psex);//patient sex 1=M, 2=F, 9=O
+   psex=0;
+   
    utf8(eid[2],Ebuf,eid[0],eid[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt, 11, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   eid[0]=eid[1]=eid[2]=0;
 
    utf8(ean[2],Ebuf,ean[0],ean[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,12, utf8bytes,utf8length, SQLITE_TRANSIENT);
- 
+   ean[0]=ean[1]=ean[2]=0;
+
    utf8(eal[2],Ebuf,eal[0],eal[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,13, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   eal[0]=eal[1]=eal[2]=0;
 
    utf8(eau[2],Ebuf,eau[0],eau[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,14, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   eau[0]=eau[1]=eau[2]=0;
 
    utf8(eat[2],Ebuf,eat[0],eat[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,15, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   eat[0]=eat[1]=eat[2]=0;
 
    utf8(img[2],Ebuf,img[0],img[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,16, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   img[0]=img[1]=img[2]=0;
 
    utf8(cda[2],Ebuf,cda[0],cda[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,17, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   cda[0]=cda[1]=cda[2]=0;
 
    utf8(req[2],Ebuf,req[0],req[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,18, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   req[0]=req[1]=req[2]=0;
 
    utf8(ref[2],Ebuf,ref[0],ref[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,19, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   ref[0]=ref[1]=ref[2]=0;
 
    utf8(pay[2],Ebuf,pay[0],pay[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,20, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   pay[0]=pay[1]=pay[2]=0;
 
    utf8(edesc[2],Ebuf,edesc[0],edesc[1],utf8bytes,0,&utf8length);
    sqlite3_bind_text(einsertstmt,21, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   edesc[0]=edesc[1]=edesc[2]=0;
 
    sqlite3_bind_text(einsertstmt,22, ecode,ecodelength, SQLITE_TRANSIENT);
+   ecodelength=0;
    //mods
 
    dbrc = sqlite3_step(einsertstmt);
@@ -398,32 +412,47 @@ bool einsert()
 
 bool sinsert()
 {
-   /*
    // int pk
-   sqlite3_bind_int(einsertstmt,  1, currentEpk);
-   sqlite3_bind_int(einsertstmt,  2, atoi(sdate));
-   sqlite3_bind_int(einsertstmt,  3, atoi(stime));
-   sqlite3_bind_text(einsertstmt, 4, suidb64,suidb64length, NULL);
-   sqlite3_bind_blob(einsertstmt, 5, Sbuf, Sidx, NULL);//3 dckv
-   sqlite3_bind_blob(einsertstmt, 6, hashbytes,BLAKE3_OUT_LEN, NULL);
-   sqlite3_bind_text(einsertstmt, 7, sxml,sxmllength, NULL);//
-   sqlite3_bind_blob(einsertstmt, 8, spdf,spdflength, NULL);//
-   sqlite3_bind_int(einsertstmt,  9, snumber);//
-   sqlite3_bind_int(einsertstmt, 10, sclass);//
-   sqlite3_bind_text(einsertstmt,11, smod,smodlength, NULL);
-   sqlite3_bind_text(einsertstmt,12, sdesc,sdesclength, NULL);
-   sqlite3_bind_blob(einsertstmt,13, sicon,siconlength, NULL);
-   sqlite3_bind_int(einsertstmt, 14, 0);
+   sqlite3_bind_int(sinsertstmt,  1, currentEpk);
+   
+   sqlite3_bind_int(sinsertstmt,  2, sdate);
+   sdate=0;
+   
+   sqlite3_bind_int(sinsertstmt,  3, stime);
+   stime=0;
+   
+   sqlite3_bind_text(sinsertstmt, 4, suidb64,suidb64length, NULL);
+   sqlite3_bind_blob(sinsertstmt, 5, Sbuf, Sidx, NULL);//3 dckv
+   sqlite3_bind_blob(sinsertstmt, 6, hashbytes,BLAKE3_OUT_LEN, NULL);
+   
+   
+   sqlite3_bind_text(sinsertstmt, 7, Sbuf+sxml[0],sxml[1], NULL);
+   //sqlite3_bind_blob(sinsertstmt, 8, spdf,spdflength, NULL);
+   sxml[0]=sxml[1]=0;
+   
+   sqlite3_bind_int(sinsertstmt,  9, snumber);
+   snumber=0;
+   
+   sqlite3_bind_int(sinsertstmt, 10, sopidx);//
+   sqlite3_bind_text(sinsertstmt,11, Sbuf+smod[0],smod[1], NULL);
+   smod[0]=smod[1]=0;
+   
+   utf8(sdesc[2],Sbuf,sdesc[0],sdesc[1],utf8bytes,0,&utf8length);
+   sqlite3_bind_text(sinsertstmt,12, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   sdesc[0]=sdesc[1]=sdesc[2]=0;
+   
+   //sqlite3_bind_blob(sinsertstmt,13, sicon,siconlength, NULL);
+   sqlite3_bind_int(sinsertstmt, 14, 0);
    
 
-   dbrc = sqlite3_step(einsertstmt);
+   dbrc = sqlite3_step(sinsertstmt);
    if (dbrc != SQLITE_DONE )
    {
-      fprintf(stderr, "einsertstmt error: %s\n", dberr);
+      fprintf(stderr, "sinsertstmt error: %s\n", dberr);
       return false;
    }
-   sqlite3_reset(einsertstmt);
-    */
+   sqlite3_reset(sinsertstmt);
+
    return true;
 }
 
@@ -662,7 +691,7 @@ bool commitedckv(s16 *siidx)
          bool notRegistered=true;
          while (notRegistered)
          {
-            registeredhashbytes=(u8 *)(sqlite3_column_blob(eblake3stmt, 1));
+            registeredhashbytes=(u8 *)(sqlite3_column_blob(sblake3stmt, 1));
             //equals?
             if (memcmp(hashbytes, registeredhashbytes, BLAKE3_OUT_LEN)==0)
             {
@@ -907,8 +936,7 @@ bool appendEXAMkv( //patient and study level attributes
    {
       case kveuid://StudyInstanceUID
       {
-         vlenNoPadding=  vlen - (Ebuf[Eidx+vlen-1] == 0);
-         if (!ui2b64( Ebuf+Eidx, vlenNoPadding, euidb64, &euidb64length )) return false;
+         if (!ui2b64( Ebuf+Eidx, vlen - (Ebuf[Eidx+vlen-1] == 0), euidb64, &euidb64length )) return false;
       };break;
 
 #pragma mark generic
@@ -1095,30 +1123,18 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
    Sidx+=4;
    if (vlen==0) return true;
    //value with contents
+
+   if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
+   else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
    switch (vrcat)
    {
-#pragma mark UID
-      case kvUI://unique ID
+      case kvsuid://SeriesInstanceUID
       {
-         if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
-         Sidx+=vlen;
+         if (!ui2b64( Sbuf+Sidx, vlen - (Sbuf[Sidx+vlen-1] == 0), suidb64, &suidb64length )) return false;
       };break;
-         
-      case kvIS://SeriesInstanceUID
-      {
-         if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
-         
-         vlenNoPadding=  vlen - (Sbuf[Sidx+vlen-1] == 0);
-#pragma mark TODO         //series index
-         //if (!ui2b64( Sbuf+Sidx, vlenNoPadding, euidb64, &euidb64length )) return false;
-         
-         Eidx+=vlen;
-      };break;
-
 
 #pragma mark generic
+      case kvUI://unique ID
       case kvFD://floating point double
       case kvFL://floating point single
       case kvSL://signed long
@@ -1134,47 +1150,53 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
       case kvPN://person name
       //   kvUN only private
       case kv01://OB OD OF OL OV OW SV UV
+
+      case kvsdoctitle://ST  DocumentTitle 00420010
+      case kvscdaid://HL7InstanceIdentifier
+         break;
+
 #pragma mark special
-      case kvdn://ST  DocumentTitle 00420010
-      case kvHC://HL7InstanceIdentifier
-      case kvSm://Modality
-      {
-         if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
-         Sidx+=vlen;
-      };break;
+      
+      case kvsdate: sdate=atoi(Sbuf+Sidx);
+         break;
+      case kvstime: stime=atoi(Sbuf+Sidx);
+           break;
 
-      case kvIs://SeriesNumber
+      case kvsxml://OB Encapsulated​Document 00420011
       {
-         if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
-         Sidx+=vlen;
-
-         //retain series number
-         s16 Shd;
-         sscanf((char*)vbuf,"%hd",&Shd);
-         ps16=Shd+0x8000;
-      }break;
-         
-      case kved://OB Encapsulated​Document 00420011
-      {
-         if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
-         
          //replace everything after last > with spaces
          vlenNoPadding=Sidx+vlen-1;
          while (Sbuf[vlenNoPadding]!='>')
          {
+            printf("%d",Sbuf[vlenNoPadding]);
+            
             Sbuf[vlenNoPadding]=' ';
             vlenNoPadding--;
          }
+         sxml[0]=Sidx;
+         sxml[1]=vlenNoPadding-Sidx+1;
          
-         Sidx+=vlen;
-      };break;
+      } break;
 
+      case kvsnumber:snumber=atoi(Sbuf+Sidx)+0x8000;
+           break;
          
+      case kvsmod://Modality
+      {
+         smod[0]=Sidx;
+         smod[1]=vlen;
+      } break;
+
+      case kvsdesc:
+      {
+         sdesc[0]=Sidx;
+         sdesc[1]=vlen;
+         sdesc[2]=kbuf[kloc+6];
+      } break;
+
       default: return false;
    }
+   Sidx+=vlen;
    return true;
 }
 
@@ -1282,15 +1304,13 @@ bool appendDEFAULTkv( //any other instance level attribute
    //value with contents
 
 
+   if (fromStdin){if(edckvapi_fread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
+   else memcpy(Ibuf+Iidx, vbuf, vlen);//from vbuf
    switch (vrcat)
    {
 #pragma mark UID
-      case kvII://SOPInstanceUID
-      case kvUI://unique ID
+      case kviuid://SOPInstanceUID
       {
-         if (fromStdin){if(edckvapi_fread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ibuf+Iidx, vbuf, vlen);//from vbuf
-         Iidx+=vlen;
       };break;
 
 #pragma mark generic
@@ -1309,23 +1329,17 @@ bool appendDEFAULTkv( //any other instance level attribute
       case kvPN://person name
       //   kvUN only private
       case kv01://OB OD OF OL OV OW SV UV
+      case kvUI://unique ID
 #pragma mark special
       case kvfo://OV 31 Extended​Offset​Table fragments offset 7FE00001
       case kvfl://OV 32 Extended​Offset​TableLengths fragments offset 7FE00002
       case kvft://UV 33 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-      case kvIa://AcquisitionNumber
+      case kvianumber://AcquisitionNumber
       {
-         if (fromStdin){if(edckvapi_fread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ibuf+Iidx, vbuf, vlen);//from vbuf
-         Iidx+=vlen;
       };break;
 
-      case kvIi://InstanceNumber needed for Iprefix
+      case kvinumber://InstanceNumber needed for Iprefix
       {
-         if (fromStdin){if(edckvapi_fread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Ibuf+Iidx, vbuf, vlen);//from vbuf
-         Iidx+=vlen;
-
          //retain series number
          s16 Ihd;
          sscanf((char*)vbuf,"%hd",&Ihd);
@@ -1334,6 +1348,7 @@ bool appendDEFAULTkv( //any other instance level attribute
 
       default: return false;
    }
+   Iidx+=vlen;
    return true;
 }
 

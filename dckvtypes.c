@@ -6,10 +6,10 @@
 
 const char *kvVRlabels[]={
    "kvUI",
-   "kvII",
+   "kviuid",
    "kveuid",
-   "kvIS",
-   "kvIP",
+   "kvsuid",
+   "kvpyramiduid",
    
    "kvFD",
    "kvFL",
@@ -33,21 +33,23 @@ const char *kvVRlabels[]={
    "kvpay",
 
    "kvTP",
-   "kvEd",
+   "kvedate",
+   "kvsdate",
+   "kvstime",
    
    "kvTA",
-   "kvSm",
+   "kvsmod",
    "kveat",
-   "kvIs",
-   "kvIi",
-   "kvIa",
+   "kvsnumber",
+   "kvinumber",
+   "kvianumber",
    "kvIT",
    
    "kvTS",
-   "kvHC",
+   "kvscdaid",
    "kveid",
    "kvean",
-   "kvdn",
+   "kvsdesc",
    "kvimg",
    
    "kvTL",
@@ -58,7 +60,7 @@ const char *kvVRlabels[]={
    
    "kvPN",
    
-   "kved",
+   "kvsxml",
    "kvfo",
    "kvfl",
    "kvft",

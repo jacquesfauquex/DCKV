@@ -29,10 +29,10 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 
 enum kvVRcategory{
 kvUI,//UI 0 unique ID eventualmente terminado por 0x00
-               kvII,//UI 1 SOPInstanceUID
-          kvIS,//UI 2 SeriesInstanceUID
+               kviuid,//UI 1 SOPInstanceUID
+          kvsuid,//UI 2 SeriesInstanceUID
      kveuid,//UI 3 StudyInstanceUID
-kvIP,//UI 4 00080019 PyramidUID
+kvpyramiduid,//UI 4 00080019 PyramidUID
 
 kvFD,//FD 5 floating point double
 kvFL,//FL 6 floating point single
@@ -49,6 +49,7 @@ kvpbirth,//DA patient birthdate
 kvpsex,//CS patient sex
 
 kvedesc,//LO Study name
+kvsdesc,//LO Series name
 kvecode,//SQ Study code
 kvref,//PN referring
 kvreq,//PN requesting
@@ -57,20 +58,22 @@ kvpay,//LO insurance
 
 kvTP,//AS DT TM DA 11 text short ascii pair length
     kvedate,//DA 12 StudyDate
+    kvsdate,//DA
+    kvstime,//TM
 
 kvTA,//AE DS IS CS 13 text short ascii
-          kvSm,//CS 14 Modality
+          kvsmod,//CS 14 Modality
      kveat,//CS 15 AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400,X500,...)
-          kvIs,//IS 16 SeriesNumber
-               kvIi,//IS 17 InstanceNumber
-     kvIa,//IS 18 AcquisitionNumber
+          kvsnumber,//IS 16 SeriesNumber
+               kvinumber,//IS 17 InstanceNumber
+               kvianumber,//IS 18 AcquisitionNumber
      kvIT,//CS 00080008 ImageType
 
 kvTS,//LO LT SH ST 19 text short charset
-          kvHC,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
+          kvscdaid,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
      kveid,//SH 21 StudyID
      kvean,//SH 22 AccessionNumber 00080050
-          kvdn,//ST 23 DocumentTitle 00420010
+          kvsdoctitle,//ST 23 DocumentTitle 00420010
      kvimg,//LO 24 InstitutionName 00080080
    
 kvTL,//UC UT 25 text long charset
@@ -81,7 +84,7 @@ kvTU,//UR 28 text long url-encoded
    
 kvPN,//PN 29 person name has a special treatment in json and xml
 
-          kved,//OB 30 Encapsulated​Document 00420011
+          kvsxml,//OB 30 Encapsulated​Document 00420011
                kvfo,//OV 31 Extended​Offset​Table fragments offset 7FE00001
                kvfl,//OV 32 Extended​Offset​TableLengths fragments offset 7FE00002
                kvft,//UV 33 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
