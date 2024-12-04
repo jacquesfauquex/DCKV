@@ -94,8 +94,8 @@
             filePath = "dckvtypes.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "180"
-            endingLineNumber = "180"
+            startingLineNumber = "297"
+            endingLineNumber = "297"
             landmarkName = "ui2b64(ui, uilength, b64, b64length)"
             landmarkType = "9">
          </BreakpointContent>
@@ -119,22 +119,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7D5990D8-5570-4967-8603-86E65D0231F6"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "513"
-            endingLineNumber = "513"
-            landmarkName = "commitedckv(siidx)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "1DDF6A1F-43EE-48A6-AE67-B3D265B3EF1B"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -142,24 +126,8 @@
             filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "484"
-            endingLineNumber = "484"
-            landmarkName = "commitedckv(siidx)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7EABA708-2182-47DA-A5F4-50F5F40FCFE4"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "552"
-            endingLineNumber = "552"
+            startingLineNumber = "709"
+            endingLineNumber = "709"
             landmarkName = "commitedckv(siidx)"
             landmarkType = "9">
          </BreakpointContent>
@@ -174,8 +142,8 @@
             filePath = "dicm2dckv/dicm2dckv.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "341"
-            endingLineNumber = "341"
+            startingLineNumber = "361"
+            endingLineNumber = "361"
             landmarkName = "dicm2dckvDataset(kbuf, kloc, readfirstattr, keycs, lbuf, vlen, vbuf, fromStdin, inloc, beforebyte, beforetag, soidx, stidx)"
             landmarkType = "9">
          </BreakpointContent>
@@ -190,8 +158,8 @@
             filePath = "dicm2dckv/edckvapi/dckvapi.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1125"
-            endingLineNumber = "1125"
+            startingLineNumber = "1127"
+            endingLineNumber = "1127"
             landmarkName = "appendkv(kbuf, kloc, vlenisl, vrcat, vloc, vlen, fromStdin, vbuf)"
             landmarkType = "9">
          </BreakpointContent>
@@ -206,9 +174,9 @@
             filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "938"
-            endingLineNumber = "938"
-            landmarkName = "appendPRIVATEkv(kbuf, kloc, vlenisl, vrcat, vloc, vlen, fromStdin, vbuf)"
+            startingLineNumber = "1370"
+            endingLineNumber = "1370"
+            landmarkName = "commitedckv(siidx)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -222,8 +190,8 @@
             filePath = "dicm2dckv/edckvapi/dckvapi.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1172"
-            endingLineNumber = "1172"
+            startingLineNumber = "1174"
+            endingLineNumber = "1174"
             landmarkName = "appendkv(kbuf, kloc, vlenisl, vrcat, vloc, vlen, fromStdin, vbuf)"
             landmarkType = "9">
          </BreakpointContent>
@@ -238,8 +206,8 @@
             filePath = "dicm2dckv/dicm2dckv.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1112"
-            endingLineNumber = "1112"
+            startingLineNumber = "1225"
+            endingLineNumber = "1225"
             landmarkName = "dicm2dckvDataset(kbuf, kloc, readfirstattr, keycs, lbuf, vlen, vbuf, fromStdin, inloc, beforebyte, beforetag, soidx, stidx)"
             landmarkType = "9">
          </BreakpointContent>
@@ -254,25 +222,9 @@
             filePath = "dicm2dckv/dicm2dckv.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "298"
-            endingLineNumber = "298"
+            startingLineNumber = "318"
+            endingLineNumber = "318"
             landmarkName = "dicm2dckvInstance(dstdir, kbuf, vbuf, lbuf, vlen, inloc, beforebyte, beforetag, soloc, solen, soidx, siloc, silen, stloc, stlen, stidx, siidx)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "3CCFDE8F-57D7-4AC3-B475-A88B198D90F1"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "813"
-            endingLineNumber = "813"
-            landmarkName = "appendSERIESkv(kbuf, kloc, vlenisl, vrcat, vloc, vlen, fromStdin, vbuf)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -295,31 +247,127 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "EF30B6E8-C423-43B2-A53A-256826E4B171"
-            shouldBeEnabled = "Yes"
+            uuid = "FABD11EA-066F-42C2-9598-D456BB1D969A"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
+            filePath = "dicm2dckv/dicm2dckv.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "181"
-            endingLineNumber = "181"
-            landmarkName = "createedckv(dstdir, vbuf, soloc, solen, soidx, siloc, silen, stloc, stlen, stidx, siidx)"
+            startingLineNumber = "503"
+            endingLineNumber = "503"
+            landmarkName = "dicm2dckvDataset(kbuf, kloc, readfirstattr, keycs, lbuf, vlen, vbuf, fromStdin, inloc, beforebyte, beforetag, soidx, stidx)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "D7AE0A39-560A-41C3-B2D9-7898243EC8D4"
+            uuid = "8993BEE8-700B-46A8-A899-8443A5A4B141"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/dicm2dckv.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "706"
+            endingLineNumber = "706"
+            landmarkName = "dicm2dckvDataset(kbuf, kloc, readfirstattr, keycs, lbuf, vlen, vbuf, fromStdin, inloc, beforebyte, beforetag, soidx, stidx)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "108F1D8D-F3A2-4D9B-986F-0F15789B5439"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "419"
+            endingLineNumber = "419"
+            landmarkName = "einsert()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "41B1322B-6BE4-4566-BD8A-236EC084409D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/edckvapi/dckvapi.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "335"
+            endingLineNumber = "335"
+            landmarkName = "unknown"
+            landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AF7CC756-2704-430A-9ABA-3B1F2A6FDD7A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "800"
+            endingLineNumber = "800"
+            landmarkName = "commitedckv(siidx)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EB426B74-29CF-43D6-A51B-813AE67A8274"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1449"
+            endingLineNumber = "1449"
+            landmarkName = "commitedckv(siidx)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0D269E0F-BD07-4B5F-9E16-3943D3500EBD"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "418"
-            endingLineNumber = "418"
+            startingLineNumber = "1452"
+            endingLineNumber = "1452"
+            landmarkName = "commitedckv(siidx)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1EF58C98-C5A5-44EA-97CD-9E62176708F2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "964"
+            endingLineNumber = "964"
             landmarkName = "commitedckv(siidx)"
             landmarkType = "9">
          </BreakpointContent>

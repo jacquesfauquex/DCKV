@@ -64,6 +64,9 @@ static sqlite3_stmt *sblake3stmt;
 static sqlite3_stmt *sinsertstmt;
 static int currentSpk;
 static bool notRegistered;
+static sqlite3_stmt *iblake3stmt;
+static sqlite3_stmt *iinsertstmt;
+static int currentIpk;
 
 static bool isexplicit;
 
@@ -94,9 +97,6 @@ static u32 Cmax=0;
 static u32 utf8length;
 static char utf8bytes[256];
 
-static char iuidb64[44];
-static u8   iuidb64length;
-
 static u64 prefix=0x00;
 static blake3_hasher hasher;
 static uint8_t hashbytes[BLAKE3_OUT_LEN];//32 bytes
@@ -109,12 +109,8 @@ static char filepath[330];
 static FILE *fileptr;
 
 //prefix components
-static u64 ps16=0;
-static u64 pv8=0;
-static u64 pi16=0;
-static u64 pr16=0;
-static u64 pc16=0;
-static u64 pf16=0;
+static u8  sversion,rversion,concatstack=0;
+static u16 rnumber,fnumber,sopclassindex=0;
 
 
 #pragma mark - methods
@@ -153,12 +149,21 @@ static char suidb64[44];
 static u8   suidb64length;
 static u32  sxml[2];
 //static u32  spdf[3];
-static u32  snumber;//unsigned because we sum up 0x8000
+static u16  snumber;//unsigned because we sum up 0x8000
 //static u32  doctitle[3];
 static u32  sopidx;
 static u32  smod[2];
 static u32  sdesc[3];
 //sframes
+
+//fk
+//pk
+static char iuidb64[44];
+static u8   iuidb64length;
+static u16  inumber;//unsigned because we sum up 0x8000
+static u16  ianumber;//unsigned because we sum up 0x8000
+//iframes
+
 bool createedckv(
    const char * dstdir,
    uint8_t    * vbuf,
@@ -252,14 +257,34 @@ bool createedckv(
       exit(1);
    }
 
+
    
+#pragma mark I sqlite stmt
+//blake3 stmt
+   char iblake3[]="SELECT pk, iblake3 FROM I WHERE iuid=?;";
+   dbrc = sqlite3_prepare_v2(db, iblake3, sizeof(iblake3), &iblake3stmt, 0);
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot initialize iblake3stmt: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
+   char iinsert[] = "INSERT INTO I(fk,iuid,idckv,iblake3,inumber,ianumber,iclass,iframes) VALUES(?,?,?,?,?,?,?,?)";
+   dbrc=sqlite3_prepare(db, iinsert, -1, &iinsertstmt, 0);
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot prepare iinsertStmt: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
+
    
    
    
    isexplicit=*stidx==2;
 
    //static sopclass idx
-   pc16=*soidx;
+   sopclassindex=*soidx;
    sopidx=*soidx;
    //static base/pid path
    strcat(dirpath,dstdir);
@@ -431,7 +456,7 @@ bool sinsert()
    sxml[0]=sxml[1]=0;
    
    sqlite3_bind_int(sinsertstmt,  9, snumber);
-   snumber=0;
+   //snumber=0;used for prefix, reseted at the end of the commit
    
    sqlite3_bind_int(sinsertstmt, 10, sopidx);//
    sqlite3_bind_text(sinsertstmt,11, Sbuf+smod[0],smod[1], NULL);
@@ -456,6 +481,34 @@ bool sinsert()
    return true;
 }
 
+
+bool iinsert()
+{
+   // int pk
+   sqlite3_bind_int(iinsertstmt,  1, currentSpk);
+   
+   sqlite3_bind_text(iinsertstmt, 2, iuidb64,iuidb64length, NULL);
+   sqlite3_bind_blob(iinsertstmt, 3, Ibuf, Iidx, NULL);//dckv
+   sqlite3_bind_blob(iinsertstmt, 4, hashbytes,BLAKE3_OUT_LEN, NULL);
+   
+   sqlite3_bind_int(iinsertstmt,  5, inumber);
+   sqlite3_bind_int(iinsertstmt,  5, ianumber);
+   
+   sqlite3_bind_int(iinsertstmt, 6, sopidx);
+
+   sqlite3_bind_int(iinsertstmt, 7, 0);
+   
+
+   dbrc = sqlite3_step(iinsertstmt);
+   if (dbrc != SQLITE_DONE )
+   {
+      fprintf(stderr, "iinsertstmt error: %s\n", dberr);
+      return false;
+   }
+   sqlite3_reset(iinsertstmt);
+
+   return true;
+}
 
 #pragma mark -
 
@@ -578,10 +631,9 @@ bool commitedckv(s16 *siidx)
    
    
 
-   
+#pragma mark E 0000000000000000
    if (Eidx>0)
    {
-#pragma mark E
       currentEpk=0;
       blake3_hasher_reset(&hasher);
       blake3_hasher_update(&hasher, Ebuf, Eidx);
@@ -631,9 +683,8 @@ bool commitedckv(s16 *siidx)
       sqlite3_reset(eblake3stmt);
       D("sqlite commit E pk: %d",currentEpk);
       
-   //(optional) write to filesystem
-      
-      // /studydate/.studyiuid/0000000000000000.
+#pragma mark (optional) write to filesystem
+/*
       snprintf(filepath+dirpathlength,17,"0000000000000000");
       filepath[dirpathlength+16]='.';
       //add blake3 to final name
@@ -647,15 +698,16 @@ bool commitedckv(s16 *siidx)
       if (fileptr == NULL) return false;
       if (fwrite(Ebuf ,1, Eidx , fileptr)!=Eidx) return false;
       fclose(fileptr);
+ */
       Eidx=0;
    }
    
+#pragma mark S : 1 s SS SS 0r RR RR CC CC
    if (Sidx>0)
    {
-//01SSSS00RRRRCCCC
 //replace prefix in buffer
       j=0;
-      prefix=1|u16swap(ps16)*0x100|u16swap(pr16)*0x100000000|u16swap(pc16)*0x1000000000000;
+      prefix=0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000;
       while (j<Sidx)
       {
          memcpy(Sbuf+j+1,&prefix,8);
@@ -663,7 +715,8 @@ bool commitedckv(s16 *siidx)
          j+=Sbuf[j]+(Sbuf[j+1]*0x10)+(Sbuf[j+2]*0x100)+(Sbuf[j+3]*0x1000)+4;
       }
       // /studydate/.studyiuid/01SSSS00RRRRCCCC.
-      snprintf(filepath+dirpathlength,17,"01%04llX00%04llX%04llX",ps16,pr16,pc16);
+      //      snprintf(filepath+dirpathlength,17, "2%1x%04hX%02hhX%04hX%04hX",sversion,snumber,concatstack,inumber
+      snprintf(filepath+dirpathlength,17,"1%1X%04hX%02hhX%04hX%04hX",sversion,snumber,rversion,rnumber,sopclassindex);
       filepath[dirpathlength+16]='.';
 
 //blake3
@@ -680,10 +733,10 @@ bool commitedckv(s16 *siidx)
       {
          if (!sinsert()) return false;
          //get pk
-         sqlite3_reset(eblake3stmt);
-         sqlite3_bind_text(eblake3stmt, 1, euidb64,euidb64length, NULL);
-         stepreturnstatus = sqlite3_step(eblake3stmt);
-         currentEpk=sqlite3_column_int(eblake3stmt, 0);
+         sqlite3_reset(sblake3stmt);
+         sqlite3_bind_text(sblake3stmt, 1, suidb64,suidb64length, NULL);
+         stepreturnstatus = sqlite3_step(sblake3stmt);
+         currentSpk=sqlite3_column_int(sblake3stmt, 0);
       }
       else //suidb64 exists in S
       {
@@ -696,32 +749,28 @@ bool commitedckv(s16 *siidx)
             if (memcmp(hashbytes, registeredhashbytes, BLAKE3_OUT_LEN)==0)
             {
                notRegistered=false;
-               currentEpk=sqlite3_column_int(eblake3stmt, 0);
+               currentSpk=sqlite3_column_int(sblake3stmt, 0);
                continue;
             }
             //next answer?
-            stepreturnstatus = sqlite3_step(eblake3stmt);
+            stepreturnstatus = sqlite3_step(sblake3stmt);
             notRegistered=(stepreturnstatus == SQLITE_ROW);
          }
          if (notRegistered)
          {
-            if (!einsert()) return false;
+            if (!sinsert()) return false;
             //get pk
-            sqlite3_reset(eblake3stmt);
-            sqlite3_bind_text(eblake3stmt, 1, euidb64,euidb64length, NULL);
-            stepreturnstatus = sqlite3_step(eblake3stmt);
-            currentEpk=sqlite3_column_int(eblake3stmt, 0);
+            sqlite3_reset(sblake3stmt);
+            sqlite3_bind_text(sblake3stmt, 1, suidb64,suidb64length, NULL);
+            stepreturnstatus = sqlite3_step(sblake3stmt);
+            currentSpk=sqlite3_column_int(sblake3stmt, 0);
          }
       }
-      sqlite3_reset(eblake3stmt);
-      D("sqlite commit E pk: %d",currentEpk);
+      sqlite3_reset(sblake3stmt);
+      D("sqlite commit S pk: %d",currentSpk);
       
-   //(optional) write to filesystem
-
-
-
-
-
+#pragma mark (optional) write to filesystem
+      /*
       //add blake3 to final name
       blake3_hasher_reset(&hasher);
       blake3_hasher_update(&hasher, Sbuf, Sidx);
@@ -735,26 +784,115 @@ bool commitedckv(s16 *siidx)
       if (fileptr == NULL) return false;
       if (fwrite(Sbuf ,1, Sidx , fileptr)!=Sidx) return false;
       fclose(fileptr);
-      
+ */
       //reset
       Sidx=0;
    }
    
-   if (Pidx>0)
+#pragma mark I : 2 s SS SS concat/stack II II CC CC
+   //i concatenation (relates the frames of instances into a same volume)
+   //j stack (refers to distinct slices of the volumes)
+   //versions of the same instance with diferent quality have diferent i
+   if (Iidx>0)
    {
-      //02SSSSVVIIIICCCC
       //replace prefix in buffer
       j=0;
-      prefix=2|u16swap(ps16)*0x100|pv8*0x1000000|u16swap(pi16)*0x100000000|u16swap(pc16)*0x1000000000000;
+      prefix=0x20|sversion|u16swap(snumber)*0x100|concatstack*0x1000000|u16swap(inumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000;
+      while (j<Iidx)
+      {
+         memcpy(Ibuf+j+1,&prefix,8);
+         j+=Ibuf[j]+1;
+         j+=Ibuf[j]+(Ibuf[j+1]*0x10)+(Ibuf[j+2]*0x100)+(Ibuf[j+3]*0x1000)+4;
+      }
+      snprintf(filepath+dirpathlength,17, "2%1x%04hX%02hhX%04hX%04hX",sversion,snumber,concatstack,inumber,sopclassindex);
+      filepath[dirpathlength+16]='.';
+      
+//blake3
+      currentIpk=0;
+      blake3_hasher_reset(&hasher);
+      blake3_hasher_update(&hasher, Ibuf, Iidx);
+      blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
+
+      //does iuidb64[iuidb64length] exist in sqlite3 and what is its blake3 ?
+      //find currentIpk
+      sqlite3_bind_text(iblake3stmt, 1, iuidb64,iuidb64length, NULL);
+      stepreturnstatus = sqlite3_step(iblake3stmt);
+      if (stepreturnstatus != SQLITE_ROW)
+      {
+         if (!iinsert()) return false;
+         //get pk
+         sqlite3_reset(iblake3stmt);
+         sqlite3_bind_text(iblake3stmt, 1, iuidb64,iuidb64length, NULL);
+         stepreturnstatus = sqlite3_step(iblake3stmt);
+         currentIpk=sqlite3_column_int(iblake3stmt, 0);
+      }
+      else //iuidb64 exists in I
+      {
+         //more than one ROW?
+         bool notRegistered=true;
+         while (notRegistered)
+         {
+            registeredhashbytes=(u8 *)(sqlite3_column_blob(iblake3stmt, 1));
+                  //equals?
+            if (memcmp(hashbytes, registeredhashbytes, BLAKE3_OUT_LEN)==0)
+            {
+               notRegistered=false;
+               currentIpk=sqlite3_column_int(iblake3stmt, 0);
+               continue;
+            }
+            //next answer?
+            stepreturnstatus = sqlite3_step(iblake3stmt);
+            notRegistered=(stepreturnstatus == SQLITE_ROW);
+         }
+         if (notRegistered)
+         {
+            if (!iinsert()) return false;
+            //get pk
+            sqlite3_reset(iblake3stmt);
+            sqlite3_bind_text(iblake3stmt, 1, iuidb64,iuidb64length, NULL);
+            stepreturnstatus = sqlite3_step(iblake3stmt);
+            currentIpk=sqlite3_column_int(iblake3stmt, 0);
+         }
+      }
+      sqlite3_reset(iblake3stmt);
+      D("sqlite commit I pk: %d",currentIpk);
+            
+#pragma mark (optional) write to filesystem
+/*
+      //add blake3 to final name
+      blake3_hasher_reset(&hasher);
+      blake3_hasher_update(&hasher, Ibuf, Iidx);
+      blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
+
+      for (i = 0; i < BLAKE3_OUT_LEN; i++) {
+         sprintf(filepath+dirpathlength+17+i+i ,"%02x", hashbytes[i]);
+      }
+      filepath[dirpathlength+17+i+i]=0x00;
+      D("%s\n%s\n",dirpath,filepath);
+      fileptr=fopen(filepath, "w");
+      if (fileptr == NULL) return false;
+      if (fwrite(Ibuf ,1, Iidx , fileptr)!=Iidx) return false;
+      fclose(fileptr);
+*/
+      //reset
+      Iidx=0;
+   }
+   
+#pragma mark P 3 s SS SS concat/stack II II CC CC
+   //i concatenation (relates the frames of instances into a same volume)
+   //j stack (refers to distinct slices of the volumes)
+   //versions of the same instance with diferent quality have diferent i
+   if (Pidx>0)
+   {
+      j=0;
+      prefix=0x30|sversion|u16swap(snumber)*0x100|concatstack*0x1000000|u16swap(inumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000;
       while (j<Pidx)
       {
          memcpy(Pbuf+j+1,&prefix,8);
          j+=Pbuf[j]+1;
          j+=Pbuf[j]+(Pbuf[j+1]*0x10)+(Pbuf[j+2]*0x100)+(Pbuf[j+3]*0x1000)+4;
       }
-
-      // /studydate/.studyiuid/02SSSSVVIIIICCCC.
-      snprintf(filepath+dirpathlength,17, "02%04llX%02llX%04llX%04llX",ps16,pv8,pi16,pc16);
+      snprintf(filepath+dirpathlength,17, "3%1x%04hX%02hhX%04hX%04hX",sversion,snumber,concatstack,inumber,sopclassindex);
       filepath[dirpathlength+16]='.';
       //add blake3 to final name
       blake3_hasher_reset(&hasher);
@@ -773,56 +911,26 @@ bool commitedckv(s16 *siidx)
       //reset
       Pidx=0;
    }
-   
-   if (Iidx>0)
-   {
-      //03SSSSVVIIII0000
-      //replace prefix in buffer
-      j=0;
-      prefix=3|u16swap(ps16)*0x100|pv8*0x1000000|u16swap(pi16)*0x100000000;
-      while (j<Iidx)
-      {
-         memcpy(Ibuf+j+1,&prefix,8);
-         j+=Ibuf[j]+1;
-         j+=Ibuf[j]+(Ibuf[j+1]*0x10)+(Ibuf[j+2]*0x100)+(Ibuf[j+3]*0x1000)+4;
-      }
-      // /studydate/.studyiuid/03SSSSVVIIII0000.
-      snprintf(filepath+dirpathlength,17, "03%04llX%02llX%04llX0000",ps16,pv8,pi16);
-      filepath[dirpathlength+16]='.';
-      //add blake3 to final name
-      blake3_hasher_reset(&hasher);
-      blake3_hasher_update(&hasher, Sbuf, Sidx);
-      blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
-      for (i = 0; i < BLAKE3_OUT_LEN; i++) {
-         sprintf(filepath+dirpathlength+17+i+i ,"%02x", hashbytes[i]);
-      }
-      filepath[dirpathlength+17+i+i]=0x00;
-      D("%s\n%s\n",dirpath,filepath);
-      fileptr=fopen(filepath, "w");
-      if (fileptr == NULL) return false;
-      if (fwrite(Ibuf ,1, Iidx , fileptr)!=Iidx) return false;
-      fclose(fileptr);
-      
-      //reset
-      Iidx=0;
-   }
-   
+
    if (isexplicit)
    {
+#pragma mark N 04SSSSVVIIII0000 -> 4 s SS SS concat/stack II II 00 00
+      //i concatenation (relates the frames of instances into a same volume)
+      //j stack (refers to distinct slices of the volumes)
+      //versions of the same instance with diferent quality have diferent i
       if (Nidx>0)
       {
-         //04SSSSVVIIII0000
          //replace prefix in buffer
          j=0;
-         prefix=4|u16swap(ps16)*0x100|pv8*0x1000000|u16swap(pi16)*0x100000000;
+         prefix=0x40|sversion|u16swap(snumber)*0x100|concatstack*0x1000000|u16swap(inumber)*0x100000000;
          while (j<Nidx)
          {
             memcpy(Nbuf+j+1,&prefix,8);
             j+=Nbuf[j]+1;
             j+=Nbuf[j]+(Nbuf[j+1]*0x10)+(Nbuf[j+2]*0x100)+(Nbuf[j+3]*0x1000)+4;
          }
-         // /studydate/.studyiuid/04SSSSVVIIII0000.
-         snprintf(filepath+dirpathlength,17, "04%04llX%02llX%04llX0000",ps16,pv8,pi16);
+         //      snprintf(filepath+dirpathlength,17, "2%1x%04hX%02hhX%04hX%04hX",sversion,snumber,concatstack,inumber
+         snprintf(filepath+dirpathlength,17, "4%1x%04hX%02hhX%04hX0000",sversion,snumber,concatstack,inumber);
          filepath[dirpathlength+16]='.';
          //add blake3 to final name
          blake3_hasher_reset(&hasher);
@@ -844,20 +952,23 @@ bool commitedckv(s16 *siidx)
    }
    else //iscompressed
    {
+#pragma mark C 05SSSSVVIIIIFFFF -> 5 s SS SS concat/stack II II FF FF
+      //i concatenation (relates the frames of instances into a same volume)
+      //j stack (refers to distinct slices of the volumes)
+      //versions of the same instance with diferent quality have diferent i
       if (Cidx>0)
       {
-         //05SSSSVVIIIIFFFF
          //replace prefix in buffer
          j=0;
-         prefix=5|u16swap(ps16)*0x100|pv8*0x1000000|u16swap(pi16)*0x100000000|u16swap(pf16)*0x1000000000000;
+         
+         prefix=0x50|sversion|u16swap(snumber)*0x100|concatstack*0x1000000|u16swap(inumber)*0x100000000|u16swap(fnumber)*0x100000000000000;
          while (j<Cidx)
          {
             memcpy(Cbuf+j+1,&prefix,8);
             j+=Cbuf[j]+1;
             j+=Cbuf[j]+(Cbuf[j+1]*0x10)+(Cbuf[j+2]*0x100)+(Cbuf[j+3]*0x1000)+4;
          }
-         // /studydate/.studyiuid/05SSSSVVIIIIFFFF.
-         snprintf(filepath+dirpathlength,17, "05%04llX%02llX%04llX%04llX",ps16,pv8,pi16,pf16);
+         snprintf(filepath+dirpathlength,17, "5%1x%04hX%02hhX%04hX%04hX",sversion,snumber,concatstack,inumber,fnumber);
          filepath[dirpathlength+16]='.';
          //add blake3 to final name
          blake3_hasher_reset(&hasher);
@@ -877,6 +988,7 @@ bool commitedckv(s16 *siidx)
          Cidx=0;
       }
    }
+   snumber=inumber=0;
    return closedckv(siidx);
 }
 
@@ -893,9 +1005,6 @@ bool closeedckv(s16 *siidx)
 }
 
 #pragma mark -
-
-#pragma mark -
-
 
 bool appendEXAMkv( //patient and study level attributes
    uint8_t            *kbuf,    //contextualized key value buffer
@@ -1178,7 +1287,7 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
          
       } break;
 
-      case kvsnumber:snumber=atoi(Sbuf+Sidx)+0x8000;
+      case kvsnumber: snumber=atoi(Sbuf+Sidx)+0x8000;
            break;
          
       case kvsmod://Modality
@@ -1311,6 +1420,7 @@ bool appendDEFAULTkv( //any other instance level attribute
 #pragma mark UID
       case kviuid://SOPInstanceUID
       {
+         if (!ui2b64( Ibuf+Iidx, vlen - (Ibuf[Iidx+vlen-1] == 0), iuidb64, &iuidb64length )) return false;
       };break;
 
 #pragma mark generic
@@ -1334,17 +1444,13 @@ bool appendDEFAULTkv( //any other instance level attribute
       case kvfo://OV 31 Extended​Offset​Table fragments offset 7FE00001
       case kvfl://OV 32 Extended​Offset​TableLengths fragments offset 7FE00002
       case kvft://UV 33 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-      case kvianumber://AcquisitionNumber
-      {
-      };break;
+           break;
 
-      case kvinumber://InstanceNumber needed for Iprefix
-      {
-         //retain series number
-         s16 Ihd;
-         sscanf((char*)vbuf,"%hd",&Ihd);
-         pi16=u16swap(Ihd+0x8000);
-      }break;
+      case kvinumber: inumber=atoi(Sbuf+Sidx)+0x8000;
+           break;
+
+      case kvianumber:ianumber=atoi(Sbuf+Sidx)+0x8000;//AcquisitionNumber
+           break;
 
       default: return false;
    }
