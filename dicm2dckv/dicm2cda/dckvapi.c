@@ -7,6 +7,7 @@
 
 FILE *outFile;
 static char *dbpath;
+const char *backslash = "\\";
 
 //possibility to overwrite any value read
 size_t dckvapi_fread(
@@ -116,7 +117,7 @@ bool appendkv(
       } break;
       
          
-      case kvsxml://OB encapsulaed document
+      case kvsdocument://OB encapsulaed document
       {
          D("%d\n",vrcat);
          if (fromStdin && vlen)

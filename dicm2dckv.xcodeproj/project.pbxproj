@@ -41,6 +41,10 @@
 		4AC9A51B2C5451EE0078C566 /* dicm2dckv.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9F22BBE2ACF00670A7F /* dicm2dckv.c */; };
 		4AC9A51C2C5451EE0078C566 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ACCC9E72BBDC40A00670A7F /* main.c */; };
 		4AC9A53F2C54532C0078C566 /* dckvapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4AC9A5372C54531B0078C566 /* dckvapi.c */; };
+		4AE26B332D0EF0E700383F41 /* dckvapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA032BBF3F1900670A7F /* dckvapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AE26B372D0EF0F100383F41 /* dckvtypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCCA002BBF098900670A7F /* dckvtypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AE26B412D0EF12600383F41 /* dicm2dckv.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ACCC9F02BBE2ACF00670A7F /* dicm2dckv.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AE26B4C2D0EF17800383F41 /* sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A1307192CE55B9F00C419E3 /* sqlite3.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -275,6 +279,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4AE26B322D0EF0DC00383F41 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4AE26B372D0EF0F100383F41 /* dckvtypes.h in Headers */,
+				4AE26B332D0EF0E700383F41 /* dckvapi.h in Headers */,
+				4AE26B412D0EF12600383F41 /* dicm2dckv.h in Headers */,
+				4AE26B4C2D0EF17800383F41 /* sqlite3.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -300,6 +315,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4A8097FD2BC90A370042CAC1 /* Build configuration list for PBXNativeTarget "dicmstructdump" */;
 			buildPhases = (
+				4AE26B322D0EF0DC00383F41 /* Headers */,
 				4A8097F52BC90A370042CAC1 /* Sources */,
 				4A8097F62BC90A370042CAC1 /* Frameworks */,
 				4A8097F72BC90A370042CAC1 /* CopyFiles */,

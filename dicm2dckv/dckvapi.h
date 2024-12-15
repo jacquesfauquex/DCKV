@@ -28,104 +28,92 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 //cat  e    s    i    f
 
 enum kvVRcategory{
-kvUI,//UI 0 unique ID eventualmente terminado por 0x00
-               kviuid,//UI 1 SOPInstanceUID
-          kvsuid,//UI 2 SeriesInstanceUID
-     kveuid,//UI 3 StudyInstanceUID
-kvpyramiduid,//UI 4 00080019 PyramidUID
+   
+//vl enum
+kvFD,//FD 1 floating point double
+kvFL,//FL 2 floating point single
+kvSL,//SL 3 signed long
+kvSS,//SS 4 signed short
+kvUL,//UL 5 unsigned long
+kvUS,//US 6 unsigned short
+                kvspp,//7 US
+                kvrows,//8 US
+                kvcols,//9 US
+                kvalloc,//10 US
+                kvstored,//11 US
+                kvhigh,//12 US
+                kvpixrep,//13 US
+                kvplanar,//14 US
 
-kvFD,//FD 5 floating point double
-kvFL,//FL 6 floating point single
-kvSL,//SL 7 signed long
-kvSS,//SS 8 signed short
-kvUL,//UL 9 unsigned long
-kvUS,//US 10 unsigned short
-kvAT,//AT 11 attribute tag, 2 u16 hexa
+kvAT,//AT 15 attribute tag, 2 u16 hexa
+   
+kvUI,//UI 16 unique ID eventualmente terminado por 0x00
+     kveuid,//UI 17 StudyInstanceUID
+          kvsuid,//UI 18 SeriesInstanceUID
+               kviuid,//UI 19 SOPInstanceUID
+               kvpuid,//UI 20 00080019 PyramidUID
+               kvcuid,//UI 21 SOP​Instance​UID​Of​Concatenation​Source
 
-kvpname,//PN patient name
-kvpide,//SH patient id extension
-kvpidr,//LO patient id root issuer
-kvpbirth,//DA patient birthdate
-kvpsex,//CS patient sex
+kvTP,//22 AS DT TM DA text short ascii pair length
+     kvpbirth,//23 DA patient birthdate
+     kvedate,//24 DA StudyDate
+          kvsdate,//25 DA
+          kvstime,//26 TM
 
-kvedesc,//LO Study name
-kvsdesc,//LO Series name
-kvecode,//SQ Study code
-kvref,//PN referring
-kvreq,//PN requesting
-kvcda,//PN CDA
-kvpay,//LO insurance
+kvTA,//27 CS AE DS IS 13 text short ascii
+     kvpsex,//28 CS patient sex
+     kveat,//29 CS AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400,X500,...)
+          kvsmod,//30 CS 14 Modality
+               kvitype,//31 CS 00080008 ImageType
+               kvphotocode,//32 CS
+   
+          kvsnumber,//33 IS SeriesNumber
+               kvianumber,//34 IS AcquisitionNumber
+               kvinumber,//35 IS InstanceNumber
 
-kvTP,//AS DT TM DA 11 text short ascii pair length
-    kvedate,//DA 12 StudyDate
-    kvsdate,//DA
-    kvstime,//TM
+kvTS,//36 LO LT SH ST text short charset
+    kvpay,//37 LO insurance
+    kvpide,//38 SH patient id extension
+    kvpidr,//39 LO patient id root issuer
+    kvimg,//40 LO InstitutionName 00080080
+    kvedesc,//41 LO Study name
+    kveid,//42 SH StudyID
+    kvean,//43 SH AccessionNumber 00080050
+    kvecode,//44 SQ/SH Study code 00080100,00080102
+        kvsdesc,//45 LO Series name
+        kvscdaid,//46 ST HL7InstanceIdentifier 0040E001  root^extension
+        kvsdoctitle,//47 ST DocumentTitle 00420010
+            kvicomment,//48 LO
 
-kvTA,//AE DS IS CS 13 text short ascii
-          kvsmod,//CS 14 Modality
-     kveat,//CS 15 AccessionNumber type 00080051.00400033 (DNS,EUI64,ISO,URI,UUID,X400,X500,...)
-          kvsnumber,//IS 16 SeriesNumber
-               kvinumber,//IS 17 InstanceNumber
-               kvianumber,//IS 18 AcquisitionNumber
-     kvIT,//CS 00080008 ImageType
+kvPN,//49 PN person name has a special treatment in json and xml
+    kvpname,//50 PN patient name
+    kvcda,//51 PN CDA
+    kvref,//52 PN referring
+    kvreq,//53 PN requesting
+   
+kv01,  //54 other OB OD OF OL OV OW SV UV binary
+   kvsdocument,//55 OB Encapsulated​Document 00420011 xml cda o pdf
+   kvnative, //56 OB 0x7FE00010
+   kvencoded, //57 OB 0x7E000010
+   kvnativeOW, //58 OW 0x7FE00010
+   kvnativeOD, //59 OD 0x7FE00009
+   kvnativeOF, //60 OF 0x7FE00008
+   kvfo,//61 OV Extended​Offset​Table fragments offset 7FE00001
+   kvfl,//62 OV Extended​Offset​TableLengths fragments offset 7FE00002
+   kvft,//63 UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
+   
+kvTL,//64 UC UT text long charset
+     kveal,//65 UT AccessionNumberIssuer local 00080051.00400031
+     kveau,//66 UT AccessionNumberIssuer universal 00080051.00400032
 
-kvTS,//LO LT SH ST 19 text short charset
-          kvscdaid,//ST 20 HL7InstanceIdentifier 0040E001  root^extension
-     kveid,//SH 21 StudyID
-     kvean,//SH 22 AccessionNumber 00080050
-          kvsdoctitle,//ST 23 DocumentTitle 00420010
-     kvimg,//LO 24 InstitutionName 00080080
+kvTU,//67 UR text long url-encoded
    
-kvTL,//UC UT 25 text long charset
-     kveal,//UT 26 AccessionNumberIssuer local 00080051.00400031
-     kveau,//UT 27 AccessionNumberIssuer universal 00080051.00400032
-   
-kvTU,//UR 28 text long url-encoded
-   
-kvPN,//PN 29 person name has a special treatment in json and xml
+kvSA,//68 SQ head
+kvIA,//69 item head
+kvIZ,//70 item tail
+kvSZ,//71 SQ tail
 
-          kvsxml,//OB 30 Encapsulated​Document 00420011
-               kvfo,//OV 31 Extended​Offset​Table fragments offset 7FE00001
-               kvfl,//OV 32 Extended​Offset​TableLengths fragments offset 7FE00002
-               kvft,//UV 33 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-   
-kvUN,//UN 34
-   
-kvSA,//SQ 35 head
-   
-kvIA,//36 item head
-   
-kvIZ,//37 item tail
-   
-kvSZ,//38 SQ tail
-   
-                    kvNM,//39 image native metadata
-      //incluye
-      //0x00020010: //UI transfert syntax
-      //0x00204000: //LT image comment
-      //0x00280002: //US samples
-      //0x00280010: //US rows
-      //0x00280011: //US columns
-      //0x00280101: //US bits
-      //0x00280103: //US sign
-                    kvNB, //40 0x7FE00010: //OB
-                    kvNW, //41 0x7FE00010: //OW
-                    kvNF, //42 0x7FE00008: //OF float
-                    kvND, //43 0x7FE00009: //OD double
-   
-                    kvCM, //44 image compressed
-      //incluye
-      //0x00020010://UI transfert syntax
-      //0x00082111: //ST kvTS derivation description
-      //0x00204000: //LT image comment
-      //0x00280002: //US samples
-      //0x00280010: //US rows
-      //0x00280011: //US columns
-      //0x00280101: //US bits
-      //0x00280103: //US sign
-                    kvCB, //45 0x7E000010: //OB
-
-kv01  //46 other OB OD OF OL OV OW SV UV 34 binary, not textually represented
+kvUN,//UN 72
 
 };
 

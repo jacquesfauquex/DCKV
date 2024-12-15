@@ -44,23 +44,20 @@ Examples of targets adopting this api include:
 
 alternative to dckvapi where the appendkv callback is replaced by several callbacks classifying the attributes in categories:
 
-- appendPRIVATEkv (odd group and UN attributes)
-
 - appendEXAMkv: (patient and study level attributes)
 
 - appendSERIESkv: (series level attributes. We add to this category the instance level attributes SR and encapsulatedCDA)
 
-
-- appendNATIVEkv: (bitmap representatio 7FE0,0010 and 0002,0010="1.2.840.10008.1.2.1")
-
-- appendBASEkv + appendFASTkv + appendHRESkv + appendIDEMkv: alternative to NATIVE for images compressed jpeg 2000 lossless 4 quality level (0002,0010="1.2.840.10008.1.2.4.90")
-
-- appendCOMPRESSEDkv: (bitmap representatio 7FE0,0010 any other  0002,0010)
-
+- appendPRIVATEkv (odd group and UN attributes)
 
 - appendDEFAULTkv: (any other instance level attribute)
-  
  
- Example of target adopting this api:
+ - appendnative
  
-- edckv
+ - appendnativeOW
+ 
+ - appendnativeOF
+ 
+ - appendnativeOD
+
+ - appendencoded

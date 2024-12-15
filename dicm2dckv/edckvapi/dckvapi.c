@@ -1115,33 +1115,25 @@ bool appendkv(
          D("P %08X",roottag);//private unknown
          return appendPRIVATEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
-      case kvNM:{
-         D("N %08X",roottag);//native metadata
-         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      case kvnative:{
+         D("B %08X",roottag);
+         return appendnative(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
-      case kvNB:{
-         D("B %08X",roottag);//native byte
-         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
-      }
-      case kvNW:{
+      case kvnativeOW:{
          D("W %08X",roottag);//native word
-         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         return appendnativeOW(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
-      case kvNF:{
-         D("F %08X",roottag);//native float
-         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      case kvnativeOF:{
+         D("F %08X",roottag);//
+         return appendnativeOF(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
-      case kvND:{
-         D("D %08X",roottag);//native double
-         return appendNATIVEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      case kvnativeOD:{
+         D("D %08X",roottag);
+         return appendnativeOD(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
-      case kvCM:{
+      case kvencoded:{
          D("C %08X",roottag);//comprimido metadata
-         return appendCOMPRESSEDkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
-      }
-      case kvCB:{
-         D("E %08X",roottag);//encapsulado
-         return appendCOMPRESSED01(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         return appendencoded(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
 
       default:

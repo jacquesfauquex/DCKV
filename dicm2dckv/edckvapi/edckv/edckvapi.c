@@ -161,7 +161,7 @@ static u32  sxml[2];
 //static u32  spdf[3];
 static u16  snumber;//unsigned because we sum up 0x8000
 //static u32  doctitle[3];
-static u32  sopidx;
+static u32  iclass;
 static u32  smod[2];
 static u32  sdesc[3];
 //sframes
@@ -172,7 +172,23 @@ static char iuidb64[44];
 static u8   iuidb64length;
 static u16  inumber;//unsigned because we sum up 0x8000
 static u16  ianumber;//unsigned because we sum up 0x8000
-//iframes
+//iclass
+static char itype[64];
+static u8   itypelength;
+static u16  syntaxidx;
+static char icomment[64];
+static u8   icommentlength;
+static u32  iframes;
+//pdckv
+static u16  spp;
+static u16  photocode;
+static u16  rows;
+static u16  cols;
+static u16  alloc;
+static u16  stored;
+static u16  high;
+static u16  pixrep;
+static u16  planar;
 
 bool createedckv(
    const char * dstdir,
@@ -258,7 +274,7 @@ bool createedckv(
       sqlite3_close_v2(db);
       exit(1);
    }
-   char sinsert[] = "INSERT INTO S(fk,sdate,stime,suid,sdckv,sblake3,sxml,spdf,snumber,sclass,smod,sdesc,sicon,sframes) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+   char sinsert[] = "INSERT INTO S(Efk,sdate,stime,suid,sdckv,sblake3,sxml,spdf,snumber,sclass,smod,sdesc,sicon,sframes) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
    dbrc=sqlite3_prepare(db, sinsert, -1, &sinsertstmt, 0);
    if (dbrc != SQLITE_OK)
    {
@@ -279,7 +295,7 @@ bool createedckv(
       sqlite3_close_v2(db);
       exit(1);
    }
-   char ipinsert[] = "INSERT INTO I(fk,iuid,idckv,iblake3,inumber,ianumber,iclass,iframes,pdckv) VALUES(?,?,?,?,?,?,?,?,?)";
+   char ipinsert[] = "INSERT INTO I(Sfk,iuid,idckv,iblake3,inumber,ianumber,iclass,itype,syntaxidx,icomment,iframes,pdckv,spp,photocode,rows,cols,alloc,stored,high,pixrep,planar) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
    dbrc=sqlite3_prepare(db, ipinsert, -1, &ipinsertstmt, 0);
    if (dbrc != SQLITE_OK)
    {
@@ -295,7 +311,7 @@ bool createedckv(
 
    //static sopclass idx
    sopclassindex=*soidx;
-   sopidx=*soidx;
+   iclass=*soidx;
    //static base/pid path
    strcat(dirpath,dstdir);
    dirpathlength=strlen(dstdir);
@@ -477,7 +493,7 @@ bool sinsert(u64 prefix)
    sqlite3_bind_int(sinsertstmt,  9, snumber);
    //snumber=0;used for prefix, reseted at the end of the commit
    
-   sqlite3_bind_int(sinsertstmt, 10, sopidx);//
+   sqlite3_bind_int(sinsertstmt, 10, iclass);//
    sqlite3_bind_text(sinsertstmt,11, Sbuf+smod[0],smod[1], NULL);
    smod[0]=smod[1]=0;
    
@@ -511,23 +527,33 @@ bool sinsert(u64 prefix)
 bool ipinsert(u64 prefix)
 {
    /*
-         0:pk
-    1:fk, enlace a S.pk
+         0:Sfk
+    1:pk
     2:iuid,
     3:idckv,
     4:iblake3,
     5:inumber,
     6:ianumber,
     7:iclass,
-    8:iframes, (0:no frame objects, 1:native, n:compressed)
-    9:pdckv (private attributes)
+    8:itype
+    9:syntaxidx
+    10:icomment
+    11:iframes, (0:no frame objects, 1:native, n:encoded)
+    12:pdckv (private attributes)
+    13:spp
+    14:photocode
+    15:rows
+    16:cols
+    17:alloc
+    18:stored
+    19:high
+    20:pixrep
+    21:planar
     */
-   
    // int pk
    sqlite3_bind_int(ipinsertstmt,  1, currentSpk);
-   
    sqlite3_bind_text(ipinsertstmt, 2, iuidb64,iuidb64length, NULL);
-   
+
    //prefix attributes
    iterator=0;
    while (iterator<Iidx)
@@ -537,18 +563,25 @@ bool ipinsert(u64 prefix)
       iterator+=Ibuf[iterator]+(Ibuf[iterator+1]*0x10)+(Ibuf[iterator+2]*0x100)+(Ibuf[iterator+3]*0x1000)+4;
    }
    sqlite3_bind_blob(ipinsertstmt, 3, Ibuf, Iidx, NULL);//dckv
-   
-   sqlite3_bind_blob(ipinsertstmt, 4, hashbytes,BLAKE3_OUT_LEN, NULL);
-   
-   sqlite3_bind_int(ipinsertstmt,  5, inumber);
-   
-   sqlite3_bind_int(ipinsertstmt,  6, ianumber);
-   
-   sqlite3_bind_int(ipinsertstmt, 7, sopidx);
 
-   sqlite3_bind_int(ipinsertstmt, 8, (Nidx>0));//number of frames modified when transfer syntaxes other than native are used
+   sqlite3_bind_blob(ipinsertstmt, 4, hashbytes,BLAKE3_OUT_LEN, NULL);
+   sqlite3_bind_int(ipinsertstmt,  5, inumber);
+   sqlite3_bind_int(ipinsertstmt,  6, ianumber);
+   sqlite3_bind_int(ipinsertstmt,  7, iclass);
+
+   utf8(0,itype,0,itypelength,utf8bytes,0,&utf8length);
+   sqlite3_bind_text(ipinsertstmt, 8, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   itypelength=0;
+
+   sqlite3_bind_int(ipinsertstmt,  9, syntaxidx);
+
+   utf8(0,icomment,0,icommentlength,utf8bytes,0,&utf8length);
+   sqlite3_bind_text(ipinsertstmt, 10, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   icommentlength=0;
    
-   if (Pidx>0)
+   sqlite3_bind_int(ipinsertstmt,  11, iframes);
+   
+   if (Pidx>0)//12
    {
       //prefix attributes
       iterator=0;
@@ -558,9 +591,20 @@ bool ipinsert(u64 prefix)
          iterator+=Pbuf[iterator]+1;
          iterator+=Pbuf[iterator]+(Pbuf[iterator+1]*0x10)+(Pbuf[iterator+2]*0x100)+(Pbuf[iterator+3]*0x1000)+4;
       }
-      sqlite3_bind_blob(ipinsertstmt, 3, Pbuf, Pidx, NULL);//dckv
+      sqlite3_bind_blob(ipinsertstmt, 12, Pbuf, Pidx, NULL);//dckv
    }
 
+   sqlite3_bind_int(ipinsertstmt,  13, spp);
+   sqlite3_bind_int(ipinsertstmt,  14, photocode);
+   sqlite3_bind_int(ipinsertstmt,  15, rows);
+   sqlite3_bind_int(ipinsertstmt,  16, cols);
+   sqlite3_bind_int(ipinsertstmt,  17, alloc);
+   sqlite3_bind_int(ipinsertstmt,  18, stored);
+   sqlite3_bind_int(ipinsertstmt,  19, high);
+   sqlite3_bind_int(ipinsertstmt,  20, pixrep);
+   sqlite3_bind_int(ipinsertstmt,  21, planar);
+
+   //finalize
    dbrc = sqlite3_step(ipinsertstmt);
    if (dbrc != SQLITE_DONE )
    {
@@ -802,7 +846,7 @@ bool commitedckv(s16 *siidx)
       Sidx=0;
    }
    
-#pragma mark I : 2 s SS SS iu II II CC CC
+#pragma mark IP : 2/3 s SS SS iu II II CC CC
    //u iversion (relates the frames of instances into a same volume)
    //versions of the same instance with diferent quality have diferent i
    if (Iidx>0 || Pidx>0)
@@ -862,6 +906,11 @@ bool commitedckv(s16 *siidx)
       //versions of the same instance with diferent quality have diferent i
       if (Nidx>0)
       {
+         blake3_hasher_reset(&hasher);
+         blake3_hasher_update(&hasher, Nbuf, Nidx);
+         blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
+         
+         
          //replace prefix in buffer
          iterator=0;
          prefix=0x40|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000;
@@ -875,9 +924,6 @@ bool commitedckv(s16 *siidx)
          snprintf(filepath+dirpathlength,17, "4%1x%04hX%1x%1x%04hX0000",sversion,snumber,iversion,concat,inumber);
          filepath[dirpathlength+16]='.';
          //add blake3 to final name
-         blake3_hasher_reset(&hasher);
-         blake3_hasher_update(&hasher, Nbuf, Nidx);
-         blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
          for (iterator = 0; iterator < BLAKE3_OUT_LEN; iterator++) {
             sprintf(filepath+dirpathlength+17+iterator+iterator ,"%02x", hashbytes[iterator]);
          }
@@ -1216,7 +1262,7 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
       case kvstime: stime=atoi(Sbuf+Sidx);
            break;
 
-      case kvsxml://OB Encapsulated​Document 00420011
+      case kvsdocument://OB Encapsulated​Document 00420011
       {
          //replace everything after last > with spaces
          vlenNoPadding=Sidx+vlen-1;
@@ -1360,6 +1406,22 @@ bool appendDEFAULTkv( //any other instance level attribute
 
    if (fromStdin){if(edckvapi_fread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
    else memcpy(Ibuf+Iidx, vbuf, vlen);//from vbuf
+   
+   /*
+    7:iclass,
+    8:itype
+    9:syntaxidx
+    11:iframes, (0:no frame objects, 1:native, n:compressed)
+    13:spp 00280002 US
+    15:rows 00280010 US
+    16:cols 00280011 US
+    17:alloc 00280100 US
+    18:stored 00280101 US
+    19:high 00280102 US
+    20:pixrep 00280103 US
+    21:planar 00280106 US
+    */
+
    switch (vrcat)
    {
 #pragma mark UID
@@ -1372,9 +1434,9 @@ bool appendDEFAULTkv( //any other instance level attribute
       case kvFD://floating point double
       case kvFL://floating point single
       case kvSL://signed long
+      case kvUS://unsigned short
       case kvSS://signed short
       case kvUL://unsigned long
-      case kvUS://unsigned short
       case kvAT://attribute tag, 2 u16 hexa
       case kvTP://AS DT TM DA 11 text short ascii pair length
       case kvTA://AE DS IS CS 13 text short ascii
@@ -1391,10 +1453,31 @@ bool appendDEFAULTkv( //any other instance level attribute
       case kvft://UV 33 Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
            break;
 
-      case kvinumber: inumber=atoi(Sbuf+Sidx)+0x8000;
+      case kvitype:
+         break;
+         
+      case kvspp:spp=atoi(Ibuf+Iidx);break;// 00280002 US
+      case kvrows:rows=atoi(Ibuf+Iidx);break;// 00280010 US
+      case kvcols:cols=atoi(Ibuf+Iidx);break;// 00280011 US
+      case kvalloc:alloc=atoi(Ibuf+Iidx);break;// 00280002 US
+      case kvstored:stored=atoi(Ibuf+Iidx);break;// 00280002 US
+      case kvhigh:high=atoi(Ibuf+Iidx);break;// 00280002 US
+      case kvpixrep:pixrep=atoi(Ibuf+Iidx);break;// 00280002 US
+      case kvplanar:planar=atoi(Ibuf+Iidx);break;// 00280002 US
+
+         
+//10:icomment B00204000=0x00402000;//LT compression desc (image comment)
+      case kvicomment:
+         break;
+
+//14:photocode 00280004 CS https://dicom.innolitics.com/ciods/rt-dose/image-pixel/00280004
+      case kvphotocode:
+         break;
+
+      case kvinumber: inumber=atoi(Ibuf+Iidx)+0x8000;
            break;
 
-      case kvianumber:ianumber=atoi(Sbuf+Sidx)+0x8000;//AcquisitionNumber
+      case kvianumber:ianumber=atoi(Ibuf+Iidx)+0x8000;//AcquisitionNumber
            break;
 
       default: return false;
@@ -1403,7 +1486,7 @@ bool appendDEFAULTkv( //any other instance level attribute
    return true;
 }
 
-bool appendNATIVEkv(
+bool appendnative(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -1437,7 +1520,6 @@ bool appendNATIVEkv(
    switch (vrcat)
    {
 #pragma mark UID
-      case kvNM:
       case kvUI://unique ID (transfert syntax)
       {
          if (fromStdin){if(edckvapi_fread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
@@ -1450,10 +1532,10 @@ bool appendNATIVEkv(
       case kvTS://LO LT SH ST 19 text short charset
       case kv01://OB OD OF OL OV OW SV UV
 #pragma mark special
-      case kvNB://40 0x7FE00010: //OB
-      case kvNW://41 0x7FE00010: //OW
-      case kvNF://42 0x7FE00008: //OF float
-      case kvND://43 0x7FE00009: //OD double
+      case kvnative://40 0x7FE00010: //OB
+      case kvnativeOW://41 0x7FE00010: //OW
+      case kvnativeOF://42 0x7FE00008: //OF float
+      case kvnativeOD://43 0x7FE00009: //OD double
       {
          if (fromStdin){if(edckvapi_fread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Nbuf+Nidx, vbuf, vlen);//from vbuf
@@ -1465,61 +1547,49 @@ bool appendNATIVEkv(
    return true;
 }
 
-bool appendCOMPRESSEDkv(
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-)
+bool appendnativeOW(
+                  uint8_t            *kbuf,    //contextualized key value buffer
+                  u32                kloc,     //offset of current attribute in key
+                  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+                  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+                  u64                vloc,     //value location in input stream
+                  u32                vlen,     //value length
+                  bool               fromStdin,//value to be read, or already read in vbuf
+                  uint8_t            *vbuf     //buffer for values
+                )
 {
-   //freeing buffer necesary?
-   if ((vlen + 21 + kloc + Cidx > Cmax) && !morebuf(kvC,vlen)) return false;
-
-   //key length = key path length + 8 prefix + 8 current attribute
-   //idx increased by 1
-   Cbuf[Cidx++]=kloc+16;
-
-   //prefix
-   memcpy(Cbuf+Cidx, &prefix, 8);
-   Cidx+=8;
-   
-   //key
-   memcpy(Cbuf+Cidx, kbuf, kloc+8);
-   Cidx+=kloc+8;
-   
-   //value length
-   memcpy(Cbuf+Cidx, &vlen, 4);
-   Cidx+=4;
-   if (vlen==0) return true;
-   //value with contents
-   switch (vrcat)
-   {
-#pragma mark UID
-      case kvUI://unique ID (transfert syntax)
-      {
-         if (fromStdin){if(edckvapi_fread(Cbuf+Cidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Cbuf+Cidx, vbuf, vlen);//from vbuf
-         Cidx+=vlen;
-      };break;
-
-#pragma mark generic
-      case kvUS://unsigned short
-      case kvTS://LO LT SH ST 19 text short charset
-      {
-         if (fromStdin){if(edckvapi_fread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Nbuf+Nidx, vbuf, vlen);//from vbuf
-         Nidx+=vlen;
-      };break;
-
-      default: return false;
-   }
-   return true;
+     return false;
 }
-bool appendCOMPRESSED01(
+
+bool appendnativeOF(
+                  uint8_t            *kbuf,    //contextualized key value buffer
+                  u32                kloc,     //offset of current attribute in key
+                  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+                  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+                  u64                vloc,     //value location in input stream
+                  u32                vlen,     //value length
+                  bool               fromStdin,//value to be read, or already read in vbuf
+                  uint8_t            *vbuf     //buffer for values
+                )
+{
+     return false;
+}
+
+bool appendnativeOD(
+                  uint8_t            *kbuf,    //contextualized key value buffer
+                  u32                kloc,     //offset of current attribute in key
+                  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+                  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+                  u64                vloc,     //value location in input stream
+                  u32                vlen,     //value length
+                  bool               fromStdin,//value to be read, or already read in vbuf
+                  uint8_t            *vbuf     //buffer for values
+                )
+{
+     return false;
+}
+
+bool appendencoded(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)

@@ -104,7 +104,7 @@ bool appendDEFAULTkv( //any other instance level attribute
    uint8_t            *vbuf     //buffer for values
 );
 
-bool appendNATIVEkv(
+bool appendnative(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -115,7 +115,7 @@ bool appendNATIVEkv(
   uint8_t            *vbuf     //buffer for values
 );
 
-bool appendCOMPRESSEDkv(
+bool appendnativeOW(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -125,7 +125,30 @@ bool appendCOMPRESSEDkv(
   bool               fromStdin,//value to be read, or already read in vbuf
   uint8_t            *vbuf     //buffer for values
 );
-bool appendCOMPRESSED01(
+
+bool appendnativeOF(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+);
+
+bool appendnativeOD(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+);
+
+bool appendencoded(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)

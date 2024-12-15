@@ -133,27 +133,26 @@ bool appendkv(
       }
       switch (vrcat) {
              
-         case kveal://AccessionNumberIssuer local 00080051.00400031
-         case kveau://AccessionNumberIssuer universal 00080051.00400032
-         case kvTL://UC
-
-         case kvTU://UR
+         case kv01://OB OD OF OL OV OW SV UV
             
-         case kvsxml://OB Encapsulated​Document 00420011
+         case kvsdocument://55 OB Encapsulated​Document 00420011 xml cda o pdf
+         case kvnative: //56 OB 0x7FE00010
+         case kvencoded: //57 OB 0x7E000010
+         case kvnativeOW: //58 OW 0x7FE00010
+         case kvnativeOD: //59 OD 0x7FE00009
+         case kvnativeOF: //60 OF 0x7FE00008
          case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
          case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
          case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-         case kv01://OB OD OF OL OV OW SV UV
-               
-         case kvUN:
-         {
-            printf("%08X %c%c %04X {%llu,%u}\n", u32swap(*t),v,r,*l,vloc+12,vlen);
-         } break;
-         
-         case kvSA://SQ head
-         {
-            printf("%08X00000000\n", u32swap(*t));
-         }break;
+         case kvTL://UC
+         case kveal://UT AccessionNumberIssuer local 00080051.00400031
+         case kveau://UT AccessionNumberIssuer universal 00080051.00400032
+         case kvTU://UR
+            break;
+            
+         case kvSA:printf("%08X00000000\n", u32swap(*t));break;
+            
+         case kvUN:printf("%08X %c%c %04X {%llu,%u}\n", u32swap(*t),v,r,*l,vloc+12,vlen);break;
 
          default: return false;
       }
@@ -245,6 +244,14 @@ bool appendkv(
          }break;
             
          case kvUS://unsigned short
+         case kvspp://7 US
+         case kvrows://8 US
+         case kvcols://9 US
+         case kvalloc://10 US
+         case kvstored://11 US
+         case kvhigh://12 US
+         case kvpixrep://13 US
+         case kvplanar://14 US
          {
             printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
@@ -276,10 +283,12 @@ bool appendkv(
             printf("\n");
          }break;
             
-         case kviuid://SOPInstanceUID
+         case kvUI://unique ID
          case kveuid://StudyInstanceUID
          case kvsuid://SeriesInstanceUID
-         case kvUI://unique ID
+         case kviuid://SOPInstanceUID
+         case kvpuid://00080019 PyramidUID
+         case kvcuid://SOP​Instance​UID​Of​Concatenation​Source
          {
             printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
@@ -296,25 +305,41 @@ bool appendkv(
             printf("\n");
          }break;
          
+         case kvTP:
          case kvpbirth://Patient birthdate
          case kvedate://StudyDate
-         case kvTP:
-            
-         case kvsmod://Modality
-         case kveat://AccessionNumberType
-         case kvsnumber://SeriesNumber
-         case kvinumber://InstanceNumber
-         case kvianumber://AcquisitionNumber
+         case kvsdate://SeriesDate
+         case kvstime://SeriesTime
+
          case kvTA://AE DS IS CS
-            
-         case kvsdoctitle://ST  DocumentTitle 00420010
-         case kvscdaid://HL7InstanceIdentifier
+         case kvpsex://CS patient sex
+         case kveat://AccessionNumberType
+         case kvsmod://Modality
+         case kvitype://CS 00080008 ImageType
+         case kvphotocode://CS
+         case kvsnumber://SeriesNumber
+         case kvianumber://AcquisitionNumber
+         case kvinumber://InstanceNumber
+
+         case kvTS://LO LT SH ST
+         case kvpay://LO insurance
+         case kvpide://SH patient id extension
+         case kvpidr://LO patient id root issuer
+         case kvimg://InstitutionName
+         case kvedesc://LO Study name
          case kveid://StudyID
          case kvean://AccessionNumber
-         case kvimg://InstitutionName
-         case kvTS://LO LT SH ST
-            
+         case kvecode://SQ/SH Study code 00080100,00080102
+         case kvsdesc://LO Series name
+         case kvscdaid://ST HL7InstanceIdentifier 0040E001  root^extension
+         case kvsdoctitle://ST  DocumentTitle 00420010
+         case kvicomment://LO
+
          case kvPN:
+         case kvpname://PN patient name
+         case kvcda://PN CDA
+         case kvref://PN referring
+         case kvreq://PN requesting
          {
             printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
             if (vlen > 0)
@@ -331,21 +356,9 @@ bool appendkv(
             printf("\n");
          }break;
             
-         case kvIA://item head
-         {
-            printf("%08X %c%c %04X\n",u32swap(*t),v,r,*l);
-         }break;
-            
-         case kvIZ://item tail
-         {
-            printf("%08X %c%c %04X\n",u32swap(*t),v,r,*l);
-         }break;
-            
-         case kvSZ://SQ tail
-         {
-            printf("%08XFFFFFFFF\n", u32swap(*t));
-         }break;
-
+         case kvIA:printf("%08X %c%c %04X\n",u32swap(*t),v,r,*l);break;//item head
+         case kvIZ:printf("%08X %c%c %04X\n",u32swap(*t),v,r,*l);break;//item tail
+         case kvSZ:printf("%08XFFFFFFFF\n", u32swap(*t));break;//SQ tail
          default: return false;
       }
    }
