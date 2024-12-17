@@ -13,11 +13,13 @@
 #include <stdlib.h> //malloc()
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 //#include <sys/time.h>
 #include <uuid/uuid.h>//for uuid_generate() and uuid_unparse()
 #include <sys/stat.h>//for directory creation
 #include <time.h>
 #include <sqlite3.h>
+//#include <errno.h>
 
 typedef char                s8;//%c
 typedef unsigned char       u8;//%c

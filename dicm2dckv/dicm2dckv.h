@@ -26,11 +26,11 @@ bool dicmuptosopts(
   u16 *silen, // length in valbyes for sop instance uid
   u64 *stloc, // offset in valbyes for transfer syntax
   u16 *stlen, // length in valbyes for transfer syntax
-  u16 *stidx  // index in const char *csstr[]
+  u16 *stidx,  // index in const char *csstr[]
+  s16 *siidx      // SOPinstance index
 );
 
 bool dicm2dckvInstance(
-   const char * dstdir,
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // buffer lectura del valor del atributo
    uint8_t *lbuf,

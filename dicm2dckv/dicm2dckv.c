@@ -165,15 +165,16 @@ const bool firstattravailable=false;
 bool dicmuptosopts(
    uint8_t *kbuf, // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf, // lectura del valor del atributo returns with sopiuid
-   u64 *inloc, // current stdin byte index
-   u64 *soloc, // offset in valbyes for sop class
-   u16 *solen, // length in valbyes for sop class
-   u16 *soidx, // index in const char *scstr[]
-   u64 *siloc, // offset in valbyes for sop instance uid
-   u16 *silen, // length in valbyes for sop instance uid
-   u64 *stloc, // offset in valbyes for transfer syntax
-   u16 *stlen, // length in valbyes for transfer syntax
-   u16 *stidx  // index in const char *csstr[]
+   u64 *inloc,    // current stdin byte index
+   u64 *soloc,    // offset in valbyes for sop class
+   u16 *solen,    // length in valbyes for sop class
+   u16 *soidx,    // index in const char *scstr[]
+   u64 *siloc,    // offset in valbyes for sop instance uid
+   u16 *silen,    // length in valbyes for sop instance uid
+   u64 *stloc,    // offset in valbyes for transfer syntax
+   u16 *stlen,    // length in valbyes for transfer syntax
+   u16 *stidx,    // index in const char *csstr[]
+   s16 *siidx     // SOPinstance index
 )
 {
    //read up to dicom version 0002001 (8+150 bytes)
@@ -252,11 +253,22 @@ bool dicmuptosopts(
    if (*stidx==0) return false;
    
    *inloc += *stlen;
+   if (!createdckv(
+                 vbuf,
+                 soloc,         // offset in valbyes for sop class
+                 solen,         // length in valbyes for sop class
+                 soidx,         // index in const char *scstr[]
+                 siloc,         // offset in valbyes for sop instance uid
+                 silen,         // length in valbyes for sop instance uid
+                 stloc,         // offset in valbyes for transfer syntax
+                 stlen,         // length in valbyes for transfer syntax
+                 stidx,         // index in const char *csstr[]
+                 siidx
+                 )) return false;
    return true;//(char*)vbuf+*siloc;
 }
 
 bool dicm2dckvInstance(
-   const char * dstdir,
    uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    uint8_t *vbuf,     // lectura del valor del atributo
    uint8_t *lbuf,
@@ -275,19 +287,6 @@ bool dicm2dckvInstance(
    s16 *siidx          // instance count
 )
 {
-   if (!createdckv(
-                 dstdir,
-                 vbuf,
-                 soloc,         // offset in valbyes for sop class
-                 solen,         // length in valbyes for sop class
-                 soidx,         // index in const char *scstr[]
-                 siloc,         // offset in valbyes for sop instance uid
-                 silen,         // length in valbyes for sop instance uid
-                 stloc,         // offset in valbyes for transfer syntax
-                 stlen,         // length in valbyes for transfer syntax
-                 stidx,         // index in const char *csstr[]
-                 siidx
-                 )) return false;
    
    if (*soidx>0) //part 10
    {

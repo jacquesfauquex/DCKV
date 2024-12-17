@@ -50,7 +50,6 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
 }
 
 bool createdckv(
-   const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
    u16 *solen,         // length in valbyes for sop class
@@ -66,8 +65,6 @@ bool createdckv(
    D("#%d",*siidx);
    
    dbpath=malloc(0xFF);
-   strcat(dbpath,dstdir);
-   strcat(dbpath, "/");
    char *ibuf = malloc(*silen);
    memcpy(ibuf, vbuf+*siloc+8, *silen);
    strcat(dbpath,ibuf);

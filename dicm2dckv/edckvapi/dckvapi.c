@@ -1018,6 +1018,10 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
    return edckvapi_fread8(buffer, bytesReadRef);
 }
 
+bool dicombinarymaxbuffer(s32 bytes)
+{
+   return edckvapi_dicombinarymaxbuffer(bytes);
+}
 
 #pragma mark - static
 
@@ -1030,7 +1034,6 @@ static bool isimage;
 #pragma mark - methods overriden by edckv
 
 bool createdckv(
-   const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
    u16 *solen,         // length in valbyes for sop class
@@ -1050,7 +1053,6 @@ bool createdckv(
    isimage=sopclassidxisimage(dckvapisoidx);
    
    return createedckv(
-   dstdir,
    vbuf,
    soloc,
    solen,

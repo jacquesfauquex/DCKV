@@ -120,9 +120,10 @@ kvUN,//UN 72
 
 #pragma mark - TO BE IMPLEMENTED FOR EACH TARGET
 
+bool dicombinarymaxbuffer(s32 bytes);
+
 //called after preliminar parsing of class, sop instance and transfer syntax
 bool createdckv(
-   const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in vbuf for sop class
    u16 *solen,         // length in vbuf for sop class

@@ -7,49 +7,10 @@
 //#include <stdio.h> //incluido in dckvtypes.h
 
 
-#pragma mark - overwrite read hooks
-size_t edckvapi_fread(
-                     void * __restrict __ptr,
-                     size_t __size,
-                     size_t __nitems,
-                     FILE * __restrict __stream
-                     )
-{
-   return fread(__ptr,__size,__nitems,__stream);
-}
-
-//returns true when 8 bytes were read
-u8 swapchar;
-bool edckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
-{
-   *bytesReadRef=edckvapi_fread(buffer, 1, 8, stdin);
-   if (ferror(stdin)){
-      E("%s","stdin error");
-      return false;
-   }
-   
-   if (*bytesReadRef==8){
-      swapchar=*buffer;
-      *buffer=*(buffer+1);
-      *(buffer+1)=swapchar;
-      swapchar=*(buffer+2);
-      *(buffer+2)=*(buffer+3);
-      *(buffer+3)=swapchar;
-   }
-   else
-   {
-      *buffer=0xFF;
-      *(buffer+1)=0xFF;
-      *(buffer+2)=0xFF;
-      *(buffer+3)=0xFF;
-   }
-   return true;
-}
-
-
-
 #pragma mark - static
 
+static char   relativePath[0xFF];
+unsigned char relativePathLength=0;
 
 static sqlite3      *db;
 static char         *dberr = 0;
@@ -80,19 +41,21 @@ static char *Sbuf;
 static char *Ibuf;
 static char *Pbuf;
 static char *Nbuf;
-static char *Cbuf;
+
+static char *Bbuf;
+static u32 Bidx=0;
+
 static u32 Eidx=0;
 static u32 Sidx=0;
 static u32 Iidx=0;
 static u32 Pidx=0;
 static u32 Nidx=0;
-static u32 Cidx=0;
+
 static u32 Emax=0;
 static u32 Smax=0;
 static u32 Imax=0;
 static u32 Pmax=0;
 static u32 Nmax=0;
-static u32 Cmax=0;
 
 static u32 utf8length;
 static char utf8bytes[256];
@@ -190,8 +153,59 @@ static u16  high;
 static u16  pixrep;
 static u16  planar;
 
+
+#pragma mark - overwrite read hooks
+size_t edckvapi_fread(
+                     void * __restrict __ptr,
+                     size_t __size,
+                     size_t __nitems,
+                     FILE * __restrict __stream
+                     )
+{
+   
+   size_t Bcopied=fread(Bbuf+Bidx,__size,__nitems,__stream);
+   memcpy(__ptr,Bbuf+Bidx,Bcopied);
+   Bidx+=Bcopied;
+   return Bcopied;
+   //return fread(__ptr,__size,__nitems,__stream);
+}
+
+//returns true when 8 bytes were read
+u8 swapchar;
+bool edckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
+{
+   *bytesReadRef=edckvapi_fread(buffer, 1, 8, stdin);
+   if (ferror(stdin)){
+      E("%s","stdin error");
+      return false;
+   }
+   
+   if (*bytesReadRef==8){
+      swapchar=*buffer;
+      *buffer=*(buffer+1);
+      *(buffer+1)=swapchar;
+      swapchar=*(buffer+2);
+      *(buffer+2)=*(buffer+3);
+      *(buffer+3)=swapchar;
+   }
+   else
+   {
+      *buffer=0xFF;
+      *(buffer+1)=0xFF;
+      *(buffer+2)=0xFF;
+      *(buffer+3)=0xFF;
+   }
+   return true;
+}
+
+bool edckvapi_dicombinarymaxbuffer(s32 bytes)
+{
+   Bidx=0;
+   Bbuf=malloc(bytes);
+   return (Bbuf!=NULL);
+}
+
 bool createedckv(
-   const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
    u16 *solen,         // length in valbyes for sop class
@@ -206,34 +220,20 @@ bool createedckv(
 {
 #pragma mark sqlite
    I("sqlite %s\n", sqlite3_libversion());
-   
-   //db path
-   u8 argv2strlen=strlen(dstdir);
-   char dbpath[argv2strlen+10];
-   memcpy(dbpath,dstdir,argv2strlen);
-   if (dbpath[argv2strlen-1]!='/') dbpath[argv2strlen++]='/';
-   memcpy(dbpath+argv2strlen, "edckv.db", 8);
-   dbpath[argv2strlen+8]=0x00;
 
    sqlite3 *db;
    char *dberr = 0;
    int   dbrc  = 0;//return code
    
-   if (stat(dbpath, &st)==-1)
+   if (stat("edckv.db", &st)==-1)
    {
-#pragma mark todo create default db from a dedicated file in the  project
-      I("create edckv.db in %s",dstdir);
-      dbrc = sqlite3_open_v2(dbpath, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+      dbrc = sqlite3_open_v2("edckv.db", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
       if (dbrc == SQLITE_OK)
       {
-         if (sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS hola (id INTEGER PRIMARY KEY AUTOINCREMENT)", NULL, NULL, &dberr) != SQLITE_OK)
-         {
-             sqlite3_close(db);
-             E("Table failed to create %s","hola");
-         }
+#pragma mark todo create default db from a dedicated file in the  project
       }
    }
-   else dbrc = sqlite3_open_v2(dbpath, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+   else dbrc = sqlite3_open_v2("edckv.db", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
    
    if (dbrc != SQLITE_OK)
    {
@@ -252,8 +252,6 @@ bool createedckv(
       sqlite3_close_v2(db);
       exit(1);
    }
-//insert stmt
-   //char einsert[] = "INSERT INTO E(da,ui) VALUES(?,?)";
    char einsert[] = "INSERT INTO E(procid,edate,euid,edckv,eblake3,pname,pide,pidr,pbirth,psex,eid,ean,eal,eau,eat,img,cda,req,ref,pay,edesc,ecode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
    dbrc=sqlite3_prepare(db, einsert, -1, &einsertstmt, 0);
    if (dbrc != SQLITE_OK)
@@ -305,24 +303,17 @@ bool createedckv(
    }
 
    
-   
-   
    isexplicit=*stidx==2;
 
    //static sopclass idx
    sopclassindex=*soidx;
    iclass=*soidx;
    //static base/pid path
-   strcat(dirpath,dstdir);
-   dirpathlength=strlen(dstdir);
-   if (dirpath[dirpathlength-1]!='/') dirpath[dirpathlength++]='/';
-   //dirpath[dirpathlength]=0x00;
-   //if ((stat(dirpath, &st)==-1) && (mkdir(dirpath, 0777)==-1)) return false;
-   sprintf(dirpath+dirpathlength, "%d", getpid());
-   dirpathlength+=intdecsize(getpid());
-   dirpath[dirpathlength++]='/';
-   dirpath[dirpathlength]=0x00;
-   if ((stat(dirpath, &st)==-1) && (mkdir(dirpath, 0777)==-1)) return false;
+   sprintf(relativePath, "%d", getpid());
+   relativePathLength=intdecsize(getpid());
+   relativePath[relativePathLength++]='/';
+   relativePath[relativePathLength]=0x00;
+   if ((stat(relativePath, &st)==-1) && (mkdir(relativePath, 0777)==-1)) return false;
    
    //resets
    euidb64length=0;
@@ -360,14 +351,6 @@ bool createedckv(
          Nbuf=malloc(Nmax);
       }
       Nidx=0;
-   }
-   else
-   {
-      if (Cmax==0) {
-         Cmax=0x6000000;
-         Cbuf=malloc(Cmax);
-      }
-      Cidx=0;
    }
 
    (*siidx)++;
@@ -691,18 +674,6 @@ bool morebuf(enum kvfamily f, u32 vlen)
          }
          Nbuf=newbuf;
       } break;
-      case kvC:{
-         if (vlen > 0xFF00) {
-            newbuf=realloc(Cbuf,Cmax+vlen+0x00FF);
-            if (newbuf == NULL) return false;
-            Cmax+=vlen+0x00FF;
-         } else {
-            newbuf=realloc(Cbuf,Cmax+0xFFFF);
-            if (newbuf == NULL) return false;
-            Cmax+=0xFFFF;
-         }
-         Cbuf=newbuf;
-      } break;
       default:
          return false;
          break;
@@ -716,6 +687,12 @@ bool morebuf(enum kvfamily f, u32 vlen)
 
 bool commitedckv(s16 *siidx)
 {
+   fileptr=fopen("/Users/jacquesfauquex/_.dcm", "w");
+   if (fileptr == NULL) return false;
+   if (fwrite(Bbuf ,1, Bidx , fileptr)!=Bidx) return false;
+   fclose(fileptr);
+
+   
    if (edate==0)
    {
       time_t rawtime;
@@ -944,6 +921,7 @@ bool commitedckv(s16 *siidx)
       //u iversion (relates the frames of instances into a same volume)
       //l concat (refers to distinct slices of the volumes)
       //versions of the same instance with diferent quality have diferent i
+/*
       if (Cidx>0)
       {
          //replace prefix in buffer
@@ -975,6 +953,7 @@ bool commitedckv(s16 *siidx)
          //reset
          Cidx=0;
       }
+ */
    }
    
    
@@ -990,7 +969,7 @@ bool closeedckv(s16 *siidx)
    sqlite3_finalize(einsertstmt);
    sqlite3_free(dberr);
    sqlite3_close(db);
-
+   Bidx=0;
    I("!#%d",*siidx);
    return true;
 }

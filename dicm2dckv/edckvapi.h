@@ -9,19 +9,19 @@
 #include "dckvapi.h"
 
 #include "blake3.h"
-#include <errno.h>
-#include <unistd.h>
+//#include <errno.h>
 
 enum kvfamily{
    kvE, //exam
    kvS, //series
    kvP, //private
    kvI, //instance
-   kvN, //native
-   kvC, //compressed
-   kvF, //fastquality j2k
-   kvH, //highquality j2k
-   kvO, //originalquality j2k
+   kvN  //native
+   //kvB,//original binario
+   //kvC, //compressed
+   //kvF, //fastquality j2k
+   //kvH, //highquality j2k
+   //kvO, //originalquality j2k
 };
    
 #pragma mark - possibility to overwrite any  read
@@ -33,11 +33,10 @@ size_t edckvapi_fread(
                       );
 bool edckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
 
-
+bool edckvapi_dicombinarymaxbuffer(s32 bytes);
 
 //called after preliminar parsing of class, sop instance and transfer syntax
 bool createedckv(
-   const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in vbuf for sop class
    u16 *solen,         // length in vbuf for sop class

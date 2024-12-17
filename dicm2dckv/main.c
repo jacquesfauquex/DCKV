@@ -9,31 +9,32 @@
  dicm2dckv may be used by any other app controlling dicm2dckv
  all fread get processed by dckvapi.m
  */
-
+ 
 int main(int argc, const char * argv[]) {
    /* args:
    0 command name defined by target
    1 loglevel [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
-   2 outdir
-   3 (opcional) infile
+   2 dicombinarymaxbuffer (en MB, 0=no dicom binary output)
+   3 (opcional) infile (absolute path only)
    */
-
-#pragma mark home dir
-   struct stat statparam={0};//for directory creation
-   if (stat(argv[2], &statparam)==-1)
-   {
-      I("create %s",argv[2]);
-      if (mkdir(argv[2], 0777)==-1)
-      {
-         E("%s","failed");
-         exit(1);
-      }
-   }
-  
-   if (argc < 3){
-      return dckvErrorArgs;
-   }
+   
+   if (argc < 3) return dckvErrorArgs;
+   if (argc > 4) return dckvErrorArgs;//optional, one path only
    if (!loglevel(argv[1])) exit(dckvErrorLogLevel);
+   
+chdir("/Users/jacquesfauquex/sqlite_edckv/");
+   char cwd[1024];
+   getcwd(cwd, sizeof(cwd));
+   D("working dir:  %s", cwd);
+
+   int dicombinarymaxsize=atoi(argv[2]);
+   if (dicombinarymaxsize < 0) return dckvErrorArgs;
+   else if (dicombinarymaxsize > 0)
+   {
+      if (dicombinarymaxbuffer(dicombinarymaxsize*1024*1024)) D("dicom buffer: %d MB", dicombinarymaxsize);
+      else E("cannot assign %d MB for dicom buffer",dicombinarymaxsize);
+   }
+   else D("%s", "no dicom buffer");
    
    uint8_t *kbuf = malloc(0xFF);//max use 16 bytes x 10 encapsulation levels
    uint8_t *vbuf = malloc(0xFFFE);//max size of vl attribute values
@@ -70,12 +71,12 @@ int main(int argc, const char * argv[]) {
                          &silen,
                          &stloc,
                          &stlen,
-                         &stidx
+                         &stidx,
+                         &siidx
                          )
           ) return dckvSOPinstanceRejected;
       
       if (!dicm2dckvInstance(
-                              argv[2],
                               kbuf,
                               vbuf,
                               lbuf,

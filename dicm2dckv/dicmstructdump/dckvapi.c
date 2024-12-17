@@ -52,7 +52,6 @@ const char *backslash = "\\";
 
 #pragma mark obligatorios formales
 bool createdckv(
-   const char * dstdir,
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
    u16 *solen,         // length in valbyes for sop class
