@@ -35,16 +35,7 @@ chdir("/Users/jacquesfauquex/sqlite_edckv/");
       else E("cannot assign %d MB for dicom buffer",dicombinarymaxsize);
    }
    else D("%s", "no dicom buffer");
-   
-   uint8_t *kbuf = malloc(0xFF);//max use 16 bytes x 10 encapsulation levels
-   uint8_t *vbuf = malloc(0xFFFE);//max size of vl attribute values
-   uint8_t *lbuf = malloc(0x4);//vll bytes
-   u32 vlen;//size of large attributes
-   u64 inloc;//inputstream index
-   u64 soloc,siloc,stloc;//so=sopClass, si=sopInstance, st=sopTransfer
-   u16 solen,silen,stlen;
-   u16 soidx,stidx;
-   
+   initdicm2dckv();
    //file or stdin
    s16 siidx=1;//instances count
 
@@ -60,46 +51,16 @@ chdir("/Users/jacquesfauquex/sqlite_edckv/");
       
    while (siidx)//if file, siidx==0 after first pass
    {
-      if (!dicmuptosopts(
-                          kbuf,
-                          vbuf,
-                         &inloc,
-                         &soloc,
-                         &solen,
-                         &soidx,
-                         &siloc,
-                         &silen,
-                         &stloc,
-                         &stlen,
-                         &stidx,
-                         &siidx
-                         )
-          ) return dckvSOPinstanceRejected;
+      if (!dicmuptosopts(&siidx)) return dckvSOPinstanceRejected;
       
       if (!dicm2dckvInstance(
-                              kbuf,
-                              vbuf,
-                              lbuf,
-                             &vlen,
-                             &inloc,
                               0xFFFFFFFF, //beforebyte
                               0xFFFCFFFC,  //beforetag agradado en dcmtk storescp al final de cada instancia, para delimitarla dentro del stream
-                             &soloc,
-                             &solen,
-                             &soidx,
-                             &siloc,
-                             &silen,
-                             &stloc,
-                             &stlen,
-                             &stidx,
                              &siidx
                              )
           ) return dckvErrorParsing;
    }
- 
+   //cleanupdicm2dckv();
    if (inFile!=NULL) fclose(inFile);
-   free(kbuf);
-   free(vbuf);
-   free(lbuf);
    return dckvExitOK;
 }
