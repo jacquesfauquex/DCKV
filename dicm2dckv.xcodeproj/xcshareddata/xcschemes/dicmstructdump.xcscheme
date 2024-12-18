@@ -59,12 +59,12 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "- "
-            isEnabled = "NO">
+            argument = "1000"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/jacquesfauquex/mdbx"
-            isEnabled = "YES">
+            argument = "-"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG1.ele.dcm"

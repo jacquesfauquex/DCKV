@@ -27,13 +27,13 @@ command loglevel outdir [testfile]
 ## APIs
 
 The basic API exposes handlers which manages the input instances in separate transactions framed by three handlers:
-- createdckv (which provides file meta information)
-- commitdckv
-- closedckv (automatically called by commitdckv, or executed alone)
+- _DKVcreate (which provides file meta information)
+- _DKVcommit
+- _DKVclose (automatically called by _DKVcommit, or executed alone)
 
 ### basic dckvapi
 
-While the transaction remains open, the implementation of the api receives for each of the attributes one call to the handler appendkv, which offers in parameters the result of the syntactical parsing of the attribute, with the exception of the value, which is not read yet from stdin. This last task is reserved for specific implementation.
+While the transaction remains open, the implementation of the api receives for each of the attributes one call to the handler _DKVappend, which offers in parameters the result of the syntactical parsing of the attribute, with the exception of the value, which is not read yet from stdin. This last task is reserved for specific implementation.
 
 Examples of targets adopting this api include:
 
@@ -42,15 +42,15 @@ Examples of targets adopting this api include:
 
 ## edckvapi
 
-alternative to dckvapi where the appendkv callback is replaced by several callbacks classifying the attributes in categories:
+alternative to dckvapi where the _DKVappend callback is replaced by several callbacks classifying the attributes in categories:
 
-- appendEXAMkv: (patient and study level attributes)
+- EDKVappend: (patient and study level attributes)
 
-- appendSERIESkv: (series level attributes. We add to this category the instance level attributes SR and encapsulatedCDA)
+- SDKVappend: (series level attributes. We add to this category the instance level attributes SR and encapsulatedCDA)
 
-- appendPRIVATEkv (odd group and UN attributes)
+- PDKVappend (odd group and UN attributes)
 
-- appendDEFAULTkv: (any other instance level attribute)
+- IDKVappend: (any other instance level attribute)
  
  - appendnative
  

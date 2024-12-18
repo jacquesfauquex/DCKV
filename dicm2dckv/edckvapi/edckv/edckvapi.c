@@ -9,6 +9,14 @@
 
 #pragma mark - static
 
+static char *Bbuf;
+static u32 Bidx=0;
+static FILE *fileptr;
+struct stat st={0};//for directory creation
+static char dirpath[256];
+static u8   dirpathlength;
+static char filepath[330];
+
 static char   relativePath[0xFF];
 unsigned char relativePathLength=0;
 
@@ -42,9 +50,6 @@ static char *Ibuf;
 static char *Pbuf;
 static char *Nbuf;
 
-static char *Bbuf;
-static u32 Bidx=0;
-
 static u32 Eidx=0;
 static u32 Sidx=0;
 static u32 Iidx=0;
@@ -66,11 +71,6 @@ static blake3_hasher hasher;
 static uint8_t hashbytes[BLAKE3_OUT_LEN];//32 bytes
 static u8 *registeredhashbytes;//32 bytes
 
-struct stat st={0};//for directory creation
-static char dirpath[256];
-static u8   dirpathlength;
-static char filepath[330];
-static FILE *fileptr;
 
 //prefix components
 static u8  sversion=0;
@@ -155,7 +155,7 @@ static u16  planar;
 
 
 #pragma mark - overwrite read hooks
-size_t edckvapi_fread(
+size_t EDKVfread(
                      void * __restrict __ptr,
                      size_t __size,
                      size_t __nitems,
@@ -172,9 +172,9 @@ size_t edckvapi_fread(
 
 //returns true when 8 bytes were read
 u8 swapchar;
-bool edckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
+bool EDKVfread8(uint8_t *buffer, u64 *bytesReadRef)
 {
-   *bytesReadRef=edckvapi_fread(buffer, 1, 8, stdin);
+   *bytesReadRef=EDKVfread(buffer, 1, 8, stdin);
    if (ferror(stdin)){
       E("%s","stdin error");
       return false;
@@ -198,14 +198,14 @@ bool edckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
    return true;
 }
 
-bool edckvapi_dicombinarymaxbuffer(s32 bytes)
+bool EDKVDICMbuffer(s32 bytes)
 {
    Bidx=0;
    Bbuf=malloc(bytes);
    return (Bbuf!=NULL);
 }
 
-bool createedckv(
+bool EDKVcreate(
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
    u16 *solen,         // length in valbyes for sop class
@@ -222,7 +222,7 @@ bool createedckv(
    I("sqlite %s\n", sqlite3_libversion());
 
    sqlite3 *db;
-   char *dberr = 0;
+   //char *dberr = 0;
    int   dbrc  = 0;//return code
    
    if (stat("edckv.db", &st)==-1)
@@ -610,11 +610,11 @@ bool ipinsert(u64 prefix)
 
 
 
-bool morebuf(enum kvfamily f, u32 vlen)
+bool morebuf(enum EDKVfamily f, u32 vlen)
 {
    char *newbuf;
    switch (f) {
-      case kvE:{
+      case EDKV:{
          if (vlen > 0xFF00) {
             newbuf=realloc(Ebuf,Emax+vlen+0x0FFF);
             if (newbuf == NULL) return false;
@@ -626,7 +626,7 @@ bool morebuf(enum kvfamily f, u32 vlen)
          }
          Ebuf=newbuf;
       } break;
-      case kvS:{
+      case SDKV:{
          if (vlen > 0xFF00) {
             newbuf=realloc(Sbuf,Smax+vlen+0x0FFF);
             if (newbuf == NULL) return false;
@@ -638,7 +638,7 @@ bool morebuf(enum kvfamily f, u32 vlen)
          }
          Sbuf=newbuf;
       } break;
-      case kvP:{
+      case PDKV:{
          if (vlen > 0xFF00) {
             newbuf=realloc(Pbuf,Pmax+vlen+0x0FFF);
             if (newbuf == NULL) return false;
@@ -650,7 +650,7 @@ bool morebuf(enum kvfamily f, u32 vlen)
          }
          Pbuf=newbuf;
       } break;
-      case kvI:{
+      case IDKV:{
          if (vlen > 0xFF00) {
             newbuf=realloc(Ibuf,Imax+vlen+0x0FFF);
             if (newbuf == NULL) return false;
@@ -662,7 +662,7 @@ bool morebuf(enum kvfamily f, u32 vlen)
          }
          Ibuf=newbuf;
       } break;
-      case kvN:{
+      case FDKV:{
          if (vlen > 0xFF00) {
             newbuf=realloc(Nbuf,Nmax+vlen+0x00FF);
             if (newbuf == NULL) return false;
@@ -685,9 +685,9 @@ bool morebuf(enum kvfamily f, u32 vlen)
 
 #pragma mark -
 
-bool commitedckv(s16 *siidx)
+bool EDKVcommit(s16 *siidx)
 {
-   fileptr=fopen("/Users/jacquesfauquex/_.dcm", "w");
+   fileptr=fopen("edckv.dcm", "w");
    if (fileptr == NULL) return false;
    if (fwrite(Bbuf ,1, Bidx , fileptr)!=Bidx) return false;
    fclose(fileptr);
@@ -959,11 +959,11 @@ bool commitedckv(s16 *siidx)
    
    snumber=0;
    inumber=0;
-   return closedckv(siidx);
+   return _DKVclose(siidx);
 }
 
 
-bool closeedckv(s16 *siidx)
+bool EDKVclose(s16 *siidx)
 {
    sqlite3_finalize(eblake3stmt);
    sqlite3_finalize(einsertstmt);
@@ -976,7 +976,7 @@ bool closeedckv(s16 *siidx)
 
 #pragma mark -
 
-bool appendEXAMkv( //patient and study level attributes
+bool EDKVappend( //patient and study level attributes
    uint8_t            *kbuf,    //contextualized key value buffer
    u32                kloc,     //offset of current attribute in key
    bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -988,7 +988,7 @@ bool appendEXAMkv( //patient and study level attributes
 )
 {
    //freeing buffer necesary?
-   if ((vlen + 21 + kloc + Eidx > Emax) && !morebuf(kvE,vlen)) return false;
+   if ((vlen + 21 + kloc + Eidx > Emax) && !morebuf(EDKV,vlen)) return false;
 
    //key length = key path length + 8 prefix + 8 current attribute
    //idx increased by 1
@@ -1008,7 +1008,7 @@ bool appendEXAMkv( //patient and study level attributes
    if (vlen==0) return true;
    //value with contents
 
-   if (fromStdin){if(edckvapi_fread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
+   if (fromStdin){if(EDKVfread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
    else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
    
    switch (vrcat)
@@ -1171,7 +1171,7 @@ bool appendEXAMkv( //patient and study level attributes
    return true;
 }
 
-bool appendSERIESkv(//seWe add to this category instance level attributes SR and encapsulatedCDA
+bool SDKVappend(//seWe add to this category instance level attributes SR and encapsulatedCDA
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -1183,7 +1183,7 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
 )
 {
    //freeing buffer necesary?
-   if ((vlen + 21 + kloc + Sidx > Smax) && !morebuf(kvS,vlen)) return false;
+   if ((vlen + 21 + kloc + Sidx > Smax) && !morebuf(SDKV,vlen)) return false;
 
    //key length = key path length + 8 prefix + 8 current attribute
    //idx increased by 1
@@ -1203,7 +1203,7 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
    if (vlen==0) return true;
    //value with contents
 
-   if (fromStdin){if(edckvapi_fread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
+   if (fromStdin){if(EDKVfread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
    else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
    switch (vrcat)
    {
@@ -1279,7 +1279,7 @@ bool appendSERIESkv(//seWe add to this category instance level attributes SR and
    return true;
 }
 
-bool appendPRIVATEkv( //odd group and UN attributes
+bool PDKVappend( //odd group and UN attributes
    uint8_t            *kbuf,    //contextualized key value buffer
    u32                kloc,     //offset of current attribute in key
    bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -1291,7 +1291,7 @@ bool appendPRIVATEkv( //odd group and UN attributes
 )
 {
    //freeing buffer necesary?
-   if ((vlen + 21 + kloc + Pidx > Pmax) && !morebuf(kvP,vlen)) return false;
+   if ((vlen + 21 + kloc + Pidx > Pmax) && !morebuf(PDKV,vlen)) return false;
 
    //key length = key path length + 8 prefix + 8 current attribute
    //idx increased by 1
@@ -1315,7 +1315,7 @@ bool appendPRIVATEkv( //odd group and UN attributes
 #pragma mark UID
       case kvUI://unique ID
       {
-         if (fromStdin){if(edckvapi_fread(Pbuf+Pidx,1,vlen,stdin)!=vlen) return false;}
+         if (fromStdin){if(EDKVfread(Pbuf+Pidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Pbuf+Pidx, vbuf, vlen);//from vbuf
          Pidx+=vlen;
       };break;
@@ -1337,7 +1337,7 @@ bool appendPRIVATEkv( //odd group and UN attributes
       //   kvUN only private
       case kv01://OB OD OF OL OV OW SV UV
       {
-         if (fromStdin){if(edckvapi_fread(Pbuf+Pidx,1,vlen,stdin)!=vlen) return false;}
+         if (fromStdin){if(EDKVfread(Pbuf+Pidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Pbuf+Pidx, vbuf, vlen);//from vbuf
          Pidx+=vlen;
       };break;
@@ -1350,7 +1350,7 @@ bool appendPRIVATEkv( //odd group and UN attributes
    
 }
 
-bool appendDEFAULTkv( //any other instance level attribute
+bool IDKVappend( //any other instance level attribute
    uint8_t            *kbuf,    //contextualized key value buffer
    u32                kloc,     //offset of current attribute in key
    bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -1362,7 +1362,7 @@ bool appendDEFAULTkv( //any other instance level attribute
 )
 {
    //freeing buffer necesary?
-   if ((vlen + 21 + kloc + Iidx > Imax) && !morebuf(kvI,vlen)) return false;
+   if ((vlen + 21 + kloc + Iidx > Imax) && !morebuf(IDKV,vlen)) return false;
 
    //key length = key path length + 8 prefix + 8 current attribute
    //idx increased by 1
@@ -1383,7 +1383,7 @@ bool appendDEFAULTkv( //any other instance level attribute
    //value with contents
 
 
-   if (fromStdin){if(edckvapi_fread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
+   if (fromStdin){if(EDKVfread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
    else memcpy(Ibuf+Iidx, vbuf, vlen);//from vbuf
    
    /*
@@ -1477,7 +1477,7 @@ bool appendnative(
 )
 {
    //freeing buffer necesary?
-   if ((vlen + 21 + kloc + Nidx > Nmax) && !morebuf(kvN,vlen)) return false;
+   if ((vlen + 21 + kloc + Nidx > Nmax) && !morebuf(FDKV,vlen)) return false;
 
    //key length = key path length + 8 prefix + 8 current attribute
    //idx increased by 1
@@ -1501,7 +1501,7 @@ bool appendnative(
 #pragma mark UID
       case kvUI://unique ID (transfert syntax)
       {
-         if (fromStdin){if(edckvapi_fread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
+         if (fromStdin){if(EDKVfread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Nbuf+Nidx, vbuf, vlen);//from vbuf
          Nidx+=vlen;
       };break;
@@ -1516,7 +1516,7 @@ bool appendnative(
       case kvnativeOF://42 0x7FE00008: //OF float
       case kvnativeOD://43 0x7FE00009: //OD double
       {
-         if (fromStdin){if(edckvapi_fread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
+         if (fromStdin){if(EDKVfread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
          else memcpy(Nbuf+Nidx, vbuf, vlen);//from vbuf
          Nidx+=vlen;
       };break;
@@ -1598,11 +1598,11 @@ bool appendencoded(
       
       
       //fragmento 0
-      if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
+      if (EDKVfread(&fragmentbytes, 1, 8, stdin)!=8) return false;
       if (fragmentstruct->t != 0xe000fffe) return false;
       //read (and ignore) neventually existing table
       if (   (fragmentstruct->l > 0)
-          && (edckvapi_fread(vbuf,1,fragmentstruct->l,stdin) != fragmentstruct->l)
+          && (EDKVfread(vbuf,1,fragmentstruct->l,stdin) != fragmentstruct->l)
          ) return false;
       vloc+=20+fragmentstruct->l;
 
@@ -1611,7 +1611,7 @@ bool appendencoded(
       //fwriteIfile(false);
       
       //read fragment 1
-      if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
+      if (EDKVfread(&fragmentbytes, 1, 8, stdin)!=8) return false;
       
       while (fragmentstruct->t != 0xe0ddfffe)
       {
@@ -1635,19 +1635,19 @@ bool appendencoded(
             size_t bytesremaing=fragmentstruct->l;
             while ( bytesremaing > 0xFFFD)
             {
-               if (edckvapi_fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
+               if (EDKVfread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
 #pragma mark TODO                               if (fwrite(vbuf ,1, 0xFFFE , Ifile)!=0xFFFE) return false;
                bytesremaing-=0xFFFE;
             }
             if (bytesremaing > 0)
             {
-               if (edckvapi_fread(vbuf,1,bytesremaing,stdin)!=bytesremaing) return false;
+               if (EDKVfread(vbuf,1,bytesremaing,stdin)!=bytesremaing) return false;
 #pragma mark TODO                               if (fwrite(vbuf ,1, bytesremaing , Ifile)!=bytesremaing) return false;
             }
 
          }
          vloc+=8+fragmentstruct->l;//174674 en lugar de 172954 (dif 1720)
-         if (edckvapi_fread(&fragmentbytes, 1, 8, stdin)!=8) return false;
+         if (EDKVfread(&fragmentbytes, 1, 8, stdin)!=8) return false;
       }
    }
    else //already in buffer

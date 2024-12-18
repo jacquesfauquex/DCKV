@@ -11,12 +11,12 @@
 #include "blake3.h"
 //#include <errno.h>
 
-enum kvfamily{
-   kvE, //exam
-   kvS, //series
-   kvP, //private
-   kvI, //instance
-   kvN  //native
+enum EDKVfamily{
+   EDKV, //exam
+   SDKV, //series
+   PDKV, //private
+   IDKV, //instance
+   FDKV  //frame: native or encoded
    //kvB,//original binario
    //kvC, //compressed
    //kvF, //fastquality j2k
@@ -25,18 +25,18 @@ enum kvfamily{
 };
    
 #pragma mark - possibility to overwrite any  read
-size_t edckvapi_fread(
+size_t EDKVfread(
                      void * __restrict __ptr,
                      size_t __size,
                      size_t __nitems,
                      FILE * __restrict __stream
                       );
-bool edckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
+bool EDKVfread8(uint8_t *buffer, u64 *bytesReadRef);
 
-bool edckvapi_dicombinarymaxbuffer(s32 bytes);
+bool EDKVDICMbuffer(s32 bytes);
 
 //called after preliminar parsing of class, sop instance and transfer syntax
-bool createedckv(
+bool EDKVcreate(
    uint8_t    * vbuf,
    u64 *soloc,         // offset in vbuf for sop class
    u16 *solen,         // length in vbuf for sop class
@@ -50,16 +50,16 @@ bool createedckv(
 );
 
 //called after parsing successfully all the attributes
-bool commitedckv(s16 *siidx);//aplica a todos los kv
+bool EDKVcommit(s16 *siidx);//aplica a todos los kv
 
 //finalizes the opened tx
-bool closeedckv(s16 *siidx);//aplica a todos los kv
+bool EDKVclose(s16 *siidx);//aplica a todos los kv
 
 
 
-#pragma mark replace appendkv of dckvapi (which should not be implemented directly)
+#pragma mark replace _DKVappend of dckvapi (which should not be implemented directly)
 
-bool appendEXAMkv( //patient and study level attributes
+bool EDKVappend( //patient and study level attributes
    uint8_t            *kbuf,    //contextualized key value buffer
    u32                kloc,     //offset of current attribute in key
    bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -70,7 +70,7 @@ bool appendEXAMkv( //patient and study level attributes
    uint8_t            *vbuf     //buffer for values
 );
 
-bool appendSERIESkv( //series level attributes. We add to this category the instance level attributes SR and encapsulatedCDA
+bool SDKVappend( //series level attributes. We add to this category the instance level attributes SR and encapsulatedCDA
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -81,7 +81,7 @@ bool appendSERIESkv( //series level attributes. We add to this category the inst
   uint8_t            *vbuf     //buffer for values
 );
 
-bool appendPRIVATEkv( //odd group and UN attributes
+bool PDKVappend( //odd group and UN attributes
    uint8_t            *kbuf,    //contextualized key value buffer
    u32                kloc,     //offset of current attribute in key
    bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -92,7 +92,7 @@ bool appendPRIVATEkv( //odd group and UN attributes
    uint8_t            *vbuf     //buffer for values
 );
 
-bool appendDEFAULTkv( //any other instance level attribute
+bool IDKVappend( //any other instance level attribute
    uint8_t            *kbuf,    //contextualized key value buffer
    u32                kloc,     //offset of current attribute in key
    bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)

@@ -11,7 +11,7 @@
 
 #pragma mark - blocking code
 
-size_t dckvapi_fread(
+size_t _DKVfread(
                      void * __restrict __ptr,
                      size_t __size,
                      size_t __nitems,
@@ -20,7 +20,7 @@ size_t dckvapi_fread(
 
 
 //returns true when it was possible to read the 8 bytes
-bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef);
+bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef);
 
 
 #pragma mark - propietary vr
@@ -120,10 +120,10 @@ kvUN,//UN 72
 
 #pragma mark - TO BE IMPLEMENTED FOR EACH TARGET
 
-bool dicombinarymaxbuffer(s32 bytes);
+bool _DKVDICMbuffer(s32 bytes);
 
 //called after preliminar parsing of class, sop instance and transfer syntax
-bool createdckv(
+bool _DKVcreate(
    uint8_t    * vbuf,
    u64 *soloc,         // offset in vbuf for sop class
    u16 *solen,         // length in vbuf for sop class
@@ -137,15 +137,15 @@ bool createdckv(
 );
 
 //called after parsing successfully all the attributes
-bool commitdckv(s16 *siidx);//aplica a todos los kv
+bool _DKVcommit(s16 *siidx);//aplica a todos los kv
 
 //finalizes the opened tx
-bool closedckv(s16 *siidx);//aplica a todos los kv
+bool _DKVclose(s16 *siidx);//aplica a todos los kv
 
-//appendkv called for each parsed attribute, with value already read in vbuf or not.
+//_DKVappend called for each parsed attribute, with value already read in vbuf or not.
 //vbuf is 0xFFFE bytes long (máx short DICOM vl).
 
-bool appendkv(
+bool _DKVappend(
               uint8_t            *kbuf,      //contextualized key value buffer
               u32                kloc,       //offset of current attribute in key
               bool               vlenisl,    //attribute is long length (4 bytes) or short length (2 bytes)

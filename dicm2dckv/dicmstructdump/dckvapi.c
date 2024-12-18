@@ -7,21 +7,30 @@
 
 #include "dckvapi.h"
 
-size_t dckvapi_fread(
+static char *Bbuf;
+static u32 Bidx=0;
+static FILE *fileptr;
+
+
+size_t _DKVfread(
                      void * __restrict __ptr,
                      size_t __size,
                      size_t __nitems,
                      FILE * __restrict __stream
                      )
 {
-   return fread(__ptr,__size,__nitems,__stream);
+   size_t Bcopied=fread(Bbuf+Bidx,__size,__nitems,__stream);
+   memcpy(__ptr,Bbuf+Bidx,Bcopied);
+   Bidx+=Bcopied;
+   return Bcopied;
+   //return fread(__ptr,__size,__nitems,__stream);
 }
 
 u8 swapchar;
 
 
 //returns true when 8 bytes were read
-bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
+bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
 {
    *bytesReadRef=fread(buffer, 1, 8, stdin);
    if (ferror(stdin)){
@@ -47,11 +56,18 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
    return true;
 }
 
+bool _DKVDICMbuffer(s32 bytes)
+{
+   Bidx=0;
+   Bbuf=malloc(bytes);
+   return (Bbuf!=NULL);
+}
+
 const char *space=" ";
 const char *backslash = "\\";
 
 #pragma mark obligatorios formales
-bool createdckv(
+bool _DKVcreate(
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
    u16 *solen,         // length in valbyes for sop class
@@ -68,10 +84,14 @@ bool createdckv(
    printf("     144 %s\n","00020001 OB 0000 {156,2}");
    return true;
 }
-bool commitdckv(s16 *siidx){
-   return closedckv(siidx);
+bool _DKVcommit(s16 *siidx){
+   fileptr=fopen("dicmstructdump.dcm", "w");
+   if (fileptr == NULL) return false;
+   if (fwrite(Bbuf ,1, Bidx , fileptr)!=Bidx) return false;
+   fclose(fileptr);
+   return _DKVclose(siidx);
 }
-bool closedckv(s16 *siidx){
+bool _DKVclose(s16 *siidx){
    I("!#%d",*siidx);
    
    return true;
@@ -80,7 +100,7 @@ bool closedckv(s16 *siidx){
 
 #pragma mark - parseo y agregado
 
-bool appendkv(
+bool _DKVappend(
               uint8_t           *kbuf,
               u32                kloc,
               bool               vlenisl,

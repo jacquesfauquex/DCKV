@@ -14,7 +14,7 @@ int main(int argc, const char * argv[]) {
    /* args:
    0 command name defined by target
    1 loglevel [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
-   2 dicombinarymaxbuffer (en MB, 0=no dicom binary output)
+   2 _DKVDICMbuffer (en MB, 0=no dicom binary output)
    3 (opcional) infile (absolute path only)
    */
    
@@ -31,7 +31,7 @@ chdir("/Users/jacquesfauquex/sqlite_edckv/");
    if (dicombinarymaxsize < 0) return dckvErrorArgs;
    else if (dicombinarymaxsize > 0)
    {
-      if (dicombinarymaxbuffer(dicombinarymaxsize*1024*1024)) D("dicom buffer: %d MB", dicombinarymaxsize);
+      if (_DKVDICMbuffer(dicombinarymaxsize*1024*1024)) D("dicom buffer: %d MB", dicombinarymaxsize);
       else E("cannot assign %d MB for dicom buffer",dicombinarymaxsize);
    }
    else D("%s", "no dicom buffer");

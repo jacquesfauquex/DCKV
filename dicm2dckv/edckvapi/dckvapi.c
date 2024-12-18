@@ -999,28 +999,26 @@ const u8 PCStype[]={
 };
 
 
-
-
 #pragma mark - possibility to overwrite any  read
-size_t dckvapi_fread(
+size_t _DKVfread(
                      void * __restrict __ptr,
                      size_t __size,
                      size_t __nitems,
                      FILE * __restrict __stream
                      )
 {
-   return edckvapi_fread(__ptr,__size,__nitems,__stream);
+   return EDKVfread(__ptr,__size,__nitems,__stream);
 }
 
 //returns true when 8 bytes were read
-bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
+bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
 {
-   return edckvapi_fread8(buffer, bytesReadRef);
+   return EDKVfread8(buffer, bytesReadRef);
 }
 
-bool dicombinarymaxbuffer(s32 bytes)
+bool _DKVDICMbuffer(s32 bytes)
 {
-   return edckvapi_dicombinarymaxbuffer(bytes);
+   return EDKVDICMbuffer(bytes);
 }
 
 #pragma mark - static
@@ -1033,7 +1031,7 @@ static bool isimage;
 
 #pragma mark - methods overriden by edckv
 
-bool createdckv(
+bool _DKVcreate(
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
    u16 *solen,         // length in valbyes for sop class
@@ -1052,7 +1050,7 @@ bool createdckv(
    //remember transfer syntax and if native or not
    isimage=sopclassidxisimage(dckvapisoidx);
    
-   return createedckv(
+   return EDKVcreate(
    vbuf,
    soloc,
    solen,
@@ -1067,20 +1065,20 @@ bool createdckv(
 }
 
 
-bool commitdckv(s16 *siidx)
+bool _DKVcommit(s16 *siidx)
 {
-   return commitedckv(siidx);
+   return EDKVcommit(siidx);
 }
 
 
-bool closedckv(s16 *siidx)
+bool _DKVclose(s16 *siidx)
 {
-   return closeedckv(siidx);
+   return EDKVclose(siidx);
 }
 
 
 #pragma mark - method discriminating kv by types and calling corresponding edckv method
-bool appendkv(
+bool _DKVappend(
               uint8_t           *kbuf,
               u32                kloc,
               bool               vlenisl,
@@ -1109,13 +1107,13 @@ bool appendkv(
    if (kbuf[1] & 1)
    {
       D("P %08X",roottag);
-      return appendPRIVATEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      return PDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
    }
 
    switch (vrcat) {
       case kvUN:{
          D("P %08X",roottag);//private unknown
-         return appendPRIVATEkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         return PDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvnative:{
          D("B %08X",roottag);
@@ -1145,7 +1143,7 @@ bool appendkv(
          if (roottag < PCStag[PCSidx])
          {
             D("I %08X",roottag);
-            return appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+            return IDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
          }
          else
          {
@@ -1155,18 +1153,18 @@ bool appendkv(
                if (PCStype[PCSidx]==0)
                {
                   D("E %08X",roottag);
-                  return appendEXAMkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+                  return EDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
                }
                else
                {
                   D("S %08X",roottag);
-                  return appendSERIESkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+                  return SDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
                }
             }
             else
             {
                D("I %08X",roottag);
-               return appendDEFAULTkv(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+               return IDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
             }
          }
          E("dckvapi unknown or misplaced %08X\n",roottag);

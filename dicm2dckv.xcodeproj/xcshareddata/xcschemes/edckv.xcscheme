@@ -64,14 +64,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/jacquesfauquex/mdbx"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/jacquesfauquex/sqlite_edckv"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/ele/5063730.dcm"
             isEnabled = "NO">
          </CommandLineArgument>

@@ -179,7 +179,7 @@ bool dicmuptosopts(
 {
    //read up to dicom version 0002001 (8+150 bytes)
    D("%s","waiting 158 bytes on stdin");
-   *inloc=dckvapi_fread(kbuf, 1,158, stdin);
+   *inloc=_DKVfread(kbuf, 1,158, stdin);
    if (*inloc!=158) return false;
    
    //check if 128-131 = DICM
@@ -192,7 +192,7 @@ bool dicmuptosopts(
    
 #pragma mark read sop object [so] (=sop class)
    *soloc=*inloc;
-   bytescount=dckvapi_fread(kbuf, 1, 8, stdin);
+   bytescount=_DKVfread(kbuf, 1, 8, stdin);
    if (bytescount!=8) return false;
    if ((*attruint64 % 0x100000000)!=0x00020002)
    {
@@ -201,7 +201,7 @@ bool dicmuptosopts(
    }
    *inloc+=bytescount;
    *solen=attrstruct->l;
-   bytescount=dckvapi_fread(vbuf+*inloc, 1, *solen, stdin);
+   bytescount=_DKVfread(vbuf+*inloc, 1, *solen, stdin);
    if  (bytescount!=*solen)//not enough bytes
    {
       E("%s","bad 00020002");
@@ -213,7 +213,7 @@ bool dicmuptosopts(
 
 #pragma mark read sop instance uid [si]
    *siloc=*inloc;
-   bytescount=dckvapi_fread(vbuf+*inloc, 1, 8, stdin);
+   bytescount=_DKVfread(vbuf+*inloc, 1, 8, stdin);
    if (bytescount!=8) return false;
    memcpy(kbuf, vbuf+*inloc, bytescount);
    if ((*attruint64 % 0x100000000)!=0x00030002)
@@ -223,7 +223,7 @@ bool dicmuptosopts(
    }
    *inloc+=bytescount;
    *silen=attrstruct->l;
-   bytescount=dckvapi_fread(vbuf+*inloc, 1, *silen, stdin);
+   bytescount=_DKVfread(vbuf+*inloc, 1, *silen, stdin);
    if  (bytescount!=*silen)//not enough bytes
    {
       E("%s","bad 00020003");
@@ -233,7 +233,7 @@ bool dicmuptosopts(
 
 #pragma mark read transfer syntax
    *stloc=*inloc;
-   bytescount=dckvapi_fread(vbuf+*inloc, 1, 8, stdin);
+   bytescount=_DKVfread(vbuf+*inloc, 1, 8, stdin);
    if (bytescount!=8) return false;
    memcpy(kbuf, vbuf+*inloc, bytescount);
    if ((*attruint64 % 0x100000000)!=0x00100002)
@@ -243,7 +243,7 @@ bool dicmuptosopts(
    }
    *inloc+=bytescount;
    *stlen=attrstruct->l;
-   bytescount=dckvapi_fread(vbuf+*inloc, 1, *stlen, stdin);
+   bytescount=_DKVfread(vbuf+*inloc, 1, *stlen, stdin);
    if  (bytescount!=*stlen)//not enough bytes
    {
       E("%s","no 00020010");
@@ -253,7 +253,7 @@ bool dicmuptosopts(
    if (*stidx==0) return false;
    
    *inloc += *stlen;
-   if (!createdckv(
+   if (!_DKVcreate(
                  vbuf,
                  soloc,         // offset in valbyes for sop class
                  solen,         // length in valbyes for sop class
@@ -291,11 +291,11 @@ bool dicm2dckvInstance(
    if (*soidx>0) //part 10
    {
       const u64 key00020002=0x0000495502000200;
-      if(!appendkv((uint8_t*)&key00020002,0,isshort,kvUI, *soloc, *solen,frombuffer,vbuf+*soloc+8)) return false;
+      if(!_DKVappend((uint8_t*)&key00020002,0,isshort,kvUI, *soloc, *solen,frombuffer,vbuf+*soloc+8)) return false;
       const u64 key00020003=0x0000495503000200;
-      if(!appendkv((uint8_t*)&key00020003,0,isshort,kvUI, *siloc, *silen,frombuffer,vbuf+*siloc+8)) return false;
+      if(!_DKVappend((uint8_t*)&key00020003,0,isshort,kvUI, *siloc, *silen,frombuffer,vbuf+*siloc+8)) return false;
       const u64 key00020010=0x0000495510000200;
-      if(!appendkv((uint8_t*)&key00020010,0,isshort,kvUI, *stloc, *stlen,frombuffer,vbuf+*stloc+8)) return false;
+      if(!_DKVappend((uint8_t*)&key00020010,0,isshort,kvUI, *stloc, *stlen,frombuffer,vbuf+*stloc+8)) return false;
       
       //do not write transfert syntax (which is always explicit little endian) in dicm2dckv
       
@@ -315,7 +315,7 @@ bool dicm2dckvInstance(
                             stidx
                             )
           ) return false;
-      if (!commitdckv(siidx)) return false;
+      if (!_DKVcommit(siidx)) return false;
       return true;
    }
    else //pure dataset
@@ -334,9 +334,9 @@ bool dicm2dckvInstance(
                      beforetag,  //beforetag
                      soidx,
                      stidx
-                    ) && commitdckv(siidx)) return true;
+                    ) && _DKVcommit(siidx)) return true;
    }
-   closedckv(siidx);
+   _DKVclose(siidx);
    return false;
 }
 
@@ -363,7 +363,7 @@ bool dicm2dckvDataset(
    //u16 vl=0;//keeps vl while overwritting it in kbuf
    u8 *attrbytes=kbuf+kloc;//subbuffer for attr reading
    struct t4r2l2 *attrstruct=(struct t4r2l2*) attrbytes;//corresponding struct
-   if (readfirstattr && (! dckvapi_fread8(attrbytes, &bytescount))) return false;
+   if (readfirstattr && (! _DKVfread8(attrbytes, &bytescount))) return false;
    while (
        (*inloc < beforebyte)
     && (u32swap(attrstruct->t) < beforetag)
@@ -378,12 +378,12 @@ bool dicm2dckvDataset(
             
             switch (attrstruct->t) {
                case B7FE00008:
-                  if (!appendkv(kbuf,kloc,isshort,kvnativeOD,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvnativeOD,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvFD,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvFD,*inloc,*vlen,fromStdin,vbuf)) return false;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
             
          case FL://floating point single
@@ -393,39 +393,39 @@ bool dicm2dckvDataset(
             
             switch (attrstruct->t) {
                case B7FE00009:
-                  if (!appendkv(kbuf,kloc,isshort,kvnativeOF,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvnativeOF,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvFL,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvFL,*inloc,*vlen,fromStdin,vbuf)) return false;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
             
          case SL://signed long
          {
             *vlen=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,kloc,isshort,kvSL,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,isshort,kvSL,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
             
          case SS://signed short
          {
             *vlen=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,kloc,isshort,kvSS,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,isshort,kvSS,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
             
          case UL://unsigned long
          {
             *vlen=attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,kloc,isshort,kvUL,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,isshort,kvUL,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
             
          case US://unsigned short
@@ -435,34 +435,34 @@ bool dicm2dckvDataset(
             
             switch (attrstruct->t) {
                case B00280002://spp
-                  if(!appendkv(kbuf,kloc,isshort,kvspp,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if(!_DKVappend(kbuf,kloc,isshort,kvspp,*inloc,*vlen,fromStdin,vbuf)) return false; break;
              
                case B00280010://rows
-                  if(!appendkv(kbuf,kloc,isshort,kvrows,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if(!_DKVappend(kbuf,kloc,isshort,kvrows,*inloc,*vlen,fromStdin,vbuf)) return false; break;
              
                case B00280011://cols
-                  if(!appendkv(kbuf,kloc,isshort,kvcols,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if(!_DKVappend(kbuf,kloc,isshort,kvcols,*inloc,*vlen,fromStdin,vbuf)) return false; break;
              
                case B00280100://alloc
-                  if(!appendkv(kbuf,kloc,isshort,kvalloc,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if(!_DKVappend(kbuf,kloc,isshort,kvalloc,*inloc,*vlen,fromStdin,vbuf)) return false; break;
              
                case B00280101://stored
-                  if(!appendkv(kbuf,kloc,isshort,kvstored,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if(!_DKVappend(kbuf,kloc,isshort,kvstored,*inloc,*vlen,fromStdin,vbuf)) return false; break;
              
                case B00280102://high
-                  if(!appendkv(kbuf,kloc,isshort,kvhigh,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if(!_DKVappend(kbuf,kloc,isshort,kvhigh,*inloc,*vlen,fromStdin,vbuf)) return false; break;
              
                case B00280103://pixrep
-                  if(!appendkv(kbuf,kloc,isshort,kvpixrep,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                  if(!_DKVappend(kbuf,kloc,isshort,kvpixrep,*inloc,*vlen,fromStdin,vbuf)) return false; break;
              
                case B00280106://planar
-                    if(!appendkv(kbuf,kloc,isshort,kvplanar,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+                    if(!_DKVappend(kbuf,kloc,isshort,kvplanar,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvUS,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvUS,*inloc,*vlen,fromStdin,vbuf)) return false;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
             
             
@@ -471,9 +471,9 @@ bool dicm2dckvDataset(
          {
             *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,kloc,isshort,kvAT,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,isshort,kvAT,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
 
             
@@ -484,13 +484,13 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
             
             switch (attrstruct->t) {
-               case B00080018: if (!appendkv(kbuf,kloc,isshort,kviuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
-               case B0020000D: if (!appendkv(kbuf,kloc,isshort,kveuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
-               case B0020000E: if (!appendkv(kbuf,kloc,isshort,kvsuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
-               case B00080019: if (!appendkv(kbuf,kloc,isshort,kvpuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;//pyramid
-               case B00200242: if (!appendkv(kbuf,kloc,isshort,kvcuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;//SOP​Instance​UID​Of​Concatenation​Source
+               case B00080018: if (!_DKVappend(kbuf,kloc,isshort,kviuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B0020000D: if (!_DKVappend(kbuf,kloc,isshort,kveuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B0020000E: if (!_DKVappend(kbuf,kloc,isshort,kvsuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00080019: if (!_DKVappend(kbuf,kloc,isshort,kvpuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;//pyramid
+               case B00200242: if (!_DKVappend(kbuf,kloc,isshort,kvcuid,*inloc,*vlen,fromStdin,vbuf)) return false; break;//SOP​Instance​UID​Of​Concatenation​Source
                case B00081150:{
-                  if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
+                  if (*vlen && (_DKVfread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
                   u16 scidx=sopclassidx( vbuf, *vlen - (vbuf[*vlen - 1]==0x0) );
                   if (scidx==0x00)
                   {
@@ -498,15 +498,15 @@ bool dicm2dckvDataset(
                      return false;
                   }
                   else attrstruct->l=scidx;
-                  if (!appendkv(kbuf,kloc,isshort,kvUI,*inloc,*vlen,frombuffer,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvUI,*inloc,*vlen,frombuffer,vbuf)) return false;
                } break;
                   
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvUI,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvUI,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
             
 #pragma mark vl ascii par
@@ -515,9 +515,9 @@ bool dicm2dckvDataset(
          {
             *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            if (!appendkv(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case DA://date
          {
@@ -525,20 +525,20 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
                case B00080020:
-                  if (!appendkv(kbuf,kloc,isshort,kvedate,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvedate,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00080021:
-                  if (!appendkv(kbuf,kloc,isshort,kvsdate,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvsdate,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00100030:
-                  if (!appendkv(kbuf,kloc,isshort,kvpbirth,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvpbirth,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case TM://time
          {
@@ -546,14 +546,14 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
                case B00080031:
-                  if (!appendkv(kbuf,kloc,isshort,kvstime,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvstime,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvTP,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
              *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
 
 #pragma mark vl ascii par/even
@@ -562,26 +562,26 @@ bool dicm2dckvDataset(
             *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
-               case B00100040: if (!appendkv(kbuf,kloc,isshort,kvpsex,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00100040: if (!_DKVappend(kbuf,kloc,isshort,kvpsex,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                case B00400033:{ //kveat CS Accession​Number type
                   u32 *itemtag=(u32 *)kbuf;
                   if (*itemtag==B00080051)
                   {
-                     if (!appendkv(kbuf,kloc,isshort,kveat,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     if (!_DKVappend(kbuf,kloc,isshort,kveat,*inloc,*vlen,fromStdin,vbuf)) return false;
                   }
                   else
                   {
-                     if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     if (!_DKVappend(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
                   }
                }break;
-               case B00080060: if (!appendkv(kbuf,kloc,isshort,kvsmod,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00080060: if (!_DKVappend(kbuf,kloc,isshort,kvsmod,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                   
-               case B00080008: if (!appendkv(kbuf,kloc,isshort,kvitype,*inloc,*vlen,fromStdin,vbuf)) return false; break;
-               case B00280004: if (!appendkv(kbuf,kloc,isshort,kvphotocode,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00080008: if (!_DKVappend(kbuf,kloc,isshort,kvitype,*inloc,*vlen,fromStdin,vbuf)) return false; break;
+               case B00280004: if (!_DKVappend(kbuf,kloc,isshort,kvphotocode,*inloc,*vlen,fromStdin,vbuf)) return false; break;
                   // https://dicom.innolitics.com/ciods/rt-dose/image-pixel/00280004
 
                case B00080005:{
-                  if (*vlen && (dckvapi_fread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
+                  if (*vlen && (_DKVfread(vbuf, 1,*vlen,stdin)!=*vlen)) return false;
                   u16 repidxs=repertoireidx(vbuf,*vlen);
                   if (repidxs==0x09)
                   {
@@ -593,15 +593,15 @@ bool dicm2dckvDataset(
                      keycs=(keycs & 0x8000) | repidxs;
                      attrstruct->l=repidxs;
                   }
-                  if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,frombuffer,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvTA,*inloc,*vlen,frombuffer,vbuf)) return false;
                } break;
                   
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case AE://application entity
          case DS://decimal string
@@ -609,9 +609,9 @@ bool dicm2dckvDataset(
             *vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
             //charset
-            if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case IS://integer string
          {
@@ -619,20 +619,20 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
             switch (attrstruct->t) {
                case B00200011:
-                  if (!appendkv(kbuf,kloc,isshort,kvsnumber,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvsnumber,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00200012:
-                  if (!appendkv(kbuf,kloc,isshort,kvianumber,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvianumber,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00200013:
-                  if (!appendkv(kbuf,kloc,isshort,kvinumber,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvinumber,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvTA,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
 
             
@@ -644,28 +644,28 @@ bool dicm2dckvDataset(
             attrstruct->l=keycs;
             switch (attrstruct->t) {
                case B00101050://insurance plan identification
-                  if (!appendkv(kbuf,kloc,isshort,kvpay,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvpay,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00100020://patient id
-                  if (!appendkv(kbuf,kloc,isshort,kvpide,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvpide,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00100021://patient id issuer
-                  if (!appendkv(kbuf,kloc,isshort,kvpidr,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvpidr,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00080080://institution name
-                  if (!appendkv(kbuf,kloc,isshort,kvimg,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvimg,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00081030://study description
-                  if (!appendkv(kbuf,kloc,isshort,kvedesc,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvedesc,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
 
                case B0008103E://series description
-                  if (!appendkv(kbuf,kloc,isshort,kvsdesc,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvsdesc,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
 
                case B00204000://image comment
                {
-                  if (!appendkv(kbuf,kloc,isshort,kvicomment,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvicomment,*inloc,*vlen,fromStdin,vbuf)) return false;
                }
                   break;
 
@@ -675,17 +675,17 @@ bool dicm2dckvDataset(
                   struct t4r2l2 *codestruct=(struct t4r2l2*) codebytes;
                   switch (codestruct->t) {
                      //study description
-                     case B00081032:if (!appendkv(kbuf,kloc,isshort,kvecode,*inloc,*vlen,fromStdin,vbuf)) return false;break;
-                     default: if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;break;
+                     case B00081032:if (!_DKVappend(kbuf,kloc,isshort,kvecode,*inloc,*vlen,fromStdin,vbuf)) return false;break;
+                     default: if (!_DKVappend(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;break;
                   }
                } break;
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case SH://short string
          {
@@ -693,10 +693,10 @@ bool dicm2dckvDataset(
             attrstruct->l=keycs;
             switch (attrstruct->t) {
                case B00200010:
-                  if (!appendkv(kbuf,kloc,isshort,kveid,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kveid,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00080050:
-                  if (!appendkv(kbuf,kloc,isshort,kvean,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvean,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
 #pragma mark code
                case B00080100:
@@ -708,20 +708,20 @@ bool dicm2dckvDataset(
                   switch (codestruct->t) {
                         
                      //study description
-                     case B00081032:if (!appendkv(kbuf,kloc,isshort,kvecode,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     case B00081032:if (!_DKVappend(kbuf,kloc,isshort,kvecode,*inloc,*vlen,fromStdin,vbuf)) return false;
                         break;
                         
-                     default: if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     default: if (!_DKVappend(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
                         break;
                   }
                } break;
 
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case ST://short text
          {
@@ -729,17 +729,17 @@ bool dicm2dckvDataset(
             attrstruct->l=keycs;
             switch (attrstruct->t) {
                case B0040E001://kvscdaid ST CDA root^extension
-                  if (!appendkv(kbuf,kloc,isshort,kvscdaid,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvscdaid,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00420010://kvsdoctitle ST DocumentTitle 00420010
-                  if (!appendkv(kbuf,kloc,isshort,kvsdoctitle,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvsdoctitle,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvTS,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case PN://person name
          {
@@ -747,23 +747,23 @@ bool dicm2dckvDataset(
             attrstruct->l=keycs;
             switch (attrstruct->t) {
                case B00100010:
-                  if (!appendkv(kbuf,kloc,isshort,kvpname,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvpname,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00080090://referring
-                  if (!appendkv(kbuf,kloc,isshort,kvref,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvref,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00081060://reading
-                  if (!appendkv(kbuf,kloc,isshort,kvcda,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvcda,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00321032://requesting
-                  if (!appendkv(kbuf,kloc,isshort,kvreq,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvreq,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
-                  if (!appendkv(kbuf,kloc,isshort,kvPN,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvPN,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 8 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
 
             
@@ -773,39 +773,39 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
             *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B00420011:
-                  if (!appendkv(kbuf,kloc,islong,kvsdocument,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kvsdocument,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B7FE00010://one or two bytes
                {
                   if(*stidx==2)
                   {
-                     if (!appendkv(kbuf,kloc,islong,kvnative,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     if (!_DKVappend(kbuf,kloc,islong,kvnative,*inloc,*vlen,fromStdin,vbuf)) return false;
                   }
                   else
                   {
-                     if(!appendkv(kbuf,kloc,islong,kvencoded,*inloc,*vlen,fromStdin,vbuf)) return false;
+                     if(!_DKVappend(kbuf,kloc,islong,kvencoded,*inloc,*vlen,fromStdin,vbuf)) return false;
                   }
                } break;
                default:
-                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case OW://other word
          {
             attrstruct->l=REPERTOIRE_GL;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
@@ -813,14 +813,14 @@ bool dicm2dckvDataset(
             switch (attrstruct->t) {
                case B7FE00010:
                {
-                  if (!appendkv(kbuf,kloc,islong,kvnativeOW,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kvnativeOW,*inloc,*vlen,fromStdin,vbuf)) return false;
                } break;
                default:
-                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
+                  if (!_DKVappend(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
                   break;
             }
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
 
          } break;
          case OD://other double
@@ -828,7 +828,7 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
@@ -836,14 +836,14 @@ bool dicm2dckvDataset(
             switch (attrstruct->t) {
                case B7FE00010:
                {
-                  if (!appendkv(kbuf,kloc,islong,kvnativeOD,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kvnativeOD,*inloc,*vlen,fromStdin,vbuf)) return false;
                } break;
                default:
-                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
+                  if (!_DKVappend(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
                   break;
             }
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
 
          } break;
          case OF://other float
@@ -851,7 +851,7 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
@@ -859,14 +859,14 @@ bool dicm2dckvDataset(
             switch (attrstruct->t) {
                case B7FE00010:
                {
-                  if (!appendkv(kbuf,kloc,islong,kvnativeOF,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kvnativeOF,*inloc,*vlen,fromStdin,vbuf)) return false;
                } break;
                default:
-                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
+                  if (!_DKVappend(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
                   break;
             }
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
 
          } break;
          case OL://other long
@@ -875,15 +875,15 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
             *vlen=*(u32*)lbuf;
-            if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
+            if (!_DKVappend(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return true;//false;
 
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
 
          } break;
          case OV://other 64-bit very long
@@ -891,47 +891,47 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
             *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B7FE00001:
-                  if (!appendkv(kbuf,kloc,isshort,kvfo,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvfo,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B7FE00002:
-                  if (!appendkv(kbuf,kloc,isshort,kvfl,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvfl,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
-                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
 
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
          case UV://unsigned 64-bit very long
          {
             attrstruct->l=REPERTOIRE_GL;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
             *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B7FE00003:
-                  if (!appendkv(kbuf,kloc,isshort,kvft,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvft,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
-                  if (!appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
 
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
 
          } break;
 
@@ -942,15 +942,15 @@ bool dicm2dckvDataset(
             attrstruct->l=keycs;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
             *vlen=*(u32*)lbuf;
-            if (!appendkv(kbuf,kloc,islong,kvTL,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,islong,kvTL,*inloc,*vlen,fromStdin,vbuf)) return false;
 
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
 
          } break;
          case UT://unlimited text
@@ -958,24 +958,24 @@ bool dicm2dckvDataset(
             attrstruct->l=keycs;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
             *vlen=*(u32*)lbuf;
             switch (attrstruct->t) {
                case B00400031:
-                  if (!appendkv(kbuf,kloc,islong,kveal,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kveal,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                case B00400032:
-                  if (!appendkv(kbuf,kloc,islong,kveau,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kveau,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
                default:
-                  if (!appendkv(kbuf,kloc,islong,kvTL,*inloc,*vlen,fromStdin,vbuf)) return false;
+                  if (!_DKVappend(kbuf,kloc,islong,kvTL,*inloc,*vlen,fromStdin,vbuf)) return false;
                   break;
             }
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
 
          } break;
 
@@ -986,15 +986,15 @@ bool dicm2dckvDataset(
             attrstruct->l=ISO_IR192;
 
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
             *vlen=*(u32*)lbuf;
-            if (!appendkv(kbuf,kloc,islong,kvTU,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,islong,kvTU,*inloc,*vlen,fromStdin,vbuf)) return false;
             
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
             
          } break;
 
@@ -1011,11 +1011,11 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
 
 
-            if (!appendkv(kbuf,kloc,islong,kvSA,*inloc,0,frombuffer,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,islong,kvSA,*inloc,0,frombuffer,vbuf)) return false;
 
             //read length
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
@@ -1025,11 +1025,11 @@ bool dicm2dckvDataset(
             {
                attrstruct->r=SZ;
                attrstruct->l=0xFFFF;
-               if (!appendkv(kbuf,kloc,isshort,kvSZ,*inloc,0,fromStdin,(void*)&SZbytes)) return false;
+               if (!_DKVappend(kbuf,kloc,isshort,kvSZ,*inloc,0,fromStdin,(void*)&SZbytes)) return false;
 
                //read nextattr
                *inloc += 12;//do not add *vlen !
-               if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+               if (! _DKVfread8(attrbytes, &bytescount)) return false;
             }
             else //SQ *vlen!=0
             {
@@ -1056,7 +1056,7 @@ bool dicm2dckvDataset(
                kloc+=8;
                u8 *itembytes=kbuf+kloc;
                struct t4r2l2 *itemstruct=(struct t4r2l2*) itembytes;
-               if (! dckvapi_fread8(itembytes, &bytescount)) return false;
+               if (! _DKVfread8(itembytes, &bytescount)) return false;
 
                
                //for each first attr fffee000 of any new item
@@ -1066,7 +1066,7 @@ bool dicm2dckvDataset(
                   itemstruct->t=0x00000000;
                   itemstruct->r=IA;
                   itemstruct->l=REPERTOIRE_GL;
-                  if (!appendkv(kbuf,kloc,isshort,kvIA,*inloc,0,fromStdin,(void*)&IAbytes)) return false;
+                  if (!_DKVappend(kbuf,kloc,isshort,kvIA,*inloc,0,fromStdin,(void*)&IAbytes)) return false;
 
                   u64 beforebyteIT;//to be computed from after item start
                   *inloc+=8;
@@ -1104,8 +1104,8 @@ bool dicm2dckvDataset(
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x00;
-                     if (!appendkv(kbuf,kloc,isshort,kvIZ,*inloc,0,fromStdin,(void*)&IZbytes)) return false;
-                     if (! dckvapi_fread8(itembytes, &bytescount)) return false;
+                     if (!_DKVappend(kbuf,kloc,isshort,kvIZ,*inloc,0,fromStdin,(void*)&IZbytes)) return false;
+                     if (! _DKVfread8(itembytes, &bytescount)) return false;
                      *inloc+=8;
                   }
                   else
@@ -1117,7 +1117,7 @@ bool dicm2dckvDataset(
                      itemstruct->t=ffffffff;
                      itemstruct->r=IZ;
                      itemstruct->l=0x0;
-                     if (!appendkv(kbuf,kloc,isshort,kvIZ,*inloc,0,fromStdin,(void*)&IZbytes)) return false;
+                     if (!_DKVappend(kbuf,kloc,isshort,kvIZ,*inloc,0,fromStdin,(void*)&IZbytes)) return false;
                      itemstruct->t=copyattr.t;
                      itemstruct->r=copyattr.r;
                      itemstruct->l=copyattr.l;
@@ -1134,15 +1134,15 @@ bool dicm2dckvDataset(
 
                attrstruct->r=SZ;
                attrstruct->l=0xFFFF;
-//               if (! dckvapi_fread8(itembytes, &bytescount)) return false;
-               if (!appendkv(kbuf,kloc,isshort,kvSZ,*inloc,0,fromStdin,(void*)&SZbytes)) return false;
+//               if (! _DKVfread8(itembytes, &bytescount)) return false;
+               if (!_DKVappend(kbuf,kloc,isshort,kvSZ,*inloc,0,fromStdin,(void*)&SZbytes)) return false;
 
                
                //itemstruct may be SZ or post SQ
                if (u32swap(itemstruct->t)==fffee0dd)
                {
                   *inloc+=8;
-                  if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+                  if (! _DKVfread8(attrbytes, &bytescount)) return false;
                }
                else
                {
@@ -1173,15 +1173,15 @@ bool dicm2dckvDataset(
             attrstruct->l=REPERTOIRE_GL;
             
             lbuf=kbuf+kloc+8;//subbuffer for ll reading
-            if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+            if (_DKVfread(lbuf, 1,4,stdin)!=4) {
                E("%s","stream end instead of vll");
                return false;
             }
             *vlen=*(u32*)lbuf;
-            if (!appendkv(kbuf,kloc,islong,kvUN,*inloc,*vlen,fromStdin,vbuf)) return false;
+            if (!_DKVappend(kbuf,kloc,islong,kvUN,*inloc,*vlen,fromStdin,vbuf)) return false;
 
             *inloc += 12 + *vlen;
-            if (! dckvapi_fread8(attrbytes, &bytescount)) return false;
+            if (! _DKVfread8(attrbytes, &bytescount)) return false;
             
          } break;
 
@@ -1195,13 +1195,13 @@ bool dicm2dckvDataset(
       attrstruct->l=REPERTOIRE_GL;
 
       lbuf=kbuf+kloc+8;//subbuffer for ll reading
-      if (dckvapi_fread(lbuf, 1,4,stdin)!=4) {
+      if (_DKVfread(lbuf, 1,4,stdin)!=4) {
          E("%s","stream end instead of vll");
          return false;
       }
       *vlen=*(u32*)lbuf;
 
-      if ((*vlen > 0) && !appendkv(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
+      if ((*vlen > 0) && !_DKVappend(kbuf,kloc,islong,kv01,*inloc,*vlen,fromStdin,vbuf)) return false;
    }
 
    return true;

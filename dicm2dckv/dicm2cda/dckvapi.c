@@ -5,12 +5,14 @@
 
 #include "dckvapi.h"
 
+
 FILE *outFile;
+
 static char *dbpath;
 const char *backslash = "\\";
 
 //possibility to overwrite any value read
-size_t dckvapi_fread(
+size_t _DKVfread(
                      void * __restrict __ptr,
                      size_t __size,
                      size_t __nitems,
@@ -23,7 +25,7 @@ size_t dckvapi_fread(
 //returns true when 8 bytes were read
 //possibility to overwrite any tag,vr,length reading
 u8 swapchar;
-bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
+bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
 {
    *bytesReadRef=fread(buffer, 1, 8, stdin);
    if (ferror(stdin)){
@@ -49,7 +51,7 @@ bool dckvapi_fread8(uint8_t *buffer, u64 *bytesReadRef)
    return true;
 }
 
-bool createdckv(
+bool _DKVcreate(
    uint8_t    * vbuf,
    u64 *soloc,         // offset in valbyes for sop class
    u16 *solen,         // length in valbyes for sop class
@@ -73,15 +75,15 @@ bool createdckv(
 
    return true;
 }
-bool commitdckv(s16 *siidx){
-   return closedckv(siidx);
+bool _DKVcommit(s16 *siidx){
+   return _DKVclose(siidx);
 }
-bool closedckv(s16 *siidx){
+bool _DKVclose(s16 *siidx){
    fclose(outFile);
    return true;
 }
 
-bool appendkv(
+bool _DKVappend(
               uint8_t           *kbuf,
               u32                kloc,
               bool               vlenisl,

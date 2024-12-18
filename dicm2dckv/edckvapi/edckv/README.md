@@ -7,14 +7,14 @@
 
 eDCKVinline implements the API edckvapi, which overrides dckvapi. The override is performed through a basic implementation of the methods of dckvapi.
 
-- dckvapi_fread -> edckvapi_fread
+- _DKVfread -> EDKVfread
 
-- dckvapi_fread8 -> edckvapi_fread8
+- _DKVfread8 -> EDKVfread8
 
-- createdckv -> createedckv. Also retains sop class and transfert syntax.
+- _DKVcreate -> EDKVcreate. Also retains sop class and transfert syntax.
 
-- commitdckv -> commitedckv
+- _DKVcommit -> EDKVcommit
 
-- closedckv -> closeedckv
+- _DKVclose -> EDKVclose
 
-- appendkv -> [ appendEXAMkv | appendSERIESkv | appendDEFAULTkv | appendPRIVATEkv | appendnative | appendnativeOW | appendnativeOF | appendnativeOD | appendencoded ]. La implementación de appendkv uses sopclass, la transfert syntax, static lists of attributes fo select one of the destination methods. 
+- _DKVappend -> [ EDKVappend | SDKVappend | IDKVappend | PDKVappend | appendnative | appendnativeOW | appendnativeOF | appendnativeOD | appendencoded ]. La implementación de _DKVappend uses sopclass, la transfert syntax, static lists of attributes fo select one of the destination methods. 
