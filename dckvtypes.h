@@ -820,6 +820,8 @@ u16 sopclassidx( uint8_t *vbuf, u16 vallength );
 
 bool sopclassidxisimage( u16 sopclassidx);
 
+bool sopclassidxisframe( u16 sopclassidx);
+
 
 #pragma mark - TransfertSyntaxes
 

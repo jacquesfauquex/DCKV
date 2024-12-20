@@ -5,8 +5,8 @@
 #include "dicm2dckv.h"
 
 /*
- main controls dicm2dckv.
- dicm2dckv may be used by any other app controlling dicm2dckv
+ main controls dicm2_dkv.
+ dicm2_dkv may be used by any other app controlling dicm2_dkv
  all fread get processed by dckvapi.m
  */
  
@@ -15,13 +15,14 @@ int main(int argc, const char * argv[]) {
    0 command name defined by target
    1 loglevel [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
    2 _DKVDICMbuffer (en MB, 0=no dicom binary output)
-   3 (opcional) infile (absolute path only)
+   3 (opcional alternative to stdin) infile (absolute path only)
    */
    
    if (argc < 3) return dckvErrorArgs;
    if (argc > 4) return dckvErrorArgs;//optional, one path only
    if (!loglevel(argv[1])) exit(dckvErrorLogLevel);
-   
+
+//for debug
 chdir("/Users/jacquesfauquex/sqlite_edckv/");
    char cwd[1024];
    getcwd(cwd, sizeof(cwd));
@@ -60,7 +61,7 @@ chdir("/Users/jacquesfauquex/sqlite_edckv/");
                              )
           ) return dckvErrorParsing;
    }
-   //cleanupdicm2dckv();
+   cleanupdicm2dckv();
    if (inFile!=NULL) fclose(inFile);
    return dckvExitOK;
 }

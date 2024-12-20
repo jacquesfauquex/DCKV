@@ -17,4 +17,4 @@ eDCKVinline implements the API edckvapi, which overrides dckvapi. The override i
 
 - _DKVclose -> EDKVclose
 
-- _DKVappend -> [ EDKVappend | SDKVappend | IDKVappend | PDKVappend | appendnative | appendnativeOW | appendnativeOF | appendnativeOD | appendencoded ]. La implementación de _DKVappend uses sopclass, la transfert syntax, static lists of attributes fo select one of the destination methods. 
+- _DKVappend -> [ EDKVappend | SDKVappend | IDKVappend | PDKVappend | FPDKVappend | appendnativeOB | appendnativeOW | appendnativeOF | appendnativeOD | appendnativeOC | appendframesOB | appendframesOC ]

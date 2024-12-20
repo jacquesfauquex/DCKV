@@ -172,7 +172,7 @@ bool cleanupdicm2dckv(void)
 {
    free(kbuf);
    free(vbuf);
-   free(lbuf);
+   //free(lbuf); ????
    return true;
 }
 /*
@@ -299,7 +299,6 @@ bool dicm2dckvInstance(
       //do not write transfert syntax (which is always explicit little endian) in dicm2dckv
       
       if (!dicm2dckvDataset(
-                            kbuf,
                             0,          //kloc
                             firstattrread,
                             0,          //keycs
@@ -314,7 +313,6 @@ bool dicm2dckvInstance(
    else //pure dataset
    {
       if (dicm2dckvDataset(
-                     kbuf,
                      0,          //kloc
                      false,      //readfirstattr
                      0,          //keycs
@@ -330,7 +328,6 @@ bool dicm2dckvInstance(
 
 
 bool dicm2dckvDataset(
-                      uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
                       u32 kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
                       bool readfirstattr,    // true:read desde stream. false:ya está en kbuf
                       u16 keycs,          // key charset
@@ -356,13 +353,7 @@ bool dicm2dckvDataset(
          {
             vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            
-            switch (attrstruct->t) {
-               case B7FE00008:
-                  if (!_DKVappend(kbuf,kloc,isshort,kvnativeOD,inloc,vlen,fromStdin,vbuf)) return false; break;
-               default:
-                  if (!_DKVappend(kbuf,kloc,isshort,kvFD,inloc,vlen,fromStdin,vbuf)) return false;
-            }
+            if (!_DKVappend(kbuf,kloc,isshort,kvFD,inloc,vlen,fromStdin,vbuf)) return false;
             inloc += 8 + vlen;
             if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
@@ -371,13 +362,7 @@ bool dicm2dckvDataset(
          {
             vlen=(u32)attrstruct->l;//length is then replaced in K by encoding
             attrstruct->l=REPERTOIRE_GL;
-            
-            switch (attrstruct->t) {
-               case B7FE00009:
-                  if (!_DKVappend(kbuf,kloc,isshort,kvnativeOF,inloc,vlen,fromStdin,vbuf)) return false; break;
-               default:
-                  if (!_DKVappend(kbuf,kloc,isshort,kvFL,inloc,vlen,fromStdin,vbuf)) return false;
-            }
+            if (!_DKVappend(kbuf,kloc,isshort,kvFL,inloc,vlen,fromStdin,vbuf)) return false;
             inloc += 8 + vlen;
             if (! _DKVfread8(attrbytes, &bytescount)) return false;
          } break;
@@ -763,15 +748,35 @@ bool dicm2dckvDataset(
                case B00420011:
                   if (!_DKVappend(kbuf,kloc,islong,kvsdocument,inloc,vlen,fromStdin,vbuf)) return false;
                   break;
-               case B7FE00010://one or two bytes
+               case B7FE00010:
                {
-                  if(stidx==2)
+                  /*
+                   native
+                   nativeencoded
+                   frames
+                   encodedframes
+                   */
+                  if (sopclassidxisframe(soidx))
                   {
-                     if (!_DKVappend(kbuf,kloc,islong,kvnative,inloc,vlen,fromStdin,vbuf)) return false;
+                     if(stidx==2)
+                     {
+                        if (!_DKVappend(kbuf,kloc,islong,kvframesOB,inloc,vlen,fromStdin,vbuf)) return false;
+                     }
+                     else
+                     {
+                        if(!_DKVappend(kbuf,kloc,islong,kvframesOC,inloc,vlen,fromStdin,vbuf)) return false;
+                     }
                   }
                   else
                   {
-                     if(!_DKVappend(kbuf,kloc,islong,kvencoded,inloc,vlen,fromStdin,vbuf)) return false;
+                     if(stidx==2)
+                     {
+                        if (!_DKVappend(kbuf,kloc,islong,kvnativeOB,inloc,vlen,fromStdin,vbuf)) return false;
+                     }
+                     else
+                     {
+                        if(!_DKVappend(kbuf,kloc,islong,kvnativeOC,inloc,vlen,fromStdin,vbuf)) return false;
+                     }
                   }
                } break;
                default:
@@ -1060,7 +1065,6 @@ bool dicm2dckvDataset(
                   else beforebyteIT=inloc + IQll;
 
                   dicm2dckvDataset(
-                        kbuf,
                         kloc,
                         firstattrread,
                         keycs,

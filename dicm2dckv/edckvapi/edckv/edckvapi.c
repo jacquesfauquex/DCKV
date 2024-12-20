@@ -8,9 +8,9 @@
 
 
 #pragma mark - static
-
-static char *Bbuf;
-static u32 Bidx=0;
+static size_t bytesread;
+static char *DICMbuf;
+static u32 DICMidx=0;
 static FILE *fileptr;
 struct stat st={0};//for directory creation
 static char dirpath[256];
@@ -25,17 +25,22 @@ static char         *dberr = 0;
 static int           dbrc  = 0;//return code
 
 static int stepreturnstatus;
+static bool notRegistered;
 
 static sqlite3_stmt *eblake3stmt;
 static sqlite3_stmt *einsertstmt;
 static int currentEpk;
+
 static sqlite3_stmt *sblake3stmt;
 static sqlite3_stmt *sinsertstmt;
 static int currentSpk;
-static bool notRegistered;
+
 static sqlite3_stmt *iblake3stmt;
-static sqlite3_stmt *ipinsertstmt;
+static sqlite3_stmt *iinsertstmt;
 static int currentIpk;
+
+static sqlite3_stmt *iframepksstmt;
+static sqlite3_stmt *finsertstmt;
 
 static bool isexplicit;
 
@@ -48,19 +53,19 @@ static char *Ebuf;
 static char *Sbuf;
 static char *Ibuf;
 static char *Pbuf;
-static char *Nbuf;
+static char *Fbuf;
 
 static u32 Eidx=0;
 static u32 Sidx=0;
 static u32 Iidx=0;
 static u32 Pidx=0;
-static u32 Nidx=0;
+static u32 Fidx=0;
 
 static u32 Emax=0;
 static u32 Smax=0;
 static u32 Imax=0;
 static u32 Pmax=0;
-static u32 Nmax=0;
+static u32 Fmax=0;
 
 static u32 utf8length;
 static char utf8bytes[256];
@@ -163,11 +168,22 @@ size_t EDKVfread(
                      )
 {
    
-   size_t Bcopied=fread(Bbuf+Bidx,__size,__nitems,__stream);
-   memcpy(__ptr,Bbuf+Bidx,Bcopied);
-   Bidx+=Bcopied;
-   return Bcopied;
-   //return fread(__ptr,__size,__nitems,__stream);
+   bytesread=fread(DICMbuf+DICMidx,__size,__nitems,__stream);
+   memcpy(__ptr,DICMbuf+DICMidx,bytesread);
+   DICMidx+=bytesread;
+   return bytesread;
+}
+
+size_t DICMfread(
+                 void * __restrict __ptr,
+                 size_t __size,
+                 size_t __nitems,
+                 FILE * __restrict __stream
+                 )
+{
+   bytesread=fread(DICMbuf+DICMidx,__size,__nitems,__stream);
+   DICMidx+=bytesread;
+   return bytesread;
 }
 
 //returns true when 8 bytes were read
@@ -200,10 +216,13 @@ bool EDKVfread8(uint8_t *buffer, u64 *bytesReadRef)
 
 bool EDKVDICMbuffer(s32 bytes)
 {
-   Bidx=0;
-   Bbuf=malloc(bytes);
-   return (Bbuf!=NULL);
+   DICMidx=0;
+   DICMbuf=malloc(bytes);
+   return (DICMbuf!=NULL);
 }
+
+static u16 transfersyntax;
+static u16 sopuid;
 
 bool EDKVcreate(
    uint8_t    * vbuf,
@@ -218,6 +237,9 @@ bool EDKVcreate(
    s16 *siidx          // SOPinstance index
 )
 {
+   sopuid=*soidx;//class
+   transfersyntax=*stidx;//transfer syntax
+
 #pragma mark sqlite
    I("sqlite %s\n", sqlite3_libversion());
 
@@ -293,15 +315,47 @@ bool EDKVcreate(
       sqlite3_close_v2(db);
       exit(1);
    }
-   char ipinsert[] = "INSERT INTO I(Sfk,iuid,idckv,iblake3,inumber,ianumber,iclass,itype,syntaxidx,icomment,iframes,pdckv,spp,photocode,rows,cols,alloc,stored,high,pixrep,planar) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-   dbrc=sqlite3_prepare(db, ipinsert, -1, &ipinsertstmt, 0);
+   char iinsert[] = "INSERT INTO I(Sfk,iuid,idckv,iblake3,inumber,ianumber,iclass,itype,syntaxidx,icomment,iframes,pdckv,spp,photocode,rows,cols,alloc,stored,high,pixrep,planar) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+   dbrc=sqlite3_prepare(db, iinsert, -1, &iinsertstmt, 0);
    if (dbrc != SQLITE_OK)
    {
-      E( "Cannot prepare ipinsertStmt: %s\n", sqlite3_errmsg(db));
+      E( "Cannot prepare iinsertStmt: %s\n", sqlite3_errmsg(db));
       sqlite3_close_v2(db);
       exit(1);
    }
 
+   
+   
+#pragma mark F sqlite stmt
+//existing one
+   /*
+    Ifk
+    pk
+    fnumber
+    fdckv BLOB
+    nativeurl TEXT
+    syntaxidx
+    compressed
+    fast
+    high
+    original
+    */
+   char iframepks[]="SELECT pk FROM F WHERE Ifk=?;";
+   dbrc = sqlite3_prepare_v2(db, iframepks, sizeof(iframepks), &iframepksstmt, 0);
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot initialize iframepksstmt: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
+   char finsertchars[] = "INSERT INTO F(Ifk,fnumber,fdckv,nativeurl,iclass,itype,syntaxidx) VALUES(?,?,?,?,?,?,?)";
+   dbrc=sqlite3_prepare(db, finsertchars, -1, &finsertstmt, 0);
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot prepare finsertstmt: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
    
    isexplicit=*stidx==2;
 
@@ -346,11 +400,11 @@ bool EDKVcreate(
    
    if (isexplicit)
    {
-      if (Nmax==0) {
-         Nmax=0x3000000;
-         Nbuf=malloc(Nmax);
+      if (Fmax==0) {
+         Fmax=0x3000000;
+         Fbuf=malloc(Fmax);
       }
-      Nidx=0;
+      Fidx=0;
    }
 
    (*siidx)++;
@@ -507,11 +561,11 @@ bool sinsert(u64 prefix)
 }
 
 
-bool ipinsert(u64 prefix)
+bool iinsert(u64 prefix)
 {
    /*
-         0:Sfk
-    1:pk
+    0:Sfk
+         1:pk
     2:iuid,
     3:idckv,
     4:iblake3,
@@ -534,8 +588,8 @@ bool ipinsert(u64 prefix)
     21:planar
     */
    // int pk
-   sqlite3_bind_int(ipinsertstmt,  1, currentSpk);
-   sqlite3_bind_text(ipinsertstmt, 2, iuidb64,iuidb64length, NULL);
+   sqlite3_bind_int(iinsertstmt,  1, currentSpk);
+   sqlite3_bind_text(iinsertstmt, 2, iuidb64,iuidb64length, NULL);
 
    //prefix attributes
    iterator=0;
@@ -545,24 +599,24 @@ bool ipinsert(u64 prefix)
       iterator+=Ibuf[iterator]+1;
       iterator+=Ibuf[iterator]+(Ibuf[iterator+1]*0x10)+(Ibuf[iterator+2]*0x100)+(Ibuf[iterator+3]*0x1000)+4;
    }
-   sqlite3_bind_blob(ipinsertstmt, 3, Ibuf, Iidx, NULL);//dckv
+   sqlite3_bind_blob(iinsertstmt, 3, Ibuf, Iidx, NULL);//dckv
 
-   sqlite3_bind_blob(ipinsertstmt, 4, hashbytes,BLAKE3_OUT_LEN, NULL);
-   sqlite3_bind_int(ipinsertstmt,  5, inumber);
-   sqlite3_bind_int(ipinsertstmt,  6, ianumber);
-   sqlite3_bind_int(ipinsertstmt,  7, iclass);
+   sqlite3_bind_blob(iinsertstmt, 4, hashbytes,BLAKE3_OUT_LEN, NULL);
+   sqlite3_bind_int(iinsertstmt,  5, inumber);
+   sqlite3_bind_int(iinsertstmt,  6, ianumber);
+   sqlite3_bind_int(iinsertstmt,  7, iclass);
 
    utf8(0,itype,0,itypelength,utf8bytes,0,&utf8length);
-   sqlite3_bind_text(ipinsertstmt, 8, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   sqlite3_bind_text(iinsertstmt, 8, utf8bytes,utf8length, SQLITE_TRANSIENT);
    itypelength=0;
 
-   sqlite3_bind_int(ipinsertstmt,  9, syntaxidx);
+   sqlite3_bind_int(iinsertstmt,  9, syntaxidx);
 
    utf8(0,icomment,0,icommentlength,utf8bytes,0,&utf8length);
-   sqlite3_bind_text(ipinsertstmt, 10, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   sqlite3_bind_text(iinsertstmt, 10, utf8bytes,utf8length, SQLITE_TRANSIENT);
    icommentlength=0;
    
-   sqlite3_bind_int(ipinsertstmt,  11, iframes);
+   sqlite3_bind_int(iinsertstmt,  11, iframes);
    
    if (Pidx>0)//12
    {
@@ -574,27 +628,111 @@ bool ipinsert(u64 prefix)
          iterator+=Pbuf[iterator]+1;
          iterator+=Pbuf[iterator]+(Pbuf[iterator+1]*0x10)+(Pbuf[iterator+2]*0x100)+(Pbuf[iterator+3]*0x1000)+4;
       }
-      sqlite3_bind_blob(ipinsertstmt, 12, Pbuf, Pidx, NULL);//dckv
+      sqlite3_bind_blob(iinsertstmt, 12, Pbuf, Pidx, NULL);//dckv
    }
 
-   sqlite3_bind_int(ipinsertstmt,  13, spp);
-   sqlite3_bind_int(ipinsertstmt,  14, photocode);
-   sqlite3_bind_int(ipinsertstmt,  15, rows);
-   sqlite3_bind_int(ipinsertstmt,  16, cols);
-   sqlite3_bind_int(ipinsertstmt,  17, alloc);
-   sqlite3_bind_int(ipinsertstmt,  18, stored);
-   sqlite3_bind_int(ipinsertstmt,  19, high);
-   sqlite3_bind_int(ipinsertstmt,  20, pixrep);
-   sqlite3_bind_int(ipinsertstmt,  21, planar);
+   sqlite3_bind_int(iinsertstmt,  13, spp);
+   sqlite3_bind_int(iinsertstmt,  14, photocode);
+   sqlite3_bind_int(iinsertstmt,  15, rows);
+   sqlite3_bind_int(iinsertstmt,  16, cols);
+   sqlite3_bind_int(iinsertstmt,  17, alloc);
+   sqlite3_bind_int(iinsertstmt,  18, stored);
+   sqlite3_bind_int(iinsertstmt,  19, high);
+   sqlite3_bind_int(iinsertstmt,  20, pixrep);
+   sqlite3_bind_int(iinsertstmt,  21, planar);
 
    //finalize
-   dbrc = sqlite3_step(ipinsertstmt);
+   dbrc = sqlite3_step(iinsertstmt);
    if (dbrc != SQLITE_DONE )
    {
-      fprintf(stderr, "ipinsertstmt error: %s\n", dberr);
+      fprintf(stderr, "iinsertstmt error: %s\n", dberr);
       return false;
    }
-   sqlite3_reset(ipinsertstmt);
+   sqlite3_reset(iinsertstmt);
+
+   //get pk
+   sqlite3_reset(iblake3stmt);
+   sqlite3_bind_text(iblake3stmt, 1, iuidb64,iuidb64length, NULL);
+   stepreturnstatus = sqlite3_step(iblake3stmt);
+   currentIpk=sqlite3_column_int(iblake3stmt, 0);
+   if (stepreturnstatus != SQLITE_ROW) return false;
+   D("sqlite commit I pk: %d",currentIpk);
+   return true;
+}
+
+
+bool finsert(u64 prefix)
+{
+   /*
+    0:Ifk
+      pk
+    1:fnumber
+    2:fdckv BLOB
+    3:nativeurl TEXT
+    4:syntaxidx
+    */
+   // int pk
+   sqlite3_bind_int(iinsertstmt,  1, currentSpk);
+   sqlite3_bind_text(iinsertstmt, 2, iuidb64,iuidb64length, NULL);
+
+   //prefix attributes
+   iterator=0;
+   while (iterator<Iidx)
+   {
+      memcpy(Ibuf+iterator+1,&prefix,8);
+      iterator+=Ibuf[iterator]+1;
+      iterator+=Ibuf[iterator]+(Ibuf[iterator+1]*0x10)+(Ibuf[iterator+2]*0x100)+(Ibuf[iterator+3]*0x1000)+4;
+   }
+   sqlite3_bind_blob(iinsertstmt, 3, Ibuf, Iidx, NULL);//dckv
+
+   sqlite3_bind_blob(iinsertstmt, 4, hashbytes,BLAKE3_OUT_LEN, NULL);
+   sqlite3_bind_int(iinsertstmt,  5, inumber);
+   sqlite3_bind_int(iinsertstmt,  6, ianumber);
+   sqlite3_bind_int(iinsertstmt,  7, iclass);
+
+   utf8(0,itype,0,itypelength,utf8bytes,0,&utf8length);
+   sqlite3_bind_text(iinsertstmt, 8, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   itypelength=0;
+
+   sqlite3_bind_int(iinsertstmt,  9, syntaxidx);
+
+   utf8(0,icomment,0,icommentlength,utf8bytes,0,&utf8length);
+   sqlite3_bind_text(iinsertstmt, 10, utf8bytes,utf8length, SQLITE_TRANSIENT);
+   icommentlength=0;
+   
+   sqlite3_bind_int(iinsertstmt,  11, iframes);
+   
+   if (Pidx>0)//12
+   {
+      //prefix attributes
+      iterator=0;
+      while (iterator<Pidx)
+      {
+         memcpy(Pbuf+iterator+1,&prefix,8);
+         iterator+=Pbuf[iterator]+1;
+         iterator+=Pbuf[iterator]+(Pbuf[iterator+1]*0x10)+(Pbuf[iterator+2]*0x100)+(Pbuf[iterator+3]*0x1000)+4;
+      }
+      sqlite3_bind_blob(iinsertstmt, 12, Pbuf, Pidx, NULL);//dckv
+   }
+
+   sqlite3_bind_int(iinsertstmt,  13, spp);
+   sqlite3_bind_int(iinsertstmt,  14, photocode);
+   sqlite3_bind_int(iinsertstmt,  15, rows);
+   sqlite3_bind_int(iinsertstmt,  16, cols);
+   sqlite3_bind_int(iinsertstmt,  17, alloc);
+   sqlite3_bind_int(iinsertstmt,  18, stored);
+   sqlite3_bind_int(iinsertstmt,  19, high);
+   sqlite3_bind_int(iinsertstmt,  20, pixrep);
+   sqlite3_bind_int(iinsertstmt,  21, planar);
+
+   //finalize
+   dbrc = sqlite3_step(iinsertstmt);
+   if (dbrc != SQLITE_DONE )
+   {
+      fprintf(stderr, "iinsertstmt error: %s\n", dberr);
+      return false;
+   }
+   sqlite3_reset(iinsertstmt);
 
    //get pk
    sqlite3_reset(iblake3stmt);
@@ -664,15 +802,15 @@ bool morebuf(enum EDKVfamily f, u32 vlen)
       } break;
       case FDKV:{
          if (vlen > 0xFF00) {
-            newbuf=realloc(Nbuf,Nmax+vlen+0x00FF);
+            newbuf=realloc(Fbuf,Fmax+vlen+0x00FF);
             if (newbuf == NULL) return false;
-            Nmax+=vlen+0x00FF;
+            Fmax+=vlen+0x00FF;
          } else {
-            newbuf=realloc(Nbuf,Nmax+0xFFFF);
+            newbuf=realloc(Fbuf,Fmax+0xFFFF);
             if (newbuf == NULL) return false;
-            Nmax+=0xFFFF;
+            Fmax+=0xFFFF;
          }
-         Nbuf=newbuf;
+         Fbuf=newbuf;
       } break;
       default:
          return false;
@@ -689,9 +827,8 @@ bool EDKVcommit(s16 *siidx)
 {
    fileptr=fopen("edckv.dcm", "w");
    if (fileptr == NULL) return false;
-   if (fwrite(Bbuf ,1, Bidx , fileptr)!=Bidx) return false;
+   if (fwrite(DICMbuf ,1, DICMidx, fileptr)!=DICMidx) return false;
    fclose(fileptr);
-
    
    if (edate==0)
    {
@@ -842,7 +979,7 @@ bool EDKVcommit(s16 *siidx)
       stepreturnstatus = sqlite3_step(iblake3stmt);
       if (stepreturnstatus != SQLITE_ROW)
       {
-         if (!ipinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000)) return false;
+         if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000)) return false;
       }
       else //iuidb64 exists in I
       {
@@ -865,7 +1002,7 @@ bool EDKVcommit(s16 *siidx)
          }
          if (notRegistered)
          {
-            if (!ipinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000)) return false;
+            if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000)) return false;
          }
       }
       sqlite3_reset(iblake3stmt);
@@ -881,21 +1018,21 @@ bool EDKVcommit(s16 *siidx)
       //u iversion (relates the frames of instances into a same volume)
       //l concat (refers to distinct slices of the volumes)
       //versions of the same instance with diferent quality have diferent i
-      if (Nidx>0)
+      if (Fidx>0)
       {
          blake3_hasher_reset(&hasher);
-         blake3_hasher_update(&hasher, Nbuf, Nidx);
+         blake3_hasher_update(&hasher, Fbuf, Fidx);
          blake3_hasher_finalize(&hasher, hashbytes, BLAKE3_OUT_LEN);
          
          
          //replace prefix in buffer
          iterator=0;
          prefix=0x40|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000;
-         while (iterator<Nidx)
+         while (iterator<Fidx)
          {
-            memcpy(Nbuf+iterator+1,&prefix,8);
-            iterator+=Nbuf[iterator]+1;
-            iterator+=Nbuf[iterator]+(Nbuf[iterator+1]*0x10)+(Nbuf[iterator+2]*0x100)+(Nbuf[iterator+3]*0x1000)+4;
+            memcpy(Fbuf+iterator+1,&prefix,8);
+            iterator+=Fbuf[iterator]+1;
+            iterator+=Fbuf[iterator]+(Fbuf[iterator+1]*0x10)+(Fbuf[iterator+2]*0x100)+(Fbuf[iterator+3]*0x1000)+4;
          }
          //      snprintf(filepath+dirpathlength,17, "2%1x%04hX%02hhX%04hX%04hX",sversion,snumber,concatconcat,inumber
          snprintf(filepath+dirpathlength,17, "4%1x%04hX%1x%1x%04hX0000",sversion,snumber,iversion,concat,inumber);
@@ -908,11 +1045,11 @@ bool EDKVcommit(s16 *siidx)
          D("%s\n%s\n",dirpath,filepath);
          fileptr=fopen(filepath, "w");
          if (fileptr == NULL) return false;
-         if (fwrite(Nbuf ,1, Nidx , fileptr)!=Nidx) return false;
+         if (fwrite(Fbuf ,1, Fidx , fileptr)!=Fidx) return false;
          fclose(fileptr);
          
          //reset
-         Nidx=0;
+         Fidx=0;
       }
    }
    else //iscompressed
@@ -969,7 +1106,7 @@ bool EDKVclose(s16 *siidx)
    sqlite3_finalize(einsertstmt);
    sqlite3_free(dberr);
    sqlite3_close(db);
-   Bidx=0;
+   DICMidx=0;
    I("!#%d",*siidx);
    return true;
 }
@@ -1465,65 +1602,50 @@ bool IDKVappend( //any other instance level attribute
    return true;
 }
 
-bool appendnative(
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-)
+bool appendnativeOB(
+                  uint8_t            *kbuf,    //contextualized key value buffer
+                  u32                kloc,     //offset of current attribute in key
+                  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+                  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+                  u64                vloc,     //value location in input stream
+                  u32                vlen,     //value length
+                  bool               fromStdin,//value to be read, or already read in vbuf
+                  uint8_t            *vbuf     //buffer for values
+                )
 {
+   D("%s","appendnativeOB");
+   //Fbuf
+   //sopuid
+   //transfersyntax
    //freeing buffer necesary?
-   if ((vlen + 21 + kloc + Nidx > Nmax) && !morebuf(FDKV,vlen)) return false;
+   if ((vlen + 21 + kloc + Fidx > Fmax) && !morebuf(FDKV,vlen)) return false;
 
    //key length = key path length + 8 prefix + 8 current attribute
    //idx increased by 1
-   Nbuf[Nidx++]=kloc+16;
-
+   Fbuf[Fidx++]=kloc+16;
+   
    //prefix
-   memcpy(Nbuf+Nidx, &prefix, 8);
-   Nidx+=8;
+   memcpy(Fbuf+Fidx, &prefix, 8);
+   Fidx+=8;
    
    //key
-   memcpy(Nbuf+Nidx, kbuf, kloc+8);
-   Nidx+=kloc+8;
+   memcpy(Fbuf+Fidx, kbuf, kloc+8);
+   Fidx+=kloc+8;
    
    //value length
-   memcpy(Nbuf+Nidx, &vlen, 4);
-   Nidx+=4;
+   memcpy(Fbuf+Fidx, &vlen, 4);
+   Fidx+=4;
    if (vlen==0) return true;
    //value with contents
-   switch (vrcat)
-   {
-#pragma mark UID
-      case kvUI://unique ID (transfert syntax)
-      {
-         if (fromStdin){if(EDKVfread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Nbuf+Nidx, vbuf, vlen);//from vbuf
-         Nidx+=vlen;
-      };break;
-         
-#pragma mark generic
-      case kvUS://unsigned short
-      case kvTS://LO LT SH ST 19 text short charset
-      case kv01://OB OD OF OL OV OW SV UV
-#pragma mark special
-      case kvnative://40 0x7FE00010: //OB
-      case kvnativeOW://41 0x7FE00010: //OW
-      case kvnativeOF://42 0x7FE00008: //OF float
-      case kvnativeOD://43 0x7FE00009: //OD double
-      {
-         if (fromStdin){if(EDKVfread(Nbuf+Nidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Nbuf+Nidx, vbuf, vlen);//from vbuf
-         Nidx+=vlen;
-      };break;
 
-      default: return false;
-   }
-   return true;
+
+   if (fromStdin){if(EDKVfread(Fbuf+Fidx,1,vlen,stdin)!=vlen) return false;}
+   else memcpy(Fbuf+Fidx, vbuf, vlen);//from vbuf
+   
+
+   Fidx+=vlen;
+
+   return false;
 }
 
 bool appendnativeOW(
@@ -1537,7 +1659,9 @@ bool appendnativeOW(
                   uint8_t            *vbuf     //buffer for values
                 )
 {
-     return false;
+   D("%s","appendnativeOW");
+   
+   return false;
 }
 
 bool appendnativeOF(
@@ -1551,6 +1675,7 @@ bool appendnativeOF(
                   uint8_t            *vbuf     //buffer for values
                 )
 {
+   D("%s","appendnativeOF");
      return false;
 }
 
@@ -1565,10 +1690,11 @@ bool appendnativeOD(
                   uint8_t            *vbuf     //buffer for values
                 )
 {
+   D("%s","appendnativeOD");
      return false;
 }
 
-bool appendencoded(
+bool appendnativeOC(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -1652,6 +1778,128 @@ bool appendencoded(
    }
    else //already in buffer
    {
+   }
+   return true;
+}
+
+bool appendframesOB(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+)
+{
+   //freeing buffer necesary?
+   if ((vlen + 21 + kloc + Fidx > Fmax) && !morebuf(FDKV,vlen)) return false;
+
+   //key length = key path length + 8 prefix + 8 current attribute
+   //idx increased by 1
+   Fbuf[Fidx++]=kloc+16;
+
+   //prefix
+   memcpy(Fbuf+Fidx, &prefix, 8);
+   Fidx+=8;
+   
+   //key
+   memcpy(Fbuf+Fidx, kbuf, kloc+8);
+   Fidx+=kloc+8;
+   
+   //value length
+   memcpy(Fbuf+Fidx, &vlen, 4);
+   Fidx+=4;
+   if (vlen==0) return true;
+   //value with contents
+   switch (vrcat)
+   {
+#pragma mark UID
+      case kvUI://unique ID (transfert syntax)
+      {
+         if (fromStdin){if(EDKVfread(Fbuf+Fidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Fbuf+Fidx, vbuf, vlen);//from vbuf
+         Fidx+=vlen;
+      };break;
+         
+#pragma mark generic
+      case kvUS://unsigned short
+      case kvTS://LO LT SH ST 19 text short charset
+      case kv01://OB OD OF OL OV OW SV UV
+#pragma mark special
+      case kvnativeOB://40 0x7FE00010: //OB
+      case kvnativeOW://41 0x7FE00010: //OW
+      case kvnativeOF://42 0x7FE00008: //OF float
+      case kvnativeOD://43 0x7FE00009: //OD double
+      {
+         if (fromStdin){if(EDKVfread(Fbuf+Fidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Fbuf+Fidx, vbuf, vlen);//from vbuf
+         Fidx+=vlen;
+      };break;
+
+      default: return false;
+   }
+   return true;
+}
+
+bool appendframesOC(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+)
+{
+   //freeing buffer necesary?
+   if ((vlen + 21 + kloc + Fidx > Fmax) && !morebuf(FDKV,vlen)) return false;
+
+   //key length = key path length + 8 prefix + 8 current attribute
+   //idx increased by 1
+   Fbuf[Fidx++]=kloc+16;
+
+   //prefix
+   memcpy(Fbuf+Fidx, &prefix, 8);
+   Fidx+=8;
+   
+   //key
+   memcpy(Fbuf+Fidx, kbuf, kloc+8);
+   Fidx+=kloc+8;
+   
+   //value length
+   memcpy(Fbuf+Fidx, &vlen, 4);
+   Fidx+=4;
+   if (vlen==0) return true;
+   //value with contents
+   switch (vrcat)
+   {
+#pragma mark UID
+      case kvUI://unique ID (transfert syntax)
+      {
+         if (fromStdin){if(EDKVfread(Fbuf+Fidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Fbuf+Fidx, vbuf, vlen);//from vbuf
+         Fidx+=vlen;
+      };break;
+         
+#pragma mark generic
+      case kvUS://unsigned short
+      case kvTS://LO LT SH ST 19 text short charset
+      case kv01://OB OD OF OL OV OW SV UV
+#pragma mark special
+      case kvnativeOB://40 0x7FE00010: //OB
+      case kvnativeOW://41 0x7FE00010: //OW
+      case kvnativeOF://42 0x7FE00008: //OF float
+      case kvnativeOD://43 0x7FE00009: //OD double
+      {
+         if (fromStdin){if(EDKVfread(Fbuf+Fidx,1,vlen,stdin)!=vlen) return false;}
+         else memcpy(Fbuf+Fidx, vbuf, vlen);//from vbuf
+         Fidx+=vlen;
+      };break;
+
+      default: return false;
    }
    return true;
 }

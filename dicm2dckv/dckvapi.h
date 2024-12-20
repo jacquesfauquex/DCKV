@@ -9,6 +9,10 @@
 #include "dckvtypes.h"
 
 
+#pragma mark - init code
+
+bool _DKVDICMbuffer(s32 bytes);
+
 #pragma mark - blocking code
 
 size_t _DKVfread(
@@ -93,34 +97,34 @@ kvPN,//49 PN person name has a special treatment in json and xml
    
 kv01,  //54 other OB OD OF OL OV OW SV UV binary
    kvsdocument,//55 OB Encapsulated​Document 00420011 xml cda o pdf
-   kvnative, //56 OB 0x7FE00010
-   kvencoded, //57 OB 0x7E000010
-   kvnativeOW, //58 OW 0x7FE00010
-   kvnativeOD, //59 OD 0x7FE00009
-   kvnativeOF, //60 OF 0x7FE00008
-   kvfo,//61 OV Extended​Offset​Table fragments offset 7FE00001
-   kvfl,//62 OV Extended​Offset​TableLengths fragments offset 7FE00002
-   kvft,//63 UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
+   kvnativeOB, //56 OB 0x7FE00010
+   kvnativeOW, //57 OW 0x7FE00010
+   kvnativeOD, //58 OD 0x7FE00009
+   kvnativeOF, //59 OF 0x7FE00008
+   kvnativeOC, //60 OB 0x7E000010
+   kvframesOB, //61 OB 0x7E000010
+   kvframesOC, //62 OB 0x7E000010
+   kvfo,//63 OV Extended​Offset​Table fragments offset 7FE00001
+   kvfl,//64 OV Extended​Offset​TableLengths fragments offset 7FE00002
+   kvft,//65 UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
    
-kvTL,//64 UC UT text long charset
-     kveal,//65 UT AccessionNumberIssuer local 00080051.00400031
-     kveau,//66 UT AccessionNumberIssuer universal 00080051.00400032
+kvTL,//66 UC UT text long charset
+     kveal,//67 UT AccessionNumberIssuer local 00080051.00400031
+     kveau,//68 UT AccessionNumberIssuer universal 00080051.00400032
 
-kvTU,//67 UR text long url-encoded
+kvTU,//69 UR text long url-encoded
    
-kvSA,//68 SQ head
-kvIA,//69 item head
-kvIZ,//70 item tail
-kvSZ,//71 SQ tail
+kvSA,//70 SQ head
+kvIA,//71 item head
+kvIZ,//72 item tail
+kvSZ,//73 SQ tail
 
-kvUN,//UN 72
+kvUN,//UN 74
 
 };
 
 
 #pragma mark - TO BE IMPLEMENTED FOR EACH TARGET
-
-bool _DKVDICMbuffer(s32 bytes);
 
 //called after preliminar parsing of class, sop instance and transfer syntax
 bool _DKVcreate(

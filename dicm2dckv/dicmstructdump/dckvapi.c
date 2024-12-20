@@ -7,8 +7,8 @@
 
 #include "dckvapi.h"
 
-static char *Bbuf;
-static u32 Bidx=0;
+static char *DICMbuf;
+static u32 DICMidx=0;
 static FILE *fileptr;
 
 
@@ -19,9 +19,9 @@ size_t _DKVfread(
                      FILE * __restrict __stream
                      )
 {
-   size_t Bcopied=fread(Bbuf+Bidx,__size,__nitems,__stream);
-   memcpy(__ptr,Bbuf+Bidx,Bcopied);
-   Bidx+=Bcopied;
+   size_t Bcopied=fread(DICMbuf+DICMidx,__size,__nitems,__stream);
+   memcpy(__ptr,DICMbuf+DICMidx,Bcopied);
+   DICMidx+=Bcopied;
    return Bcopied;
    //return fread(__ptr,__size,__nitems,__stream);
 }
@@ -58,9 +58,9 @@ bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
 
 bool _DKVDICMbuffer(s32 bytes)
 {
-   Bidx=0;
-   Bbuf=malloc(bytes);
-   return (Bbuf!=NULL);
+   DICMidx=0;
+   DICMbuf=malloc(bytes);
+   return (DICMbuf!=NULL);
 }
 
 const char *space=" ";
@@ -87,7 +87,7 @@ bool _DKVcreate(
 bool _DKVcommit(s16 *siidx){
    fileptr=fopen("dicmstructdump.dcm", "w");
    if (fileptr == NULL) return false;
-   if (fwrite(Bbuf ,1, Bidx , fileptr)!=Bidx) return false;
+   if (fwrite(DICMbuf ,1, DICMidx , fileptr)!=DICMidx) return false;
    fclose(fileptr);
    return _DKVclose(siidx);
 }
@@ -155,11 +155,13 @@ bool _DKVappend(
          case kv01://OB OD OF OL OV OW SV UV
             
          case kvsdocument://55 OB Encapsulated​Document 00420011 xml cda o pdf
-         case kvnative: //56 OB 0x7FE00010
-         case kvencoded: //57 OB 0x7E000010
-         case kvnativeOW: //58 OW 0x7FE00010
-         case kvnativeOD: //59 OD 0x7FE00009
-         case kvnativeOF: //60 OF 0x7FE00008
+         case kvnativeOB: //OB 0x7FE00010
+         case kvnativeOW: //OW 0x7FE00010
+         case kvnativeOD: //OD 0x7FE00009
+         case kvnativeOF: //OF 0x7FE00008
+         case kvnativeOC: //OB 0x7E000010
+         case kvframesOB: //OB 0x7E000010
+         case kvframesOC: //OB 0x7E000010
          case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
          case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
          case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003

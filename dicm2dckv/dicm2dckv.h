@@ -34,7 +34,6 @@ bool dicm2dckvInstance(
  parser
  */
 bool dicm2dckvDataset(
-   uint8_t *kbuf,     // buffer matriz de creación de nuevos keys por diferencial
    u32 kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
    bool readfirstattr,    // true:read desde stream. false:ya está en kbuf
    u16 keycs,          // key charset

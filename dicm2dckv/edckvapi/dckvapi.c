@@ -1024,10 +1024,7 @@ bool _DKVDICMbuffer(s32 bytes)
 #pragma mark - static
 
 static u16 PCSidx;
-static u16 dckvapistidx;
-static u16 dckvapisoidx;
 static u32 roottag;
-static bool isimage;
 
 #pragma mark - methods overriden by edckv
 
@@ -1045,11 +1042,7 @@ bool _DKVcreate(
 )
 {
    PCSidx=0;//to determine if the attribute is patient, exam or series level
-   dckvapisoidx=*soidx;//class
-   dckvapistidx=*stidx;//transfer syntax
-   //remember transfer syntax and if native or not
-   isimage=sopclassidxisimage(dckvapisoidx);
-   
+
    return EDKVcreate(
    vbuf,
    soloc,
@@ -1115,9 +1108,9 @@ bool _DKVappend(
          D("P %08X",roottag);//private unknown
          return PDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
-      case kvnative:{
+      case kvnativeOB:{
          D("B %08X",roottag);
-         return appendnative(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         return appendnativeOB(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
       case kvnativeOW:{
          D("W %08X",roottag);//native word
@@ -1131,9 +1124,17 @@ bool _DKVappend(
          D("D %08X",roottag);
          return appendnativeOD(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
-      case kvencoded:{
+      case kvnativeOC:{
          D("C %08X",roottag);//comprimido metadata
-         return appendencoded(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         return appendnativeOC(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvframesOB:{
+         D("B %08X",roottag);
+         return appendframesOB(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      }
+      case kvframesOC:{
+         D("B %08X",roottag);
+         return appendframesOC(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
       }
 
       default:

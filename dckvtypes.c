@@ -60,11 +60,13 @@ const char *kvVRlabels[]={
    "kvreq",
    "kv01",
    "kvsdocument",
-   "kvnative",
-   "kvencoded",
+   "kvnativeOB",
    "kvnativeOW",
    "kvnativeOD",
    "kvnativeOF",
+   "kvnativeOC",
+   "kvframesOB",
+   "kvframesOC",
    "kvfo",
    "kvfl",
    "kvft",
@@ -1356,325 +1358,6 @@ const char *scstr[]={
 "1.2.840.10008.10.4"//RenditionSelectionDocumentRealTimeCommunication
 };
 
-const bool scisimage[]={
-false,//Verification
-false,//MediaStorageDirectoryStorage
-false,//BasicStudyContentNotification
-false,//StorageCommitmentPushModel
-false,//StorageCommitmentPullModel (Retired)
-false,//ProceduralEventLogging"
-false,//SubstanceAdministrationLogging
-false,//DetachedPatientManagement (Retired)
-false,//DetachedPatientManagementMeta (Retired)
-false,//DetachedVisitManagement (Retired)
-false,//DetachedStudyManagement (Retired)
-false,//StudyComponentManagement (Retired)
-false,//ModalityPerformedProcedureStep
-false,//ModalityPerformedProcedureStepRetrieve
-false,//ModalityPerformedProcedureStepNotification
-false,//DetachedResultsManagement (Retired)
-false,//DetachedResultsManagementMeta (Retired)
-false,//DetachedStudyManagementMeta (Retired)
-false,//DetachedInterpretationManagement (Retired)
-false,//BasicFilmSession
-false,//BasicFilmBox
-false,//BasicGrayscaleImageBox
-false,//BasicColorImageBox
-false,//ReferencedImageBox
-false,//BasicGrayscalePrintManagementMeta
-false,//ReferencedGrayscalePrintManagementMeta
-false,//PrintJob
-false,//BasicAnnotationBox
-false,//Printer
-false,//PrinterConfigurationRetrieval
-false,//BasicColorPrintManagementMeta
-false,//ReferencedColorPrintManagementMeta (Retired)
-false,//VOILUTBox
-false,//PresentationLUT
-false,//ImageOverlayBox (Retired)
-false,//BasicPrintImageOverlayBox (Retired)
-false,//PrintQueueManagement (Retired)
-false,//StoredPrintStorage (Retired)
-false,//HardcopyGrayscaleImageStorage (Retired)
-false,//HardcopyColorImageStorage (Retired)
-false,//PullPrintRequest (Retired)
-false,//PullStoredPrintManagementMeta (Retired)
-false,//MediaCreationManagement
-false,//DisplaySystem
-   true,//ComputedRadiographyImageStorage
-   true,//DigitalXRayImageStorageForPresentation
-   true,//DigitalXRayImageStorageForProcessing
-   true,//DigitalMammographyXRayImageStorageForPresentation
-   true,//DigitalMammographyXRayImageStorageForProcessing
-   true,//DigitalIntraOralXRayImageStorageForPresentation
-   true,//DigitalIntraOralXRayImageStorageForProcessing
-   true,//CTImageStorage
-   true,//EnhancedCTImageStorage
-   true,//LegacyConvertedEnhancedCTImageStorage
-   true,//UltrasoundMultiFrameImageStorageRetired (Retired)
-   true,//UltrasoundMultiFrameImageStorage
-   true,//MRImageStorage
-   true,//EnhancedMRImageStorage
-   true,//MRSpectroscopyStorage
-   true,//EnhancedMRColorImageStorage
-   true,//LegacyConvertedEnhancedMRImageStorage
-   true,//NuclearMedicineImageStorageRetired (Retired)
-   true,//UltrasoundImageStorageRetired (Retired)
-   true,//UltrasoundImageStorage
-   true,//EnhancedUSVolumeStorage
-   true,//PhotoacousticImageStorage
-   true,//SecondaryCaptureImageStorage
-   true,//MultiFrameSingleBitSecondaryCaptureImageStorage
-   true,//MultiFrameGrayscaleByteSecondaryCaptureImageStorage
-   true,//MultiFrameGrayscaleWordSecondaryCaptureImageStorage
-   true,//MultiFrame   trueColorSecondaryCaptureImageStorage
-false,//StandaloneOverlayStorage (Retired)
-false,//StandaloneCurveStorage (Retired)
-false,//WaveformStorageTrial (Retired)
-false,//TwelveLeadECGWaveformStorage
-false,//GeneralECGWaveformStorage
-false,//AmbulatoryECGWaveformStorage
-false,//General32bitECGWaveformStorage
-false,//HemodynamicWaveformStorage
-false,//CardiacElectrophysiologyWaveformStorage
-false,//BasicVoiceAudioWaveformStorage
-false,//GeneralAudioWaveformStorage
-false,//ArterialPulseWaveformStorage
-false,//RespiratoryWaveformStorage
-false,//MultichannelRespiratoryWaveformStorage
-false,//RoutineScalpElectroencephalogramWaveformStorage
-false,//ElectromyogramWaveformStorage
-false,//ElectrooculogramWaveformStorage
-false,//SleepElectroencephalogramWaveformStorage
-false,//BodyPositionWaveformStorage
-false,//StandaloneModalityLUTStorage (Retired)
-false,//StandaloneVOILUTStorage (Retired)
-false,//GrayscaleSoftcopyPresentationStateStorage
-false,//ColorSoftcopyPresentationStateStorage
-false,//PseudoColorSoftcopyPresentationStateStorage
-false,//BlendingSoftcopyPresentationStateStorage
-false,//XAXRFGrayscaleSoftcopyPresentationStateStorage
-false,//GrayscalePlanarMPRVolumetricPresentationStateStorage
-false,//CompositingPlanarMPRVolumetricPresentationStateStorage
-false,//AdvancedBlendingPresentationStateStorage
-false,//VolumeRenderingVolumetricPresentationStateStorage
-false,//SegmentedVolumeRenderingVolumetricPresentationStateStorage
-false,//MultipleVolumeRenderingVolumetricPresentationStateStorage
-false,//VariableModalityLUTSoftcopyPresentationStateStorage
-   true,//XRayAngiographicImageStorage
-   true,//EnhancedXAImageStorage
-   true,//XRayRadiofluoroscopicImageStorage
-   true,//EnhancedXRFImageStorage
-   true,//XRayAngiographicBiPlaneImageStorage (Retired)
-false,//(Retired)
-   true,//XRay3DAngiographicImageStorage
-   true,//XRay3DCraniofacialImageStorage
-   true,//BreastTomosynthesisImageStorage
-   true,//BreastProjectionXRayImageStorageForPresentation
-   true,//BreastProjectionXRayImageStorageForProcessing
-   true,//IntravascularOpticalCoherenceTomographyImageStorageForPresentation
-   true,//IntravascularOpticalCoherenceTomographyImageStorageForProcessing
-   true,//NuclearMedicineImageStorage
-   true,//ParametricMapStorage
-false,//(Retired)
-false,//RawDataStorage
-false,//SpatialRegistrationStorage
-false,//SpatialFiducialsStorage
-false,//DeformableSpatialRegistrationStorage
-   true,//SegmentationStorage
-false,//SurfaceSegmentationStorage
-false,//TractographyResultsStorage
-false,//RealWorldValueMappingStorage
-false,//SurfaceScanMeshStorage
-false,//SurfaceScanPointCloudStorage
-   true,//VLImageStorageTrial (Retired)
-   true,//VLMultiFrameImageStorageTrial (Retired)
-   true,//VLEndoscopicImageStorage
-   true,//VideoEndoscopicImageStorage
-   true,//VLMicroscopicImageStorage
-   true,//VideoMicroscopicImageStorage
-   true,//VLSlideCoordinatesMicroscopicImageStorage
-   true,//VLPhotographicImageStorage
-   true,//VideoPhotographicImageStorage
-   true,//OphthalmicPhotography8BitImageStorage
-   true,//OphthalmicPhotography16BitImageStorage
-false,//StereometricRelationshipStorage
-   true,//OphthalmicTomographyImageStorage
-   true,//WideFieldOphthalmicPhotographyStereographicProjectionImageStorage
-   true,//WideFieldOphthalmicPhotography3DCoordinatesImageStorage
-   true,//OphthalmicOpticalCoherenceTomographyEnFaceImageStorage
-false,//OphthalmicOpticalCoherenceTomographyBscanVolumeAnalysisStorage
-   true,//VLWholeSlideMicroscopyImageStorage
-   true,//DermoscopicPhotographyImageStorage
-   true,//ConfocalMicroscopyImageStorage
-   true,//ConfocalMicroscopyTiledPyramidalImageStorage
-false,//LensometryMeasurementsStorage
-false,//AutorefractionMeasurementsStorage
-false,//KeratometryMeasurementsStorage
-false,//SubjectiveRefractionMeasurementsStorage
-false,//VisualAcuityMeasurementsStorage
-false,//SpectaclePrescriptionReportStorage
-false,//OphthalmicAxialMeasurementsStorage
-false,//IntraocularLensCalculationsStorage
-false,//MacularGridThicknessAndVolumeReportStorage
-false,//OphthalmicVisualFieldStaticPerimetryMeasurementsStorage
-false,//OphthalmicThicknessMapStorage
-false,//CornealTopographyMapStorage
-false,//TextSRStorageTrial (Retired)
-false,//AudioSRStorageTrial (Retired)
-false,//DetailSRStorageTrial (Retired)
-false,//ComprehensiveSRStorageTrial (Retired)
-false,//BasicTextSRStorage
-false,//EnhancedSRStorage
-false,//ComprehensiveSRStorage
-false,//Comprehensive3DSRStorage
-false,//ExtensibleSRStorage
-false,//ProcedureLogStorage
-false,//MammographyCADSRStorage
-false,//KeyObjectSelectionDocumentStorage
-false,//ChestCADSRStorage
-false,//XRayRadiationDoseSRStorage
-false,//RadiopharmaceuticalRadiationDoseSRStorage
-false,//ColonCADSRStorage
-false,//ImplantationPlanSRStorage
-false,//AcquisitionContextSRStorage
-false,//SimplifiedAdultEchoSRStorage
-false,//PatientRadiationDoseSRStorage
-false,//PlannedImagingAgentAdministrationSRStorage
-false,//PerformedImagingAgentAdministrationSRStorage
-false,//EnhancedXRayRadiationDoseSRStorage
-false,//ContentAssessmentResultsStorage
-false,//MicroscopyBulkSimpleAnnotationsStorage
-false,//EncapsulatedPDFStorage
-false,//EncapsulatedCDAStorage
-false,//EncapsulatedSTLStorage
-false,//EncapsulatedOBJStorage
-false,//EncapsulatedMTLStorage
-   true,//PositronEmissionTomographyImageStorage
-   true,//LegacyConvertedEnhancedPETImageStorage
-false,//StandalonePETCurveStorage
-   true,//EnhancedPETImageStorage
-false,//BasicStructuredDisplayStorage
-false,//CTDefinedProcedureProtocolStorage
-false,//CTPerformedProcedureProtocolStorage
-false,//ProtocolApprovalStorage
-false,//ProtocolApprovalInformationModelFind
-false,//ProtocolApprovalInformationModelMove
-false,//ProtocolApprovalInformationModelGet
-false,//XADefinedProcedureProtocolStorage
-false,//XAPerformedProcedureProtocolStorage
-false,//InventoryStorage
-false,//InventoryFind
-false,//InventoryMove
-false,//InventoryGet
-false,//InventoryCreation
-false,//RepositoryQuery
-   true,//RTImageStorage
-false,//RTDoseStorage
-false,//RTStructureSetStorage
-false,//RTBeamsTreatmentRecordStorage
-false,//RTPlanStorage
-false,//RTBrachyTreatmentRecordStorage
-false,//RTTreatmentSummaryRecordStorage
-false,//RTIonPlanStorage
-false,//RTIonBeamsTreatmentRecordStorage
-false,//RTPhysicianIntentStorage
-false,//RTSegmentAnnotationStorage
-false,//RTRadiationSetStorage
-false,//CArmPhotonElectronRadiationStorage
-false,//TomotherapeuticRadiationStorage
-false,//RoboticArmRadiationStorage
-false,//RTRadiationRecordSetStorage
-false,//RTRadiationSalvageRecordStorage
-false,//TomotherapeuticRadiationRecordStorage
-false,//CArmPhotonElectronRadiationRecordStorage
-false,//RoboticRadiationRecordStorage
-false,//RTRadiationSetDeliveryInstructionStorage
-false,//RTTreatmentPreparationStorage
-   true,//EnhancedRTImageStorage
-   true,//EnhancedContinuousRTImageStorage
-false,//RTPatientPositionAcquisitionInstructionStorage
-   true,//DICOSCTImageStorage
-   true,//DICOSDigitalXRayImageStorageForPresentation
-   true,//DICOSDigitalXRayImageStorageForProcessing
-false,//DICOSThreatDetectionReportStorage
-false,//DICOS2DAITStorage
-false,//DICOS3DAITStorage
-false,//DICOSQuadrupoleResonanceStorage
-   true,//EddyCurrentImageStorage
-   true,//EddyCurrentMultiFrameImageStorage
-false,//PatientRootQueryRetrieveInformationModelFind
-false,//PatientRootQueryRetrieveInformationModelMove
-false,//PatientRootQueryRetrieveInformationModelGet
-false,//StudyRootQueryRetrieveInformationModelFind
-false,//StudyRootQueryRetrieveInformationModelMove
-false,//StudyRootQueryRetrieveInformationModelGet
-false,//PatientStudyOnlyQueryRetrieveInformationModelFind
-false,//PatientStudyOnlyQueryRetrieveInformationModelMove
-false,//PatientStudyOnlyQueryRetrieveInformationModelGet
-false,//CompositeInstanceRootRetrieveMove
-false,//CompositeInstanceRootRetrieveGet
-false,//CompositeInstanceRetrieveWithoutBulkDataGet
-false,//DefinedProcedureProtocolInformationModelFind
-false,//DefinedProcedureProtocolInformationModelMove
-false,//DefinedProcedureProtocolInformationModelGet
-false,//ModalityWorklistInformationModelFind
-false,//GeneralPurposeWorklistManagementMeta
-false,//GeneralPurposeWorklistInformationModelFind
-false,//GeneralPurposeScheduledProcedureStep
-false,//GeneralPurposePerformedProcedureStep
-false,//InstanceAvailabilityNotification
-false,//RTBeamsDeliveryInstructionStorageTrial
-false,//RTConventionalMachineVerificationTrial
-false,//RTIonMachineVerificationTrial (Retired)
-false,//UnifiedWorklistAndProcedureStepTrial (Retired)
-false,//UnifiedProcedureStepPushTrial (Retired)
-false,//UnifiedProcedureStepWatchTrial (Retired)
-false,//UnifiedProcedureStepPullTrial (Retired)
-false,//UnifiedProcedureStepEventTrial
-false,//UPSGlobalSubscriptionInstance
-false,//UPSFilteredGlobalSubscriptionInstance
-false,//UnifiedWorklistAndProcedureStep
-false,//UnifiedProcedureStepPush
-false,//UnifiedProcedureStepWatch
-false,//UnifiedProcedureStepPull
-false,//UnifiedProcedureStepEvent
-false,//UnifiedProcedureStepQuery
-false,//RTBeamsDeliveryInstructionStorage
-false,//RTConventionalMachineVerification
-false,//RTIonMachineVerification
-false,//RTBrachyApplicationSetupDeliveryInstructionStorage
-false,//GeneralRelevantPatientInformationQuery
-false,//BreastImagingRelevantPatientInformationQuery
-false,//CardiacRelevantPatientInformationQuery
-false,//HangingProtocolStorage
-false,//HangingProtocolInformationModelFind
-false,//HangingProtocolInformationModelMove
-false,//HangingProtocolInformationModelGet
-false,//ColorPaletteStorage
-false,//ColorPaletteQueryRetrieveInformationModelFind
-false,//ColorPaletteQueryRetrieveInformationModelMove
-false,//ColorPaletteQueryRetrieveInformationModelGet
-false,//ProductCharacteristicsQuery
-false,//SubstanceApprovalQuery
-false,//GenericImplantTemplateStorage
-false,//GenericImplantTemplateInformationModelFind
-false,//GenericImplantTemplateInformationModelMove
-false,//GenericImplantTemplateInformationModelGet
-false,//ImplantAssemblyTemplateStorage
-false,//ImplantAssemblyTemplateInformationModelFind
-false,//ImplantAssemblyTemplateInformationModelMove
-false,//ImplantAssemblyTemplateInformationModelGet
-false,//ImplantTemplateGroupStorage
-false,//ImplantTemplateGroupInformationModelFind
-false,//ImplantTemplateGroupInformationModelMove
-false,//ImplantTemplateGroupInformationModelGet
-false,//VideoEndoscopicImageRealTimeCommunication
-false,//VideoPhotographicImageRealTimeCommunication
-false,//AudioWaveformRealTimeCommunication
-false//RenditionSelectionDocumentRealTimeCommunication
-};
-
 u16 sopclassidx( uint8_t *vbuf, u16 vallength )
 {
    u16 idx=0x0;//verification / error
@@ -2064,7 +1747,650 @@ u16 sopclassidx( uint8_t *vbuf, u16 vallength )
    else return 0;//error (verification)
 }
 
+const bool scisimage[]={
+false,//Verification
+false,//MediaStorageDirectoryStorage
+false,//BasicStudyContentNotification
+false,//StorageCommitmentPushModel
+false,//StorageCommitmentPullModel (Retired)
+false,//ProceduralEventLogging"
+false,//SubstanceAdministrationLogging
+false,//DetachedPatientManagement (Retired)
+false,//DetachedPatientManagementMeta (Retired)
+false,//DetachedVisitManagement (Retired)
+false,//DetachedStudyManagement (Retired)
+false,//StudyComponentManagement (Retired)
+false,//ModalityPerformedProcedureStep
+false,//ModalityPerformedProcedureStepRetrieve
+false,//ModalityPerformedProcedureStepNotification
+false,//DetachedResultsManagement (Retired)
+false,//DetachedResultsManagementMeta (Retired)
+false,//DetachedStudyManagementMeta (Retired)
+false,//DetachedInterpretationManagement (Retired)
+false,//BasicFilmSession
+false,//BasicFilmBox
+false,//BasicGrayscaleImageBox
+false,//BasicColorImageBox
+false,//ReferencedImageBox
+false,//BasicGrayscalePrintManagementMeta
+false,//ReferencedGrayscalePrintManagementMeta
+false,//PrintJob
+false,//BasicAnnotationBox
+false,//Printer
+false,//PrinterConfigurationRetrieval
+false,//BasicColorPrintManagementMeta
+false,//ReferencedColorPrintManagementMeta (Retired)
+false,//VOILUTBox
+false,//PresentationLUT
+false,//ImageOverlayBox (Retired)
+false,//BasicPrintImageOverlayBox (Retired)
+false,//PrintQueueManagement (Retired)
+false,//StoredPrintStorage (Retired)
+false,//HardcopyGrayscaleImageStorage (Retired)
+false,//HardcopyColorImageStorage (Retired)
+false,//PullPrintRequest (Retired)
+false,//PullStoredPrintManagementMeta (Retired)
+false,//MediaCreationManagement
+false,//DisplaySystem
+   true,//ComputedRadiographyImageStorage
+   true,//DigitalXRayImageStorageForPresentation
+   true,//DigitalXRayImageStorageForProcessing
+   true,//DigitalMammographyXRayImageStorageForPresentation
+   true,//DigitalMammographyXRayImageStorageForProcessing
+   true,//DigitalIntraOralXRayImageStorageForPresentation
+   true,//DigitalIntraOralXRayImageStorageForProcessing
+   true,//CTImageStorage
+   true,//EnhancedCTImageStorage
+   true,//LegacyConvertedEnhancedCTImageStorage
+   true,//UltrasoundMultiFrameImageStorageRetired (Retired)
+   true,//UltrasoundMultiFrameImageStorage
+   true,//MRImageStorage
+   true,//EnhancedMRImageStorage
+   true,//MRSpectroscopyStorage
+   true,//EnhancedMRColorImageStorage
+   true,//LegacyConvertedEnhancedMRImageStorage
+   true,//NuclearMedicineImageStorageRetired (Retired)
+   true,//UltrasoundImageStorageRetired (Retired)
+   true,//UltrasoundImageStorage
+   true,//EnhancedUSVolumeStorage
+   true,//PhotoacousticImageStorage
+   true,//SecondaryCaptureImageStorage
+   true,//MultiFrameSingleBitSecondaryCaptureImageStorage
+   true,//MultiFrameGrayscaleByteSecondaryCaptureImageStorage
+   true,//MultiFrameGrayscaleWordSecondaryCaptureImageStorage
+   true,//MultiFrame   trueColorSecondaryCaptureImageStorage
+false,//StandaloneOverlayStorage (Retired)
+false,//StandaloneCurveStorage (Retired)
+false,//WaveformStorageTrial (Retired)
+false,//TwelveLeadECGWaveformStorage
+false,//GeneralECGWaveformStorage
+false,//AmbulatoryECGWaveformStorage
+false,//General32bitECGWaveformStorage
+false,//HemodynamicWaveformStorage
+false,//CardiacElectrophysiologyWaveformStorage
+false,//BasicVoiceAudioWaveformStorage
+false,//GeneralAudioWaveformStorage
+false,//ArterialPulseWaveformStorage
+false,//RespiratoryWaveformStorage
+false,//MultichannelRespiratoryWaveformStorage
+false,//RoutineScalpElectroencephalogramWaveformStorage
+false,//ElectromyogramWaveformStorage
+false,//ElectrooculogramWaveformStorage
+false,//SleepElectroencephalogramWaveformStorage
+false,//BodyPositionWaveformStorage
+false,//StandaloneModalityLUTStorage (Retired)
+false,//StandaloneVOILUTStorage (Retired)
+false,//GrayscaleSoftcopyPresentationStateStorage
+false,//ColorSoftcopyPresentationStateStorage
+false,//PseudoColorSoftcopyPresentationStateStorage
+false,//BlendingSoftcopyPresentationStateStorage
+false,//XAXRFGrayscaleSoftcopyPresentationStateStorage
+false,//GrayscalePlanarMPRVolumetricPresentationStateStorage
+false,//CompositingPlanarMPRVolumetricPresentationStateStorage
+false,//AdvancedBlendingPresentationStateStorage
+false,//VolumeRenderingVolumetricPresentationStateStorage
+false,//SegmentedVolumeRenderingVolumetricPresentationStateStorage
+false,//MultipleVolumeRenderingVolumetricPresentationStateStorage
+false,//VariableModalityLUTSoftcopyPresentationStateStorage
+   true,//XRayAngiographicImageStorage
+   true,//EnhancedXAImageStorage
+   true,//XRayRadiofluoroscopicImageStorage
+   true,//EnhancedXRFImageStorage
+   true,//XRayAngiographicBiPlaneImageStorage (Retired)
+false,//(Retired)
+   true,//XRay3DAngiographicImageStorage
+   true,//XRay3DCraniofacialImageStorage
+   true,//BreastTomosynthesisImageStorage
+   true,//BreastProjectionXRayImageStorageForPresentation
+   true,//BreastProjectionXRayImageStorageForProcessing
+   true,//IntravascularOpticalCoherenceTomographyImageStorageForPresentation
+   true,//IntravascularOpticalCoherenceTomographyImageStorageForProcessing
+   true,//NuclearMedicineImageStorage
+   true,//ParametricMapStorage
+false,//(Retired)
+false,//RawDataStorage
+false,//SpatialRegistrationStorage
+false,//SpatialFiducialsStorage
+false,//DeformableSpatialRegistrationStorage
+   true,//SegmentationStorage
+false,//SurfaceSegmentationStorage
+false,//TractographyResultsStorage
+false,//RealWorldValueMappingStorage
+false,//SurfaceScanMeshStorage
+false,//SurfaceScanPointCloudStorage
+   true,//VLImageStorageTrial (Retired)
+   true,//VLMultiFrameImageStorageTrial (Retired)
+   true,//VLEndoscopicImageStorage
+   true,//VideoEndoscopicImageStorage
+   true,//VLMicroscopicImageStorage
+   true,//VideoMicroscopicImageStorage
+   true,//VLSlideCoordinatesMicroscopicImageStorage
+   true,//VLPhotographicImageStorage
+   true,//VideoPhotographicImageStorage
+   true,//OphthalmicPhotography8BitImageStorage
+   true,//OphthalmicPhotography16BitImageStorage
+false,//StereometricRelationshipStorage
+   true,//OphthalmicTomographyImageStorage
+   true,//WideFieldOphthalmicPhotographyStereographicProjectionImageStorage
+   true,//WideFieldOphthalmicPhotography3DCoordinatesImageStorage
+   true,//OphthalmicOpticalCoherenceTomographyEnFaceImageStorage
+false,//OphthalmicOpticalCoherenceTomographyBscanVolumeAnalysisStorage
+   true,//VLWholeSlideMicroscopyImageStorage
+   true,//DermoscopicPhotographyImageStorage
+   true,//ConfocalMicroscopyImageStorage
+   true,//ConfocalMicroscopyTiledPyramidalImageStorage
+false,//LensometryMeasurementsStorage
+false,//AutorefractionMeasurementsStorage
+false,//KeratometryMeasurementsStorage
+false,//SubjectiveRefractionMeasurementsStorage
+false,//VisualAcuityMeasurementsStorage
+false,//SpectaclePrescriptionReportStorage
+false,//OphthalmicAxialMeasurementsStorage
+false,//IntraocularLensCalculationsStorage
+false,//MacularGridThicknessAndVolumeReportStorage
+false,//OphthalmicVisualFieldStaticPerimetryMeasurementsStorage
+false,//OphthalmicThicknessMapStorage
+false,//CornealTopographyMapStorage
+false,//TextSRStorageTrial (Retired)
+false,//AudioSRStorageTrial (Retired)
+false,//DetailSRStorageTrial (Retired)
+false,//ComprehensiveSRStorageTrial (Retired)
+false,//BasicTextSRStorage
+false,//EnhancedSRStorage
+false,//ComprehensiveSRStorage
+false,//Comprehensive3DSRStorage
+false,//ExtensibleSRStorage
+false,//ProcedureLogStorage
+false,//MammographyCADSRStorage
+false,//KeyObjectSelectionDocumentStorage
+false,//ChestCADSRStorage
+false,//XRayRadiationDoseSRStorage
+false,//RadiopharmaceuticalRadiationDoseSRStorage
+false,//ColonCADSRStorage
+false,//ImplantationPlanSRStorage
+false,//AcquisitionContextSRStorage
+false,//SimplifiedAdultEchoSRStorage
+false,//PatientRadiationDoseSRStorage
+false,//PlannedImagingAgentAdministrationSRStorage
+false,//PerformedImagingAgentAdministrationSRStorage
+false,//EnhancedXRayRadiationDoseSRStorage
+false,//ContentAssessmentResultsStorage
+false,//MicroscopyBulkSimpleAnnotationsStorage
+false,//EncapsulatedPDFStorage
+false,//EncapsulatedCDAStorage
+false,//EncapsulatedSTLStorage
+false,//EncapsulatedOBJStorage
+false,//EncapsulatedMTLStorage
+   true,//PositronEmissionTomographyImageStorage
+   true,//LegacyConvertedEnhancedPETImageStorage
+false,//StandalonePETCurveStorage
+   true,//EnhancedPETImageStorage
+false,//BasicStructuredDisplayStorage
+false,//CTDefinedProcedureProtocolStorage
+false,//CTPerformedProcedureProtocolStorage
+false,//ProtocolApprovalStorage
+false,//ProtocolApprovalInformationModelFind
+false,//ProtocolApprovalInformationModelMove
+false,//ProtocolApprovalInformationModelGet
+false,//XADefinedProcedureProtocolStorage
+false,//XAPerformedProcedureProtocolStorage
+false,//InventoryStorage
+false,//InventoryFind
+false,//InventoryMove
+false,//InventoryGet
+false,//InventoryCreation
+false,//RepositoryQuery
+   true,//RTImageStorage
+false,//RTDoseStorage
+false,//RTStructureSetStorage
+false,//RTBeamsTreatmentRecordStorage
+false,//RTPlanStorage
+false,//RTBrachyTreatmentRecordStorage
+false,//RTTreatmentSummaryRecordStorage
+false,//RTIonPlanStorage
+false,//RTIonBeamsTreatmentRecordStorage
+false,//RTPhysicianIntentStorage
+false,//RTSegmentAnnotationStorage
+false,//RTRadiationSetStorage
+false,//CArmPhotonElectronRadiationStorage
+false,//TomotherapeuticRadiationStorage
+false,//RoboticArmRadiationStorage
+false,//RTRadiationRecordSetStorage
+false,//RTRadiationSalvageRecordStorage
+false,//TomotherapeuticRadiationRecordStorage
+false,//CArmPhotonElectronRadiationRecordStorage
+false,//RoboticRadiationRecordStorage
+false,//RTRadiationSetDeliveryInstructionStorage
+false,//RTTreatmentPreparationStorage
+   true,//EnhancedRTImageStorage
+   true,//EnhancedContinuousRTImageStorage
+false,//RTPatientPositionAcquisitionInstructionStorage
+   true,//DICOSCTImageStorage
+   true,//DICOSDigitalXRayImageStorageForPresentation
+   true,//DICOSDigitalXRayImageStorageForProcessing
+false,//DICOSThreatDetectionReportStorage
+false,//DICOS2DAITStorage
+false,//DICOS3DAITStorage
+false,//DICOSQuadrupoleResonanceStorage
+   true,//EddyCurrentImageStorage
+   true,//EddyCurrentMultiFrameImageStorage
+false,//PatientRootQueryRetrieveInformationModelFind
+false,//PatientRootQueryRetrieveInformationModelMove
+false,//PatientRootQueryRetrieveInformationModelGet
+false,//StudyRootQueryRetrieveInformationModelFind
+false,//StudyRootQueryRetrieveInformationModelMove
+false,//StudyRootQueryRetrieveInformationModelGet
+false,//PatientStudyOnlyQueryRetrieveInformationModelFind
+false,//PatientStudyOnlyQueryRetrieveInformationModelMove
+false,//PatientStudyOnlyQueryRetrieveInformationModelGet
+false,//CompositeInstanceRootRetrieveMove
+false,//CompositeInstanceRootRetrieveGet
+false,//CompositeInstanceRetrieveWithoutBulkDataGet
+false,//DefinedProcedureProtocolInformationModelFind
+false,//DefinedProcedureProtocolInformationModelMove
+false,//DefinedProcedureProtocolInformationModelGet
+false,//ModalityWorklistInformationModelFind
+false,//GeneralPurposeWorklistManagementMeta
+false,//GeneralPurposeWorklistInformationModelFind
+false,//GeneralPurposeScheduledProcedureStep
+false,//GeneralPurposePerformedProcedureStep
+false,//InstanceAvailabilityNotification
+false,//RTBeamsDeliveryInstructionStorageTrial
+false,//RTConventionalMachineVerificationTrial
+false,//RTIonMachineVerificationTrial (Retired)
+false,//UnifiedWorklistAndProcedureStepTrial (Retired)
+false,//UnifiedProcedureStepPushTrial (Retired)
+false,//UnifiedProcedureStepWatchTrial (Retired)
+false,//UnifiedProcedureStepPullTrial (Retired)
+false,//UnifiedProcedureStepEventTrial
+false,//UPSGlobalSubscriptionInstance
+false,//UPSFilteredGlobalSubscriptionInstance
+false,//UnifiedWorklistAndProcedureStep
+false,//UnifiedProcedureStepPush
+false,//UnifiedProcedureStepWatch
+false,//UnifiedProcedureStepPull
+false,//UnifiedProcedureStepEvent
+false,//UnifiedProcedureStepQuery
+false,//RTBeamsDeliveryInstructionStorage
+false,//RTConventionalMachineVerification
+false,//RTIonMachineVerification
+false,//RTBrachyApplicationSetupDeliveryInstructionStorage
+false,//GeneralRelevantPatientInformationQuery
+false,//BreastImagingRelevantPatientInformationQuery
+false,//CardiacRelevantPatientInformationQuery
+false,//HangingProtocolStorage
+false,//HangingProtocolInformationModelFind
+false,//HangingProtocolInformationModelMove
+false,//HangingProtocolInformationModelGet
+false,//ColorPaletteStorage
+false,//ColorPaletteQueryRetrieveInformationModelFind
+false,//ColorPaletteQueryRetrieveInformationModelMove
+false,//ColorPaletteQueryRetrieveInformationModelGet
+false,//ProductCharacteristicsQuery
+false,//SubstanceApprovalQuery
+false,//GenericImplantTemplateStorage
+false,//GenericImplantTemplateInformationModelFind
+false,//GenericImplantTemplateInformationModelMove
+false,//GenericImplantTemplateInformationModelGet
+false,//ImplantAssemblyTemplateStorage
+false,//ImplantAssemblyTemplateInformationModelFind
+false,//ImplantAssemblyTemplateInformationModelMove
+false,//ImplantAssemblyTemplateInformationModelGet
+false,//ImplantTemplateGroupStorage
+false,//ImplantTemplateGroupInformationModelFind
+false,//ImplantTemplateGroupInformationModelMove
+false,//ImplantTemplateGroupInformationModelGet
+false,//VideoEndoscopicImageRealTimeCommunication
+false,//VideoPhotographicImageRealTimeCommunication
+false,//AudioWaveformRealTimeCommunication
+false//RenditionSelectionDocumentRealTimeCommunication
+};
+
 bool sopclassidxisimage( u16 sopclassidx)
+{
+   return scisimage[sopclassidx];
+}
+
+const bool scisframes[]={
+false,//Verification
+false,//MediaStorageDirectoryStorage
+false,//BasicStudyContentNotification
+false,//StorageCommitmentPushModel
+false,//StorageCommitmentPullModel (Retired)
+false,//ProceduralEventLogging"
+false,//SubstanceAdministrationLogging
+false,//DetachedPatientManagement (Retired)
+false,//DetachedPatientManagementMeta (Retired)
+false,//DetachedVisitManagement (Retired)
+false,//DetachedStudyManagement (Retired)
+false,//StudyComponentManagement (Retired)
+false,//ModalityPerformedProcedureStep
+false,//ModalityPerformedProcedureStepRetrieve
+false,//ModalityPerformedProcedureStepNotification
+false,//DetachedResultsManagement (Retired)
+false,//DetachedResultsManagementMeta (Retired)
+false,//DetachedStudyManagementMeta (Retired)
+false,//DetachedInterpretationManagement (Retired)
+false,//BasicFilmSession
+false,//BasicFilmBox
+false,//BasicGrayscaleImageBox
+false,//BasicColorImageBox
+false,//ReferencedImageBox
+false,//BasicGrayscalePrintManagementMeta
+false,//ReferencedGrayscalePrintManagementMeta
+false,//PrintJob
+false,//BasicAnnotationBox
+false,//Printer
+false,//PrinterConfigurationRetrieval
+false,//BasicColorPrintManagementMeta
+false,//ReferencedColorPrintManagementMeta (Retired)
+false,//VOILUTBox
+false,//PresentationLUT
+false,//ImageOverlayBox (Retired)
+false,//BasicPrintImageOverlayBox (Retired)
+false,//PrintQueueManagement (Retired)
+false,//StoredPrintStorage (Retired)
+false,//HardcopyGrayscaleImageStorage (Retired)
+false,//HardcopyColorImageStorage (Retired)
+false,//PullPrintRequest (Retired)
+false,//PullStoredPrintManagementMeta (Retired)
+false,//MediaCreationManagement
+false,//DisplaySystem
+false,//ComputedRadiographyImageStorage
+false,//DigitalXRayImageStorageForPresentation
+false,//DigitalXRayImageStorageForProcessing
+false,//DigitalMammographyXRayImageStorageForPresentation
+false,//DigitalMammographyXRayImageStorageForProcessing
+false,//DigitalIntraOralXRayImageStorageForPresentation
+false,//DigitalIntraOralXRayImageStorageForProcessing
+false,//CTImageStorage
+      true,//Enh CT EnhancedCTImageStorage
+      true,//LegacyConvertedEnhancedCTImageStorage
+      true,//UltrasoundMultiFrameImageStorageRetired (Retired)
+      true,//US MF UltrasoundMultiFrameImageStorage
+false,//MRImageStorage
+       true,//Enh MR EnhancedMRImageStorage
+false,//MRSpectroscopyStorage
+       true,//Enh MR Col EnhancedMRColorImageStorage
+       true,//LegacyConvertedEnhancedMRImageStorage
+       true,//NM NuclearMedicineImageStorageRetired (Retired)
+false,//UltrasoundImageStorageRetired (Retired)
+false,//UltrasoundImageStorage
+       true,//Enh US Vol EnhancedUSVolumeStorage
+       true,//PA PhotoacousticImageStorage
+false,//SecondaryCaptureImageStorage
+       true,//SC MF SB MultiFrameSingleBitSecondaryCaptureImageStorage
+       true,//SC MF GB MultiFrameGrayscaleByteSecondaryCaptureImageStorage
+       true,//SC MF GW MultiFrameGrayscaleWordSecondaryCaptureImageStorage
+       true,//SC MF TC MultiFrameTrueColorSecondaryCaptureImageStorage
+false,//StandaloneOverlayStorage (Retired)
+false,//StandaloneCurveStorage (Retired)
+false,//WaveformStorageTrial (Retired)
+false,//TwelveLeadECGWaveformStorage
+false,//GeneralECGWaveformStorage
+false,//AmbulatoryECGWaveformStorage
+false,//General32bitECGWaveformStorage
+false,//HemodynamicWaveformStorage
+false,//CardiacElectrophysiologyWaveformStorage
+false,//BasicVoiceAudioWaveformStorage
+false,//GeneralAudioWaveformStorage
+false,//ArterialPulseWaveformStorage
+false,//RespiratoryWaveformStorage
+false,//MultichannelRespiratoryWaveformStorage
+false,//RoutineScalpElectroencephalogramWaveformStorage
+false,//ElectromyogramWaveformStorage
+false,//ElectrooculogramWaveformStorage
+false,//SleepElectroencephalogramWaveformStorage
+false,//BodyPositionWaveformStorage
+false,//StandaloneModalityLUTStorage (Retired)
+false,//StandaloneVOILUTStorage (Retired)
+false,//GrayscaleSoftcopyPresentationStateStorage
+false,//ColorSoftcopyPresentationStateStorage
+false,//PseudoColorSoftcopyPresentationStateStorage
+false,//BlendingSoftcopyPresentationStateStorage
+false,//XAXRFGrayscaleSoftcopyPresentationStateStorage
+false,//GrayscalePlanarMPRVolumetricPresentationStateStorage
+false,//CompositingPlanarMPRVolumetricPresentationStateStorage
+false,//AdvancedBlendingPresentationStateStorage
+false,//VolumeRenderingVolumetricPresentationStateStorage
+false,//SegmentedVolumeRenderingVolumetricPresentationStateStorage
+false,//MultipleVolumeRenderingVolumetricPresentationStateStorage
+false,//VariableModalityLUTSoftcopyPresentationStateStorage
+      true,//XA XRayAngiographicImageStorage
+      true,//Enh XA EnhancedXAImageStorage
+      true,//RF XRayRadiofluoroscopicImageStorage
+      true,//Enh RF EnhancedXRFImageStorage
+      true,//XRayAngiographicBiPlaneImageStorage (Retired)
+false,//(Retired)
+      true,//3D XA XRay3DAngiographicImageStorage
+      true,//3S CF XRay3DCraniofacialImageStorage
+      true,//Br Tomo BreastTomosynthesisImageStorage
+      true,//Br Proj BreastProjectionXRayImageStorageForPresentation
+      true,//Br Proj BreastProjectionXRayImageStorageForProcessing
+      true,//IVOCT IntravascularOpticalCoherenceTomographyImageStorageForPresentation
+      true,//IVOCT IntravascularOpticalCoherenceTomographyImageStorageForProcessing
+      true,//NM NuclearMedicineImageStorage
+      true,//Par Map ParametricMapStorage
+false,//(Retired)
+false,//RawDataStorage
+false,//SpatialRegistrationStorage
+false,//SpatialFiducialsStorage
+false,//DeformableSpatialRegistrationStorage
+      true,//Seg SegmentationStorage
+false,//SurfaceSegmentationStorage
+false,//TractographyResultsStorage
+false,//RealWorldValueMappingStorage
+false,//SurfaceScanMeshStorage
+false,//SurfaceScanPointCloudStorage
+false,//VLImageStorageTrial (Retired)
+      true,//VLMultiFrameImageStorageTrial (Retired)
+false,//VL EN VLEndoscopicImageStorage
+      true,//Vid VL EN VideoEndoscopicImageStorage
+false,//VLMicroscopicImageStorage
+      true,//Vid VL MC VideoMicroscopicImageStorage
+false,//VLSlideCoordinatesMicroscopicImageStorage
+false,//VLPhotographicImageStorage
+      true,//Vid VL PH VideoPhotographicImageStorage
+      true,//Oph 8 bit OphthalmicPhotography8BitImageStorage
+      true,//Oph 16 bit OphthalmicPhotography16BitImageStorage
+false,//StereometricRelationshipStorage
+      true,//OPT OphthalmicTomographyImageStorage
+      true,//WF Oph St WideFieldOphthalmicPhotographyStereographicProjectionImageStorage
+      true,//v 3DC WideFieldOphthalmicPhotography3DCoordinatesImageStorage
+false,//OCT ENF OphthalmicOpticalCoherenceTomographyEnFaceImageStorage
+      true,//OCT BSV OphthalmicOpticalCoherenceTomographyBscanVolumeAnalysisStorage
+      true,//VL WS VLWholeSlideMicroscopyImageStorage
+false,//DermoscopicPhotographyImageStorage
+      true,//CFM ConfocalMicroscopyImageStorage
+      true,//CFM TP ConfocalMicroscopyTiledPyramidalImageStorage
+false,//LensometryMeasurementsStorage
+false,//AutorefractionMeasurementsStorage
+false,//KeratometryMeasurementsStorage
+false,//SubjectiveRefractionMeasurementsStorage
+false,//VisualAcuityMeasurementsStorage
+false,//SpectaclePrescriptionReportStorage
+false,//OphthalmicAxialMeasurementsStorage
+false,//IntraocularLensCalculationsStorage
+false,//MacularGridThicknessAndVolumeReportStorage
+false,//OphthalmicVisualFieldStaticPerimetryMeasurementsStorage
+false,//OphthalmicThicknessMapStorage
+false,//CornealTopographyMapStorage
+false,//TextSRStorageTrial (Retired)
+false,//AudioSRStorageTrial (Retired)
+false,//DetailSRStorageTrial (Retired)
+false,//ComprehensiveSRStorageTrial (Retired)
+false,//BasicTextSRStorage
+false,//EnhancedSRStorage
+false,//ComprehensiveSRStorage
+false,//Comprehensive3DSRStorage
+false,//ExtensibleSRStorage
+false,//ProcedureLogStorage
+false,//MammographyCADSRStorage
+false,//KeyObjectSelectionDocumentStorage
+false,//ChestCADSRStorage
+false,//XRayRadiationDoseSRStorage
+false,//RadiopharmaceuticalRadiationDoseSRStorage
+false,//ColonCADSRStorage
+false,//ImplantationPlanSRStorage
+false,//AcquisitionContextSRStorage
+false,//SimplifiedAdultEchoSRStorage
+false,//PatientRadiationDoseSRStorage
+false,//PlannedImagingAgentAdministrationSRStorage
+false,//PerformedImagingAgentAdministrationSRStorage
+false,//EnhancedXRayRadiationDoseSRStorage
+false,//ContentAssessmentResultsStorage
+false,//MicroscopyBulkSimpleAnnotationsStorage
+false,//EncapsulatedPDFStorage
+false,//EncapsulatedCDAStorage
+false,//EncapsulatedSTLStorage
+false,//EncapsulatedOBJStorage
+false,//EncapsulatedMTLStorage
+false,//PositronEmissionTomographyImageStorage
+      true,//LegacyConvertedEnhancedPETImageStorage
+false,//StandalonePETCurveStorage
+      true,//Enh PT EnhancedPETImageStorage
+false,//BasicStructuredDisplayStorage
+false,//CTDefinedProcedureProtocolStorage
+false,//CTPerformedProcedureProtocolStorage
+false,//ProtocolApprovalStorage
+false,//ProtocolApprovalInformationModelFind
+false,//ProtocolApprovalInformationModelMove
+false,//ProtocolApprovalInformationModelGet
+false,//XADefinedProcedureProtocolStorage
+false,//XAPerformedProcedureProtocolStorage
+false,//InventoryStorage
+false,//InventoryFind
+false,//InventoryMove
+false,//InventoryGet
+false,//InventoryCreation
+false,//RepositoryQuery
+false,//RTImageStorage
+false,//RTDoseStorage
+false,//RTStructureSetStorage
+false,//RTBeamsTreatmentRecordStorage
+false,//RTPlanStorage
+false,//RTBrachyTreatmentRecordStorage
+false,//RTTreatmentSummaryRecordStorage
+false,//RTIonPlanStorage
+false,//RTIonBeamsTreatmentRecordStorage
+false,//RTPhysicianIntentStorage
+false,//RTSegmentAnnotationStorage
+false,//RTRadiationSetStorage
+false,//CArmPhotonElectronRadiationStorage
+false,//TomotherapeuticRadiationStorage
+false,//RoboticArmRadiationStorage
+false,//RTRadiationRecordSetStorage
+false,//RTRadiationSalvageRecordStorage
+false,//TomotherapeuticRadiationRecordStorage
+false,//CArmPhotonElectronRadiationRecordStorage
+false,//RoboticRadiationRecordStorage
+false,//RTRadiationSetDeliveryInstructionStorage
+false,//RTTreatmentPreparationStorage
+      true,//EnhancedRTImageStorage
+      true,//EnhancedContinuousRTImageStorage
+false,//RTPatientPositionAcquisitionInstructionStorage
+false,//DICOSCTImageStorage
+false,//DICOSDigitalXRayImageStorageForPresentation
+false,//DICOSDigitalXRayImageStorageForProcessing
+false,//DICOSThreatDetectionReportStorage
+false,//DICOS2DAITStorage
+false,//DICOS3DAITStorage
+false,//DICOSQuadrupoleResonanceStorage
+false,//EddyCurrentImageStorage
+      true,//EddyCurrentMultiFrameImageStorage
+false,//PatientRootQueryRetrieveInformationModelFind
+false,//PatientRootQueryRetrieveInformationModelMove
+false,//PatientRootQueryRetrieveInformationModelGet
+false,//StudyRootQueryRetrieveInformationModelFind
+false,//StudyRootQueryRetrieveInformationModelMove
+false,//StudyRootQueryRetrieveInformationModelGet
+false,//PatientStudyOnlyQueryRetrieveInformationModelFind
+false,//PatientStudyOnlyQueryRetrieveInformationModelMove
+false,//PatientStudyOnlyQueryRetrieveInformationModelGet
+false,//CompositeInstanceRootRetrieveMove
+false,//CompositeInstanceRootRetrieveGet
+false,//CompositeInstanceRetrieveWithoutBulkDataGet
+false,//DefinedProcedureProtocolInformationModelFind
+false,//DefinedProcedureProtocolInformationModelMove
+false,//DefinedProcedureProtocolInformationModelGet
+false,//ModalityWorklistInformationModelFind
+false,//GeneralPurposeWorklistManagementMeta
+false,//GeneralPurposeWorklistInformationModelFind
+false,//GeneralPurposeScheduledProcedureStep
+false,//GeneralPurposePerformedProcedureStep
+false,//InstanceAvailabilityNotification
+false,//RTBeamsDeliveryInstructionStorageTrial
+false,//RTConventionalMachineVerificationTrial
+false,//RTIonMachineVerificationTrial (Retired)
+false,//UnifiedWorklistAndProcedureStepTrial (Retired)
+false,//UnifiedProcedureStepPushTrial (Retired)
+false,//UnifiedProcedureStepWatchTrial (Retired)
+false,//UnifiedProcedureStepPullTrial (Retired)
+false,//UnifiedProcedureStepEventTrial
+false,//UPSGlobalSubscriptionInstance
+false,//UPSFilteredGlobalSubscriptionInstance
+false,//UnifiedWorklistAndProcedureStep
+false,//UnifiedProcedureStepPush
+false,//UnifiedProcedureStepWatch
+false,//UnifiedProcedureStepPull
+false,//UnifiedProcedureStepEvent
+false,//UnifiedProcedureStepQuery
+false,//RTBeamsDeliveryInstructionStorage
+false,//RTConventionalMachineVerification
+false,//RTIonMachineVerification
+false,//RTBrachyApplicationSetupDeliveryInstructionStorage
+false,//GeneralRelevantPatientInformationQuery
+false,//BreastImagingRelevantPatientInformationQuery
+false,//CardiacRelevantPatientInformationQuery
+false,//HangingProtocolStorage
+false,//HangingProtocolInformationModelFind
+false,//HangingProtocolInformationModelMove
+false,//HangingProtocolInformationModelGet
+false,//ColorPaletteStorage
+false,//ColorPaletteQueryRetrieveInformationModelFind
+false,//ColorPaletteQueryRetrieveInformationModelMove
+false,//ColorPaletteQueryRetrieveInformationModelGet
+false,//ProductCharacteristicsQuery
+false,//SubstanceApprovalQuery
+false,//GenericImplantTemplateStorage
+false,//GenericImplantTemplateInformationModelFind
+false,//GenericImplantTemplateInformationModelMove
+false,//GenericImplantTemplateInformationModelGet
+false,//ImplantAssemblyTemplateStorage
+false,//ImplantAssemblyTemplateInformationModelFind
+false,//ImplantAssemblyTemplateInformationModelMove
+false,//ImplantAssemblyTemplateInformationModelGet
+false,//ImplantTemplateGroupStorage
+false,//ImplantTemplateGroupInformationModelFind
+false,//ImplantTemplateGroupInformationModelMove
+false,//ImplantTemplateGroupInformationModelGet
+false,//VideoEndoscopicImageRealTimeCommunication
+false,//VideoPhotographicImageRealTimeCommunication
+false,//AudioWaveformRealTimeCommunication
+false//RenditionSelectionDocumentRealTimeCommunication
+};
+
+bool sopclassidxisframes( u16 sopclassidx)
 {
    return scisimage[sopclassidx];
 }

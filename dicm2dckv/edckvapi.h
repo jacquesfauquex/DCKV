@@ -103,7 +103,7 @@ bool IDKVappend( //any other instance level attribute
    uint8_t            *vbuf     //buffer for values
 );
 
-bool appendnative(
+bool appendnativeOB(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -147,7 +147,7 @@ bool appendnativeOD(
   uint8_t            *vbuf     //buffer for values
 );
 
-bool appendencoded(
+bool appendnativeOC(
   uint8_t            *kbuf,    //contextualized key value buffer
   u32                kloc,     //offset of current attribute in key
   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
@@ -158,6 +158,27 @@ bool appendencoded(
   uint8_t            *vbuf     //buffer for values
 );
 
+bool appendframesOB(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+);
+
+bool appendframesOC(
+  uint8_t            *kbuf,    //contextualized key value buffer
+  u32                kloc,     //offset of current attribute in key
+  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
+  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
+  u64                vloc,     //value location in input stream
+  u32                vlen,     //value length
+  bool               fromStdin,//value to be read, or already read in vbuf
+  uint8_t            *vbuf     //buffer for values
+);
 
 
 
