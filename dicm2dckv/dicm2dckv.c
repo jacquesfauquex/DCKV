@@ -756,7 +756,7 @@ bool dicm2dckvDataset(
                    frames
                    encodedframes
                    */
-                  if (sopclassidxisframe(soidx))
+                  if (sopclassidxisframes(soidx))
                   {
                      if(stidx==2)
                      {

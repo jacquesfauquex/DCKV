@@ -1016,9 +1016,9 @@ bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
    return EDKVfread8(buffer, bytesReadRef);
 }
 
-bool _DKVDICMbuffer(s32 bytes)
+bool _DKVDICM(s32 bytes, const char *relativepath)
 {
-   return EDKVDICMbuffer(bytes);
+   return EDKVDICM(bytes,relativepath);
 }
 
 #pragma mark - static

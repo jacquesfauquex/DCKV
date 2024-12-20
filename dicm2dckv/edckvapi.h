@@ -33,7 +33,7 @@ size_t EDKVfread(
                       );
 bool EDKVfread8(uint8_t *buffer, u64 *bytesReadRef);
 
-bool EDKVDICMbuffer(s32 bytes);
+bool EDKVDICM(s32 bytes, const char *relativepath);
 
 //called after preliminar parsing of class, sop instance and transfer syntax
 bool EDKVcreate(

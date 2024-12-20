@@ -214,7 +214,7 @@ bool EDKVfread8(uint8_t *buffer, u64 *bytesReadRef)
    return true;
 }
 
-bool EDKVDICMbuffer(s32 bytes)
+bool EDKVDICM(s32 bytes, const char *relativepath)
 {
    DICMidx=0;
    DICMbuf=malloc(bytes);
@@ -348,7 +348,7 @@ bool EDKVcreate(
       sqlite3_close_v2(db);
       exit(1);
    }
-   char finsertchars[] = "INSERT INTO F(Ifk,fnumber,fdckv,nativeurl,iclass,itype,syntaxidx) VALUES(?,?,?,?,?,?,?)";
+   char finsertchars[] = "INSERT INTO F(Ifk,fnumber,fdckv,nativeurl,syntaxidx) VALUES(?,?,?,?,?)";
    dbrc=sqlite3_prepare(db, finsertchars, -1, &finsertstmt, 0);
    if (dbrc != SQLITE_OK)
    {

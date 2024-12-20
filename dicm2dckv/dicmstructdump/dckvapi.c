@@ -56,7 +56,7 @@ bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
    return true;
 }
 
-bool _DKVDICMbuffer(s32 bytes)
+bool _DKVDICM(s32 bytes, const char *relativepath)
 {
    DICMidx=0;
    DICMbuf=malloc(bytes);

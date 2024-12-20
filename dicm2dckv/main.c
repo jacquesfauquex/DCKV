@@ -12,38 +12,58 @@
  
 int main(int argc, const char * argv[]) {
    /* args:
-   0 command name defined by target
-   1 loglevel [ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
-   2 _DKVDICMbuffer (en MB, 0=no dicom binary output)
-   3 (opcional alternative to stdin) infile (absolute path only)
+   0  command name defined by target
+   1+ (opcional alternative to stdin) infile(s)
    */
    
-   if (argc < 3) return dckvErrorArgs;
-   if (argc > 4) return dckvErrorArgs;//optional, one path only
-   if (!loglevel(argv[1])) exit(dckvErrorLogLevel);
-
-//for debug
-chdir("/Users/jacquesfauquex/sqlite_edckv/");
+//environment variables
+   
+#pragma mark _DKVloglevel
+   const char* loglevel = getenv("_DKVloglevel");
+   if (loglevel==NULL) loglevel="D";
+   //[ D | I | W | E | F ] ( Debug, Info, Warning, Error, Fault )
+   
+#pragma mark _DKVbeforebyte
+   u32 beforebyte=0xFFFFFFFF;
+   const char* abeforebyte = getenv("_DKVbeforebyte");
+   if (abeforebyte!=NULL) beforebyte=(u32)strtoll(abeforebyte, NULL, 16);
+   
+#pragma mark _DKVbeforetag
+   // agradado en dcmtk storescp al final de cada instancia, para delimitarla dentro del stream
+   u32 beforetag=0xFFFCFFFC;
+   const char* abeforetag = getenv("_DKVbeforetag");
+   if (abeforetag!=NULL) beforetag=(u32)strtoll(abeforetag, NULL, 16);
+   
+#pragma mark _DKVworkingdir
+   const char* workingdir = getenv("_DKVworkingdir");
+   if (workingdir!=NULL) chdir(workingdir);
+   else chdir("/Users/jacquesfauquex/sqlite_edckv/");
+   
    char cwd[1024];
    getcwd(cwd, sizeof(cwd));
    D("working dir:  %s", cwd);
 
-   int dicombinarymaxsize=atoi(argv[2]);
-   if (dicombinarymaxsize < 0) return dckvErrorArgs;
-   else if (dicombinarymaxsize > 0)
-   {
-      if (_DKVDICMbuffer(dicombinarymaxsize*1024*1024)) D("dicom buffer: %d MB", dicombinarymaxsize);
-      else E("cannot assign %d MB for dicom buffer",dicombinarymaxsize);
-   }
-   else D("%s", "no dicom buffer");
+#pragma mark DICMrelativepath DICMbuffermegas
+   const char* DICMrelativepath = getenv("DICMrelativepath");
+   if (DICMrelativepath==NULL) DICMrelativepath="edckv.dcm";
+   //in MB, 0=no dicom binary output
+   int DICMmegamax=300;
+   const char* aDICMmegamax = getenv("DICMmegamax");
+   if (aDICMmegamax!=NULL) DICMmegamax=(u32)atoi(aDICMmegamax);
+   if (_DKVDICM(DICMmegamax*1024*1024,DICMrelativepath)) D("dicom buffer: %d MB", DICMmegamax);
+   else E("cannot assign %d MB for dicom buffer",DICMmegamax);
+   
+   
+   
    initdicm2dckv();
-   //file or stdin
+
    s16 siidx=1;//instances count
 
+   //file or stdin
    FILE *inFile = NULL;
-   if (argc==4) //file specified in args
+   if (argc==2) //file specified in args
    {
-      inFile=freopen(argv[3],"rb",stdin);
+      inFile=freopen(argv[1],"rb",stdin);
       if (inFile==NULL) return dckvErrorIn;
       siidx=-1;
    }
@@ -53,15 +73,9 @@ chdir("/Users/jacquesfauquex/sqlite_edckv/");
    while (siidx)//if file, siidx==0 after first pass
    {
       if (!dicmuptosopts(&siidx)) return dckvSOPinstanceRejected;
-      
-      if (!dicm2dckvInstance(
-                              0xFFFFFFFF, //beforebyte
-                              0xFFFCFFFC,  //beforetag agradado en dcmtk storescp al final de cada instancia, para delimitarla dentro del stream
-                             &siidx
-                             )
-          ) return dckvErrorParsing;
+      if (!dicm2dckvInstance(beforebyte,beforetag,&siidx)) return dckvErrorParsing;
    }
    cleanupdicm2dckv();
    if (inFile!=NULL) fclose(inFile);
-   return dckvExitOK;
+   return (int)siidx;
 }

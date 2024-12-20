@@ -61,15 +61,12 @@ bool ui2b64( char *ui, const u8 uilength, char *b64, u8 *b64length );
 #pragma mark - main & log
 
 enum exitValue{
-   dckvExitOK=0,
-   dckvErrorArgs,
-   dckvErrorIn,
-   dckvErrorOutPath,
-   dckvErrorWrite,
-   dckvErrorCreateKV,
-   dckvErrorLogLevel,
-   dckvSOPinstanceRejected,
-   dckvErrorParsing
+   dckvErrorIn=-2,
+   dckvErrorOutPath=-3,
+   dckvErrorWrite=-4,
+   dckvErrorCreateKV=-5,
+   dckvSOPinstanceRejected=-6,
+   dckvErrorParsing=-7
 };
 
 //https://stackoverflow.com/questions/53522586/variadic-macro-calling-fprintf-how-to-add-arguments-to-va-args
@@ -820,7 +817,7 @@ u16 sopclassidx( uint8_t *vbuf, u16 vallength );
 
 bool sopclassidxisimage( u16 sopclassidx);
 
-bool sopclassidxisframe( u16 sopclassidx);
+bool sopclassidxisframes( u16 sopclassidx);
 
 
 #pragma mark - TransfertSyntaxes

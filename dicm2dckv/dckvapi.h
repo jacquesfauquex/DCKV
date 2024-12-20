@@ -11,7 +11,7 @@
 
 #pragma mark - init code
 
-bool _DKVDICMbuffer(s32 bytes);
+bool _DKVDICM(s32 bytes, const char *relativepath);
 
 #pragma mark - blocking code
 
