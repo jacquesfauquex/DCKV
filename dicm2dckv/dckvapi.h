@@ -9,22 +9,11 @@
 #include "dckvtypes.h"
 
 
-#pragma mark - init code
+#pragma mark - read blocking code
 
-bool _DKVDICM(s32 bytes, const char *relativepath);
-
-#pragma mark - blocking code
-
-size_t _DKVfread(
-                     void * __restrict __ptr,
-                     size_t __size,
-                     size_t __nitems,
-                     FILE * __restrict __stream
-                     );
-
-
-//returns true when it was possible to read the 8 bytes
-bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef);
+u32  _DKVfread(u32 Baskedfor);
+bool _DKVfreadtag(u8 kloc, struct trcl *attrpointer);
+bool _DKVfread4(u32* ll);
 
 
 #pragma mark - propietary vr
@@ -128,36 +117,25 @@ kvUN,//UN 74
 
 //called after preliminar parsing of class, sop instance and transfer syntax
 bool _DKVcreate(
-   uint8_t    * vbuf,
-   u64 *soloc,         // offset in vbuf for sop class
-   u16 *solen,         // length in vbuf for sop class
-   u16 *soidx,         // index in const char *scstr[]
-   u64 *siloc,         // offset in vbuf for sop instance uid
-   u16 *silen,         // length in vbuf for sop instance uid
-   u64 *stloc,         // offset in vbuf for transfer syntax
-   u16 *stlen,         // length in vbuf for transfer syntax
-   u16 *stidx,         // index in const char *csstr[]
-   s16 *siidx          // SOPinstance index (instance numerator starting at 0)
+   u64 soloc,         // offset in vbuf for sop class
+   u16 solen,         // length in vbuf for sop class
+   u16 soidx,         // index in const char *scstr[]
+   u64 siloc,         // offset in vbuf for sop instance uid
+   u16 silen,         // length in vbuf for sop instance uid
+   u64 stloc,         // offset in vbuf for transfer syntax
+   u16 stlen,         // length in vbuf for transfer syntax
+   u16 stidx          // index in const char *csstr[]
 );
 
 //called after parsing successfully all the attributes
-bool _DKVcommit(s16 *siidx);//aplica a todos los kv
+bool _DKVcommit(void);//aplica a todos los kv
 
 //finalizes the opened tx
-bool _DKVclose(s16 *siidx);//aplica a todos los kv
+bool _DKVclose(void);//aplica a todos los kv
 
 //_DKVappend called for each parsed attribute, with value already read in vbuf or not.
 //vbuf is 0xFFFE bytes long (máx short DICOM vl).
 
-bool _DKVappend(
-              uint8_t            *kbuf,      //contextualized key value buffer
-              u32                kloc,       //offset of current attribute in key
-              bool               vlenisl,    //attribute is long length (4 bytes) or short length (2 bytes)
-              enum kvVRcategory  vrcat,      //propietary vr number (ver enum)
-              u64                vloc,       //value location in input stream
-              u32                vlen,       //value length
-              bool               fromStdin,  //value to be read, or already read in vbuf
-              uint8_t            *vbuf       //buffer for values
-              );
+bool _DKVappend(u32 kloc,enum kvVRcategory vrcat,u32 vlen);
 
 #endif /* dckvapi_h */

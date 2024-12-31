@@ -1016,10 +1016,6 @@ bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
    return EDKVfread8(buffer, bytesReadRef);
 }
 
-bool _DKVDICM(s32 bytes, const char *relativepath)
-{
-   return EDKVDICM(bytes,relativepath);
-}
 
 #pragma mark - static
 
@@ -1029,22 +1025,24 @@ static u32 roottag;
 #pragma mark - methods overriden by edckv
 
 bool _DKVcreate(
-   uint8_t    * vbuf,
-   u64 *soloc,         // offset in valbyes for sop class
-   u16 *solen,         // length in valbyes for sop class
-   u16 *soidx,         // index in const char *scstr[]
-   u64 *siloc,         // offset in valbyes for sop instance uid
-   u16 *silen,         // length in valbyes for sop instance uid
-   u64 *stloc,         // offset in valbyes for transfer syntax
-   u16 *stlen,         // length in valbyes for transfer syntax
-   u16 *stidx,         // index in const char *csstr[]
-   s16 *siidx          // SOPinstance index
+   char *DICMbuf,
+   u64 *DICMidx,
+   u64 soloc,         // offset in valbyes for sop class
+   u16 solen,         // length in valbyes for sop class
+   u16 soidx,         // index in const char *scstr[]
+   u64 siloc,         // offset in valbyes for sop instance uid
+   u16 silen,         // length in valbyes for sop instance uid
+   u64 stloc,         // offset in valbyes for transfer syntax
+   u16 stlen,         // length in valbyes for transfer syntax
+   u16 stidx,         // index in const char *csstr[]
+   s16 siidx          // SOPinstance index
 )
 {
    PCSidx=0;//to determine if the attribute is patient, exam or series level
 
    return EDKVcreate(
-   vbuf,
+   DICMbuf,
+   DICMidx,
    soloc,
    solen,
    soidx,
@@ -1072,14 +1070,12 @@ bool _DKVclose(s16 *siidx)
 
 #pragma mark - method discriminating kv by types and calling corresponding edckv method
 bool _DKVappend(
-              uint8_t           *kbuf,
               u32                kloc,
               bool               vlenisl,
               enum kvVRcategory  vrcat,
               u64                vloc,
               u32                vlen,
-              bool               fromStdin,
-              uint8_t           *vbuf
+              bool               fromstdin
               )
 {
    //skip sequence and item delimiters

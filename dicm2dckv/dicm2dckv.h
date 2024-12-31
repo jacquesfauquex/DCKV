@@ -7,42 +7,15 @@
 
 #import "dckvapi.h"
 
-/*
- read stream up to transfer syntax.
- Valora sopclassidx
- Valora soptsidx
- Además guarda in vbuf todos los bytes leídos de tal forma a poder crear archivos .bin o .dcm
- 
- returns sopuid (with eventual space padding)
- */
-bool initdicm2dckv(void);
-bool cleanupdicm2dckv(void);
 
+//parse until transfer syntax and create transaction
+bool dicmuptosopts(void);
 
-bool dicmuptosopts(
-  s16 *siidx      // SOPinstance index
-);
-
+//parse from transfer syntax
 bool dicm2dckvInstance(
-   u32 beforebyte, // limite superior de lectura
-   u32 beforetag,  // limite superior attr. first traspassing attr is read en kbuf
-   s16 *siidx      // SOPinstance index
+   u64 beforebyte, // limite superior de lectura
+   u32 beforetag   // limite superior attr. first traspassing attr is read en kbuf
 );
-
-/*
- RECURSIVE
- parser
- */
-bool dicm2dckvDataset(
-   u32 kloc,        // offset actual en el búfer matriz (cambia con el nivel de recursión)
-   bool readfirstattr,    // true:read desde stream. false:ya está en kbuf
-   u16 keycs,          // key charset
-   bool fromStdin,        // ... o from vbuf
-   u32 beforebyte,     // limite superior de lectura
-   u32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
-);
-
-
 
 
 #endif /* parseDICM_h */

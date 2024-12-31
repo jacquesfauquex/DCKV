@@ -33,20 +33,20 @@ size_t EDKVfread(
                       );
 bool EDKVfread8(uint8_t *buffer, u64 *bytesReadRef);
 
-bool EDKVDICM(s32 bytes, const char *relativepath);
 
 //called after preliminar parsing of class, sop instance and transfer syntax
 bool EDKVcreate(
-   uint8_t    * vbuf,
-   u64 *soloc,         // offset in vbuf for sop class
-   u16 *solen,         // length in vbuf for sop class
-   u16 *soidx,         // index in const char *scstr[]
-   u64 *siloc,         // offset in vbuf for sop instance uid
-   u16 *silen,         // length in vbuf for sop instance uid
-   u64 *stloc,         // offset in vbuf for transfer syntax
-   u16 *stlen,         // length in vbuf for transfer syntax
-   u16 *stidx,         // index in const char *csstr[]
-   s16 *siidx          // SOPinstance index (instance numerator starting at 0)
+   char *DICMbuf,
+   u64 *DICMidx,
+   u64 soloc,         // offset in vbuf for sop class
+   u16 solen,         // length in vbuf for sop class
+   u16 soidx,         // index in const char *scstr[]
+   u64 siloc,         // offset in vbuf for sop instance uid
+   u16 silen,         // length in vbuf for sop instance uid
+   u64 stloc,         // offset in vbuf for transfer syntax
+   u16 stlen,         // length in vbuf for transfer syntax
+   u16 stidx,         // index in const char *csstr[]
+   s16 siidx          // SOPinstance index (instance numerator starting at 0)
 );
 
 //called after parsing successfully all the attributes

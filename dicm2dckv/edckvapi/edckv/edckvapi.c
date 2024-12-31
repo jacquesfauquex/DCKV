@@ -4,12 +4,11 @@
 // created by jacquesfauquex on 2024-04-04.
 
 #include "edckvapi.h"
-//#include <stdio.h> //incluido in dckvtypes.h
 
 
 #pragma mark - static
 static size_t bytesread;
-static char *DICMbuf;
+//static char *DICMbuf;
 static u32 DICMidx=0;
 static FILE *fileptr;
 struct stat st={0};//for directory creation
@@ -41,8 +40,6 @@ static int currentIpk;
 
 static sqlite3_stmt *iframepksstmt;
 static sqlite3_stmt *finsertstmt;
-
-static bool isexplicit;
 
 static u32 vlenNoPadding;
 
@@ -79,7 +76,6 @@ static u8 *registeredhashbytes;//32 bytes
 
 //prefix components
 static u8  sversion=0;
-static u16 sopclassindex=0;
 
 #pragma mark TODO
 static u8  rversion=0;
@@ -168,23 +164,12 @@ size_t EDKVfread(
                      )
 {
    
-   bytesread=fread(DICMbuf+DICMidx,__size,__nitems,__stream);
-   memcpy(__ptr,DICMbuf+DICMidx,bytesread);
+   bytesread=fread(__ptr,__size,__nitems,__stream);
    DICMidx+=bytesread;
    return bytesread;
 }
 
-size_t DICMfread(
-                 void * __restrict __ptr,
-                 size_t __size,
-                 size_t __nitems,
-                 FILE * __restrict __stream
-                 )
-{
-   bytesread=fread(DICMbuf+DICMidx,__size,__nitems,__stream);
-   DICMidx+=bytesread;
-   return bytesread;
-}
+
 
 //returns true when 8 bytes were read
 u8 swapchar;
@@ -214,31 +199,24 @@ bool EDKVfread8(uint8_t *buffer, u64 *bytesReadRef)
    return true;
 }
 
-bool EDKVDICM(s32 bytes, const char *relativepath)
-{
-   DICMidx=0;
-   DICMbuf=malloc(bytes);
-   return (DICMbuf!=NULL);
-}
-
-static u16 transfersyntax;
-static u16 sopuid;
-
+static u16 isoidx=0;
+static u16 istidx=0;
 bool EDKVcreate(
-   uint8_t    * vbuf,
-   u64 *soloc,         // offset in valbyes for sop class
-   u16 *solen,         // length in valbyes for sop class
-   u16 *soidx,         // index in const char *scstr[]
-   u64 *siloc,         // offset in valbyes for sop instance uid
-   u16 *silen,         // length in valbyes for sop instance uid
-   u64 *stloc,         // offset in valbyes for transfer syntax
-   u16 *stlen,         // length in valbyes for transfer syntax
-   u16 *stidx,         // index in const char *csstr[]
-   s16 *siidx          // SOPinstance index
+   char *DICMbuf,
+   u64 *DICMidx,
+   u64 soloc,         // offset in valbyes for sop class
+   u16 solen,         // length in valbyes for sop class
+   u16 soidx,         // index in const char *scstr[]
+   u64 siloc,         // offset in valbyes for sop instance uid
+   u16 silen,         // length in valbyes for sop instance uid
+   u64 stloc,         // offset in valbyes for transfer syntax
+   u16 stlen,         // length in valbyes for transfer syntax
+   u16 stidx,         // index in const char *csstr[]
+   s16 siidx          // SOPinstance index
 )
 {
-   sopuid=*soidx;//class
-   transfersyntax=*stidx;//transfer syntax
+   isoidx=soidx;//class
+   istidx=stidx;//transfer syntax
 
 #pragma mark sqlite
    I("sqlite %s\n", sqlite3_libversion());
@@ -356,13 +334,6 @@ bool EDKVcreate(
       sqlite3_close_v2(db);
       exit(1);
    }
-   
-   isexplicit=*stidx==2;
-
-   //static sopclass idx
-   sopclassindex=*soidx;
-   iclass=*soidx;
-   //static base/pid path
    sprintf(relativePath, "%d", getpid());
    relativePathLength=intdecsize(getpid());
    relativePath[relativePathLength++]='/';
@@ -398,17 +369,13 @@ bool EDKVcreate(
    }
    Iidx=0;
    
-   if (isexplicit)
-   {
-      if (Fmax==0) {
+   if (Fmax==0) {
          Fmax=0x3000000;
          Fbuf=malloc(Fmax);
-      }
-      Fidx=0;
    }
+   Fidx=0;
 
-   (*siidx)++;
-   I("#%d",*siidx);
+
    return true;
 }
 
@@ -827,7 +794,7 @@ bool EDKVcommit(s16 *siidx)
 {
    fileptr=fopen("edckv.dcm", "w");
    if (fileptr == NULL) return false;
-   if (fwrite(DICMbuf ,1, DICMidx, fileptr)!=DICMidx) return false;
+   //if (fwrite(DICMbuf ,1, DICMidx, fileptr)!=DICMidx) return false;
    fclose(fileptr);
    
    if (edate==0)
@@ -929,7 +896,7 @@ bool EDKVcommit(s16 *siidx)
       stepreturnstatus = sqlite3_step(sblake3stmt);
       if (stepreturnstatus != SQLITE_ROW)
       {
-         if (!sinsert(0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000)) return false;
+         if (!sinsert(0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(isoidx)*0x100000000000000)) return false;
       }
       else //suidb64 exists in S
       {
@@ -952,7 +919,7 @@ bool EDKVcommit(s16 *siidx)
          }
          if (notRegistered)
          {
-            if (!sinsert(0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000)) return false;
+            if (!sinsert(0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(isoidx)*0x100000000000000)) return false;
          }
       }
       //reset (not snumber y sversion que se usan para I N C)
@@ -979,7 +946,7 @@ bool EDKVcommit(s16 *siidx)
       stepreturnstatus = sqlite3_step(iblake3stmt);
       if (stepreturnstatus != SQLITE_ROW)
       {
-         if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000)) return false;
+         if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(isoidx)*0x100000000000000)) return false;
       }
       else //iuidb64 exists in I
       {
@@ -1002,7 +969,7 @@ bool EDKVcommit(s16 *siidx)
          }
          if (notRegistered)
          {
-            if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(sopclassindex)*0x100000000000000)) return false;
+            if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(isoidx)*0x100000000000000)) return false;
          }
       }
       sqlite3_reset(iblake3stmt);
@@ -1012,7 +979,7 @@ bool EDKVcommit(s16 *siidx)
    
 
 
-   if (isexplicit)
+   if (istidx==2) //explicit
    {
 #pragma mark N 4 s SS SS iu II II 00 00
       //u iversion (relates the frames of instances into a same volume)

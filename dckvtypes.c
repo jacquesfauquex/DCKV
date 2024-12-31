@@ -191,6 +191,14 @@ u16 u16swap(u16 x)
          |((x<<8) & 0xff00);
 }
 
+u32 tagswap(u32 x)
+{
+   return ((x & 0xff       <<16))
+         |((x & 0xff00    << 8))
+         |((x & 0xff0000  >>16))
+         |((x & 0xff000000 >>24));
+}
+
 #pragma mark - uid shrink
 
 
@@ -391,7 +399,7 @@ const char *repertoirestr[]={
    "ISO 2022 IR 58"   //chinese simplified (multi byte)
 };
 
-u32 repertoireidx( uint8_t *vbuf, u16 vallength )
+u32 repertoireidx( char *vbuf, u16 vallength )
 {
    u32 idx=0x9;//error
    switch (vallength){
@@ -1358,7 +1366,7 @@ const char *scstr[]={
 "1.2.840.10008.10.4"//RenditionSelectionDocumentRealTimeCommunication
 };
 
-u16 sopclassidx( uint8_t *vbuf, u16 vallength )
+u16 sopclassidx( char *vbuf, u16 vallength )
 {
    u16 idx=0x0;//verification / error
    switch (vallength-(vbuf[vallength-1]==0)){
@@ -2461,7 +2469,7 @@ const char *tsstr[]={
 };
 
 //ts_papyrus3ile = 0 = código de error
-u8 tsidx( uint8_t *vbuf, u16 vallength )
+u8 tsidx( char *vbuf, u16 vallength )
 {
    u8 idx=0x0;//verification / error
    

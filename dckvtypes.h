@@ -38,12 +38,60 @@ struct t4r2l2 {
    u16 r;
    u16 l;
 };
+struct trcl {
+   u32 t;
+   u16 r;
+   u16 c;
+   u32 l;
+};
 struct t4l4 {
    u32 t;
    u32 l;
 };
 
 const char *kvVRlabel(u16 idx);
+
+
+enum DICMvr {
+   AE=0x4541,//application entity
+   AS=0x5341,//age string
+   AT=0x5441,//attribute tag
+   CS=0x5343,//coded string
+   DA=0x4144,//date
+   DS=0x5344,//decimal string
+   DT=0x5444,//date time
+   FD=0x4446,//floating point double
+   FL=0x4C46,//floating point single
+   IS=0x5349,//integer string
+   LO=0x4f4c,//long string
+   LT=0x544c,//long text
+   PN=0x4e50,//person name
+   SH=0x4853,//short string
+   SL=0x4C53,//signed long
+   SS=0x5353,//signed short
+   ST=0x5453,//short text
+   TM=0x4d54,//time
+   UI=0x4955,//unique ID
+   UL=0x4C55,//unsigned long
+   US=0x5355,//unsigned short
+   OB=0x424F,//other byte
+   OD=0x444F,//other double
+   OF=0x464F,//other float
+   OL=0x4C4F,//other long
+   OV=0x564F,//other 64-bit very long
+   OW=0x574F,//other word
+   SV=0x5653,//signed 64-bit very long
+   UC=0x4355,//unlimited characters
+   UR=0x5255,//universal resrcurl identifier/locator
+   UT=0x5455,//unlimited text
+   UV=0x5655,//unsigned 64-bit very long
+   UN=0x4E55,
+   SQ=0x5153,
+   SA=0x0000,
+   IA=0x2B2B,//++
+   IZ=0x5F5F,//__
+   SZ=0xFFFF
+};
 
 #pragma mark - endianness
 
@@ -156,7 +204,7 @@ enum repertoireenum{
 };
 
 
-u32 repertoireidx( uint8_t *vbuf, u16 vallength );
+u32 repertoireidx( char *vbuf, u16 vallength );
 
 bool utf8
 (
@@ -813,7 +861,7 @@ RenditionSelectionDocumentRealTimeCommunication
 };
    
 
-u16 sopclassidx( uint8_t *vbuf, u16 vallength );
+u16 sopclassidx( char *vbuf, u16 vallength );
 
 bool sopclassidxisimage( u16 sopclassidx);
 
@@ -948,7 +996,7 @@ ts_7_2,
 ts_7_3
 };
 
-u8 tsidx( uint8_t *vbuf, u16 vallength );
+u8 tsidx( char *vbuf, u16 vallength );
 
 
 

@@ -1,388 +1,371 @@
 // project: dicm2dckv
 // target: dicmstructdump
-// file: dckvapi.m
+// file: dckvapi.c
 // created by jacquesfauquex on 2024-04-04.
 
 /*potencialmente multivalue: AE AS AT CS DA DS DT FD FL IS LO OW PN SH SV TM UC UI UV*/
 
 #include "dckvapi.h"
 
-static char *DICMbuf;
-static u32 DICMidx=0;
-static FILE *fileptr;
+extern char *DICMbuf;
+extern u64 DICMidx;
+extern s16 siidx;
+extern uint8_t *kbuf;
 
-
-size_t _DKVfread(
-                     void * __restrict __ptr,
-                     size_t __size,
-                     size_t __nitems,
-                     FILE * __restrict __stream
-                     )
+u32 _DKVfread(u32 Baskedfor)
 {
-   size_t Bcopied=fread(DICMbuf+DICMidx,__size,__nitems,__stream);
-   memcpy(__ptr,DICMbuf+DICMidx,Bcopied);
-   DICMidx+=Bcopied;
-   return Bcopied;
-   //return fread(__ptr,__size,__nitems,__stream);
+   u64 Breceived=fread(DICMbuf+DICMidx,1,Baskedfor,stdin);
+   if (Breceived>0xFFFFFFFF)return 0;
+   DICMidx+=Breceived;
+   return (u32)Breceived;
 }
 
 u8 swapchar;
 
 
 //returns true when 8 bytes were read
-bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
+bool _DKVfreadtag(u8 kloc,struct trcl *attrpointer)
 {
-   *bytesReadRef=fread(buffer, 1, 8, stdin);
-   if (ferror(stdin)){
-      E("%s","stdin error");
+   if (fread(DICMbuf+DICMidx,1,8,stdin)!=8)
+   {
+      if (ferror(stdin)) E("%s","stdin error");
       return false;
    }
+   //group
+   kbuf[kloc]=DICMbuf[DICMidx+1];
+   kbuf[kloc+1]=DICMbuf[DICMidx];
+   //element
+   kbuf[kloc+2]=DICMbuf[DICMidx+3];
+   kbuf[kloc+3]=DICMbuf[DICMidx+2];
+   //vr
+   kbuf[kloc+4]=DICMbuf[DICMidx+4];
+   kbuf[kloc+5]=DICMbuf[DICMidx+5];
+   //cs from attr
+   kbuf[kloc+6]=(attrpointer->c)%0x100;
+   kbuf[kloc+7]=(attrpointer->c)/0x100;
+
+   //attr
+   attrpointer->t= DICMbuf[DICMidx+1]<<24
+                  |DICMbuf[DICMidx  ]<<16
+                  |DICMbuf[DICMidx+3]<<8
+                  |DICMbuf[DICMidx+2];
+   attrpointer->r= DICMbuf[DICMidx+5]<<8
+                  |DICMbuf[DICMidx+4];
    
-   if (*bytesReadRef==8){
-      swapchar=*buffer;
-      *buffer=*(buffer+1);
-      *(buffer+1)=swapchar;
-      swapchar=*(buffer+2);
-      *(buffer+2)=*(buffer+3);
-      *(buffer+3)=swapchar;
+   switch (attrpointer->r) {
+      case OB://other byte
+      case OW://other word
+      case OD://other double
+      case OF://other float
+      case OL://other long
+      case SV://signed 64-bit very long
+      case OV://other 64-bit very long
+      case UV://unsigned 64-bit very long
+      case UC://unlimited characters
+      case UT://unlimited text
+      case UR://universal resrcurl identifier/locator
+      case SQ://sequence
+      {
+         DICMidx+=8;
+         if (fread(DICMbuf+DICMidx,1,4,stdin)!=4)
+         {
+            if (ferror(stdin)) E("%s","stdin error");
+            return false;
+         }
+
+         attrpointer->l= DICMbuf[DICMidx+3]<<24
+                        |DICMbuf[DICMidx+2]<<16
+                        |DICMbuf[DICMidx+1]<<8
+                        |DICMbuf[DICMidx  ];
+         DICMidx+=4;
+      }break;
+      default:
+      {
+         attrpointer->l= DICMbuf[DICMidx+7]<<8
+                        |DICMbuf[DICMidx+6];
+         DICMidx+=8;
+      }break;
    }
-   else
-   {
-      *buffer=0xFF;
-      *(buffer+1)=0xFF;
-      *(buffer+2)=0xFF;
-      *(buffer+3)=0xFF;
-   }
+   
    return true;
 }
 
-bool _DKVDICM(s32 bytes, const char *relativepath)
+bool _DKVfread4(u32* ll)
 {
-   DICMidx=0;
-   DICMbuf=malloc(bytes);
-   return (DICMbuf!=NULL);
+   if (fread(DICMbuf+DICMidx,1,4,stdin)!=4)
+   {
+      if (ferror(stdin)) E("%s","stdin error");
+      return false;
+   }
+   memcpy(ll, DICMbuf+DICMidx, 4);
+   DICMidx+=4;
+   return true;
 }
 
 const char *space=" ";
 const char *backslash = "\\";
 
 #pragma mark obligatorios formales
+
 bool _DKVcreate(
-   uint8_t    * vbuf,
-   u64 *soloc,         // offset in valbyes for sop class
-   u16 *solen,         // length in valbyes for sop class
-   u16 *soidx,         // index in const char *scstr[]
-   u64 *siloc,         // offset in valbyes for sop instance uid
-   u16 *silen,         // length in valbyes for sop instance uid
-   u64 *stloc,         // offset in valbyes for transfer syntax
-   u16 *stlen,         // length in valbyes for transfer syntax
-   u16 *stidx,         // index in const char *csstr[]
-   s16 *siidx          // SOPinstance index
-){
-   (*siidx)++;
-   I("#%d",*siidx);
-   printf("     144 %s\n","00020001 OB 0000 {156,2}");
+   u64 soloc,         // offset in valbyes for sop class
+   u16 solen,         // length in valbyes for sop class
+   u16 soidx,         // index in const char *scstr[]
+   u64 siloc,         // offset in valbyes for sop instance uid
+   u16 silen,         // length in valbyes for sop instance uid
+   u64 stloc,         // offset in valbyes for transfer syntax
+   u16 stlen,         // length in valbyes for transfer syntax
+   u16 stidx          // index in const char *csstr[]
+)
+{
+   //static
+
+   D("dump create #%d",siidx);
+   printf("144 %s\n","00020001 OB 0000 {156,2}");
+   printf("%llu 00020002 UI 0000 \"%s\" [%hu]\n",soloc,DICMbuf+soloc,soidx);
+   printf("%llu 00020003 UI 0000 \"%s\"\n",siloc,DICMbuf+siloc);
+   printf("%llu 00020010 UI 0000 \"%s\" [%hu]\n",stloc,DICMbuf+stloc,stidx);
+   /*
+    printf("%8lld%*s%02X%02X%02X%02X ",vloc,(int)(((kloc/8)*9)+8),space, kbuf[kloc-4], kbuf[kloc-3], kbuf[kloc-2], kbuf[kloc-1]);
+    
+   const u64 key00020002=0x0000495502000200;
+   if(!_DKVappend((uint8_t*)&key00020002,0,isshort,kvUI, soloc, solen,frombuffer,DICMbuf+soloc)) return false;
+   const u64 key00020003=0x0000495503000200;
+   if(!_DKVappend((uint8_t*)&key00020003,0,isshort,kvUI, siloc, silen,frombuffer,DICMbuf+siloc)) return false;
+   const u64 key00020010=0x0000495510000200;
+   if(!_DKVappend((uint8_t*)&key00020010,0,isshort,kvUI, stloc, stlen,frombuffer,DICMbuf+stloc)) return false;
+   
+   //do not write transfert syntax (which is always explicit little endian) in dicm2dckv
+   */
    return true;
 }
-bool _DKVcommit(s16 *siidx){
-   fileptr=fopen("dicmstructdump.dcm", "w");
+bool _DKVcommit(void)
+{
+   FILE *fileptr=fopen("dicmstructdump.dcm", "w");
    if (fileptr == NULL) return false;
    if (fwrite(DICMbuf ,1, DICMidx , fileptr)!=DICMidx) return false;
    fclose(fileptr);
-   return _DKVclose(siidx);
+   return _DKVclose();
 }
-bool _DKVclose(s16 *siidx){
-   I("!#%d",*siidx);
-   
+bool _DKVclose(void)
+{
+   I("!#%d", siidx);
    return true;
 }
 
 
 #pragma mark - parseo y agregado
 
-bool _DKVappend(
-              uint8_t           *kbuf,
-              u32                kloc,
-              bool               vlenisl,
-              enum kvVRcategory  vrcat,
-              u64                vloc,
-              u32                vlen,
-              bool               fromStdin,
-              uint8_t           *vbuf
-              )
+bool _DKVappend(u32 kloc,enum kvVRcategory vrcat,u32 vlen)
 {
-   //loc+datasetspace+itemspace+item
    switch (kloc) {
-      case 0: printf("%8lld ",vloc);
-         break;
-      case 8:
-      {
-         printf("%8lld         %02X%02X%02X%02X ",vloc, kbuf[kloc-4], kbuf[kloc-3], kbuf[kloc-2], kbuf[kloc-1]);
-      }
-         break;
-      default:
-      {
-         printf("%8lld%*s%02X%02X%02X%02X ",vloc,(int)(((kloc/8)*9)+8),space, kbuf[kloc-4], kbuf[kloc-3], kbuf[kloc-2], kbuf[kloc-1]);
-      }
+      case 0: printf("%llu %02X%02X%02X%02X %c%c %04X ",DICMidx,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
+      default:printf("%llu  %02X%02X%02X%02X %02X%02X%02X%02X %c%c %04X ",DICMidx, kbuf[kloc-4], kbuf[kloc-3], kbuf[kloc-2], kbuf[kloc-1],kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
    }
-   
-   
-   
-   //u64* attruint64=(u64*) kbuf+kloc;
-   //printf("%*s%016llX\n",kloc+kloc+1,space, CFSwapInt64(*attruint64));
-   u32* t=(u32*)kbuf+(kloc/4);
-   u32* i=0;
-   if (kloc > 0) i=(u32*) kbuf+(kloc/4)-4;
-   u16* l=(u16*) kbuf+((kloc/2)+3);
-   u8 v=*(kbuf+(kloc+4));
-   u8 r=*(kbuf+(kloc+5));
-      
-   if (vlenisl)
-   {
-#pragma mark long length
-      if (fromStdin)
-      {
-         u32 toberead=vlen;
-         while (toberead>0xFFFE)
-         {
-            if (fread(vbuf,1,0xFFFE,stdin)!=0xFFFE) return false;
-            toberead-=0xFFFE;
-         }
-         if (toberead && (!feof(stdin)) && (fread(vbuf,1,toberead,stdin)!=toberead)) return false;
-      }
-      switch (vrcat) {
-             
-         case kv01://OB OD OF OL OV OW SV UV
-            
-         case kvsdocument://55 OB Encapsulated​Document 00420011 xml cda o pdf
-         case kvnativeOB: //OB 0x7FE00010
-         case kvnativeOW: //OW 0x7FE00010
-         case kvnativeOD: //OD 0x7FE00009
-         case kvnativeOF: //OF 0x7FE00008
-         case kvnativeOC: //OB 0x7E000010
-         case kvframesOB: //OB 0x7E000010
-         case kvframesOC: //OB 0x7E000010
-         case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
-         case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
-         case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
-         case kvTL://UC
-         case kveal://UT AccessionNumberIssuer local 00080051.00400031
-         case kveau://UT AccessionNumberIssuer universal 00080051.00400032
-         case kvTU://UR
-            break;
-            
-         case kvSA:printf("%08X00000000\n", u32swap(*t));break;
-            
-         case kvUN:printf("%08X %c%c %04X {%llu,%u}\n", u32swap(*t),v,r,*l,vloc+12,vlen);break;
+   switch (vrcat) {
+      case kvSA:printf("00000000\n");break;
+      case kvSZ:printf("FFFFFFFF\n");break;//SQ tail
 
-         default: return false;
-      }
-
-   }
-   else //vl
-   {
-      if (fromStdin && vlen && (fread(vbuf,1,vlen,stdin)!=vlen)) return false;
-      
-      switch (vrcat) {
-         case kvFD://floating point double
-         {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
-            {
-               double *v=(double*)vbuf;
-               printf(" (");
-               for (u16 idx=0; idx<(vlen>>3); idx++)
-               {
-                  printf(" %f",v[idx]);
-               }
-               printf(" )");
-            }
-            printf("\n");
-         }break;
-            
-         case kvFL://floating point single
-         {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
-            {
-               float *v=(float*)vbuf;
-               printf(" (");
-               for (u16 idx=0; idx<(vlen>>2); idx++)
-               {
-                  printf(" %f",v[idx]);
-               }
-               printf(" )");
-            }
-            printf("\n");
-         }break;
-            
-         case kvSL://signed long
-         {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
-            {
-               s32 *v=(s32*)vbuf;
-               printf(" (");
-               for (u16 idx=0; idx<(vlen>>2); idx++)
-               {
-                  printf(" %d",v[idx]);
-               }
-               printf(" )");
-            }
-            printf("\n");
-         }break;
-            
-         case kvSS://signed short
-         {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
-            {
-               s16 *v=(s16*)vbuf;
-               printf(" (");
-               for (u16 idx=0; idx<(vlen>>1); idx++)
-               {
-                  printf(" %hd",v[idx]);
-               }
-               printf(" )");
-            }
-            printf("\n");
-         }break;
-            
-         case kvUL://unsigned long
-         {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
-            {
-               u32 *v=(u32*)vbuf;
-               printf(" (");
-               for (u16 idx=0; idx<(vlen>>2); idx++)
-               {
-                  printf(" %u",v[idx]);
-               }
-               printf(" )");
-            }
-            printf("\n");
-         }break;
-            
-         case kvUS://unsigned short
-         case kvspp://7 US
-         case kvrows://8 US
-         case kvcols://9 US
-         case kvalloc://10 US
-         case kvstored://11 US
-         case kvhigh://12 US
-         case kvpixrep://13 US
-         case kvplanar://14 US
-         {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
-            {
-               u16 *v=(u16*)vbuf;
-               printf(" (");
-               for (u16 idx=0; idx<(vlen>>1); idx++)
-               {
-                  printf(" %hu",v[idx]);
-               }
-               printf(" )");
-            }
-            printf("\n");
-         }break;
-            
-         case kvAT://attribute tag
-         {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
-            {
-               u16 *v=(u16*)vbuf;
-               printf(" (");
-               for (u16 idx=0; idx<(vlen>>2); idx+=2)
-               {
-                  printf(" %04x%04x",v[idx],v[idx+1]);
-               }
-               printf(" )");
-            }
-            printf("\n");
-         }break;
-            
-         case kvUI://unique ID
-         case kveuid://StudyInstanceUID
-         case kvsuid://SeriesInstanceUID
-         case kviuid://SOPInstanceUID
-         case kvpuid://00080019 PyramidUID
-         case kvcuid://SOP​Instance​UID​Of​Concatenation​Source
-         {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
-            {
-               printf(" (");
-               vbuf[vlen]=0x0;//terminate even uid lists
-               char *token = strtok((char *)vbuf, backslash);
-               while( token != NULL ) {
-                     printf( " %s", token );
-                     token = strtok(NULL, backslash);
-               }
-               printf(" )");
-            }
-            printf("\n");
-         }break;
+      case kv01://OB OD OF OL OV OW SV UV
+      case kvsdocument://OB Encapsulated​Document 00420011 xml cda o pdf
+      case kvnativeOB: //OB 0x7FE00010
+      case kvnativeOW: //OW 0x7FE00010
+      case kvnativeOD: //OD 0x7FE00009
+      case kvnativeOF: //OF 0x7FE00008
+      case kvnativeOC: //OB 0x7E000010
+      case kvframesOB: //OB 0x7E000010
+      case kvframesOC: //OB 0x7E000010
+      case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
+      case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
+      case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
+      case kvTL://UC
+      case kveal://UT AccessionNumberIssuer local 00080051.00400031
+      case kveau://UT AccessionNumberIssuer universal 00080051.00400032
+      case kvTU://UR
+      case kvUN:
+         printf("{%llu,%u}\n",DICMidx-vlen,vlen);break;
          
-         case kvTP:
-         case kvpbirth://Patient birthdate
-         case kvedate://StudyDate
-         case kvsdate://SeriesDate
-         case kvstime://SeriesTime
-
-         case kvTA://AE DS IS CS
-         case kvpsex://CS patient sex
-         case kveat://AccessionNumberType
-         case kvsmod://Modality
-         case kvitype://CS 00080008 ImageType
-         case kvphotocode://CS
-         case kvsnumber://SeriesNumber
-         case kvianumber://AcquisitionNumber
-         case kvinumber://InstanceNumber
-
-         case kvTS://LO LT SH ST
-         case kvpay://LO insurance
-         case kvpide://SH patient id extension
-         case kvpidr://LO patient id root issuer
-         case kvimg://InstitutionName
-         case kvedesc://LO Study name
-         case kveid://StudyID
-         case kvean://AccessionNumber
-         case kvecode://SQ/SH Study code 00080100,00080102
-         case kvsdesc://LO Series name
-         case kvscdaid://ST HL7InstanceIdentifier 0040E001  root^extension
-         case kvsdoctitle://ST  DocumentTitle 00420010
-         case kvicomment://LO
-
-         case kvPN:
-         case kvpname://PN patient name
-         case kvcda://PN CDA
-         case kvref://PN referring
-         case kvreq://PN requesting
+      case kvFD://floating point double
+      {
+         if (vlen > 0)
          {
-            printf("%08X %c%c %04X",u32swap(*t),v,r,*l);
-            if (vlen > 0)
+            printf(" (");
+            double d;
+            if (_DKVfread(vlen)!=vlen) return false;
+            for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=8)
             {
-               printf(" (");
-               vbuf[vlen]=0x0;//terminate even uid lists
-               char *token = strtok((char *)vbuf, backslash);
-               while( token != NULL ) {
-                     printf( " «%s»", token );
-                     token = strtok(NULL, backslash);
-               }
-               printf(" )");
+               memcpy(&d, DICMbuf+idx, 8);
+               printf(" %f",d);
             }
-            printf("\n");
-         }break;
-            
-         case kvIA:printf("%08X %c%c %04X\n",u32swap(*t),v,r,*l);break;//item head
-         case kvIZ:printf("%08X %c%c %04X\n",u32swap(*t),v,r,*l);break;//item tail
-         case kvSZ:printf("%08XFFFFFFFF\n", u32swap(*t));break;//SQ tail
-         default: return false;
-      }
-   }
+            printf(" )");
+         }
+         printf("\n");
+      }break;
+         
+      case kvFL://floating point single
+      {
+         if (vlen > 0)
+         {
+            printf(" (");
+            float f;
+            if (_DKVfread(vlen)!=vlen) return false;
+            for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
+            {
+               memcpy(&f, DICMbuf+idx, 4);
+               printf(" %f",f);
+            }
+            printf(" )");
+         }
+         printf("\n");
+      }break;
+         
+      case kvSL://signed long
+      {
+         if (vlen > 0)
+         {
+            printf(" (");
+            s32 s4B;
+            if (_DKVfread(vlen)!=vlen) return false;
+            for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
+            {
+               memcpy(&s4B, DICMbuf+idx, 4);
+               printf(" %d",s4B);
+            }
+            printf(" )");
+         }
+         printf("\n");
+      }break;
+         
+      case kvSS://signed short
+      {
+         if (vlen > 0)
+         {
+            printf(" (");
+            s16 s2B;
+            if (_DKVfread(vlen)!=vlen) return false;
+            for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
+            {
+               memcpy(&s2B, DICMbuf+idx, 2);
+               printf(" %hd",s2B);
+            }
+            printf(" )");
+         }
+         printf("\n");
+      }break;
+         
+      case kvUL://unsigned long
+      {
+         if (vlen > 0)
+         {
+            printf(" (");
+            u32 u4B;
+            if (_DKVfread(vlen)!=vlen) return false;
+            for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
+            {
+               memcpy(&u4B, DICMbuf+idx, 4);
+               printf(" %u",u4B);
+            }
+            printf(" )");
+         }
+         printf("\n");
+      }break;
+         
+      case kvUS://unsigned short
+      case kvspp://7 US
+      case kvrows://8 US
+      case kvcols://9 US
+      case kvalloc://10 US
+      case kvstored://11 US
+      case kvhigh://12 US
+      case kvpixrep://13 US
+      case kvplanar://14 US
+      {
+         if (vlen > 0)
+         {
+            printf(" (");
+            u16 u2B;
+            if (_DKVfread(vlen)!=vlen) return false;
+            for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
+            {
+               memcpy(&u2B, DICMbuf+idx, 2);
+               printf(" %hu",u2B);
+            }
+            printf(" )");
+         }
+         printf("\n");
+      }break;
+         
+      case kvAT://attribute tag
+      {
+         if (vlen > 0)
+         {
+            printf(" (");
+            if (_DKVfread(vlen)!=vlen) return false;
+            for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
+            {
+               printf(" %04x%04x",*DICMbuf+idx,*DICMbuf+idx+1);
+            }
+            printf(" )");
+         }
+         printf("\n");
+      }break;
+         
+      case kvUI://unique ID
+      case kveuid://StudyInstanceUID
+      case kvsuid://SeriesInstanceUID
+      case kviuid://SOPInstanceUID
+      case kvpuid://00080019 PyramidUID
+      case kvcuid://SOP​Instance​UID​Of​Concatenation​Source
+         
+      case kvTP:
+      case kvpbirth://Patient birthdate
+      case kvedate://StudyDate
+      case kvsdate://SeriesDate
+      case kvstime://SeriesTime
 
+      case kvTA://AE DS IS CS
+      case kvpsex://CS patient sex
+      case kveat://AccessionNumberType
+      case kvsmod://Modality
+      case kvitype://CS 00080008 ImageType
+      case kvphotocode://CS
+      case kvsnumber://SeriesNumber
+      case kvianumber://AcquisitionNumber
+      case kvinumber://InstanceNumber
+
+      case kvTS://LO LT SH ST
+      case kvpay://LO insurance
+      case kvpide://SH patient id extension
+      case kvpidr://LO patient id root issuer
+      case kvimg://InstitutionName
+      case kvedesc://LO Study name
+      case kveid://StudyID
+      case kvean://AccessionNumber
+      case kvecode://SQ/SH Study code 00080100,00080102
+      case kvsdesc://LO Series name
+      case kvscdaid://ST HL7InstanceIdentifier 0040E001  root^extension
+      case kvsdoctitle://ST  DocumentTitle 00420010
+      case kvicomment://LO
+
+      case kvPN:
+      case kvpname://PN patient name
+      case kvcda://PN CDA
+      case kvref://PN referring
+      case kvreq://PN requesting
+      {
+         if (vlen > 0)
+         {
+            if (_DKVfread(vlen)!=vlen) return false;
+            printf( "\"%.*s\"\n", vlen,DICMbuf+DICMidx-vlen );
+         }
+         else printf("\"\"\n");
+      } break;
+         
+      case kvIA://item head
+      case kvIZ://item tail
+         break;
+         
+      default: return false;
+   }
    return true;
 }

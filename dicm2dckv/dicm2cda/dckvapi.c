@@ -6,7 +6,10 @@
 #include "dckvapi.h"
 
 
-FILE *outFile;
+static FILE *outFile;
+static char *_DICMbuf;
+static u64 *_siloc;
+stataic u16 *_silen;
 
 static char *dbpath;
 const char *backslash = "\\";
@@ -52,23 +55,26 @@ bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
 }
 
 bool _DKVcreate(
-   uint8_t    * vbuf,
-   u64 *soloc,         // offset in valbyes for sop class
-   u16 *solen,         // length in valbyes for sop class
-   u16 *soidx,         // index in const char *scstr[]
-   u64 *siloc,         // offset in valbyes for sop instance uid
-   u16 *silen,         // length in valbyes for sop instance uid
-   u64 *stloc,         // offset in valbyes for transfer syntax
-   u16 *stlen,         // length in valbyes for transfer syntax
-   u16 *stidx,         // index in const char *csstr[]
-   s16 *siidx          // SOPinstance index
+   char *DICMbuf,
+   u64 *DICMidx,
+   u64 soloc,         // offset in valbyes for sop class
+   u16 solen,         // length in valbyes for sop class
+   u16 soidx,         // index in const char *scstr[]
+   u64 siloc,         // offset in valbyes for sop instance uid
+   u16 silen,         // length in valbyes for sop instance uid
+   u64 stloc,         // offset in valbyes for transfer syntax
+   u16 stlen,         // length in valbyes for transfer syntax
+   u16 stidx,         // index in const char *csstr[]
+   s16 siidx          // SOPinstance index
 ){
-   (*siidx)++;
-   D("#%d",*siidx);
-   
+   D("cda create #%d",*siidx);
+   _DICMbuf=DICMbuf;
+   _siloc=siloc;         // offset in valbyes for sop instance uid
+   _silen=silen,         // length in valbyes for sop instance uid
+
    dbpath=malloc(0xFF);
    char *ibuf = malloc(*silen);
-   memcpy(ibuf, vbuf+*siloc+8, *silen);
+   memcpy(ibuf, DICMbuf+*siloc, *silen);
    strcat(dbpath,ibuf);
    strcat(dbpath, ".dscd.xml");
    outFile=fopen(dbpath, "w");
@@ -91,7 +97,8 @@ bool _DKVappend(
               u64                vloc,
               u32                vlen,
               bool               fromStdin,
-              uint8_t           *vbuf
+              char              *DICMbuf,
+              u64               *DICMidx
               )
 {
    switch (vrcat) {
