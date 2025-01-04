@@ -148,8 +148,16 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             case kveau://UT AccessionNumberIssuer universal 00080051.00400032
             case kvTU: { //UR
                printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-12,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               if (_DKVfread(vlen)!=vlen) return false;
-               printf("\"%*s\"\n",vlen,DICMbuf+DICMidx-vlen);
+               if (vlen>0)
+               {
+                  //charset -> utf-8
+                  u32 repidx=kbuf[kloc+6] + (kbuf[kloc+7] << 8);
+                  u32 charstart=(u32)DICMidx;
+                  u32 utf8length=0;
+                  if (_DKVfread(vlen)!=vlen) return false;
+                  utf8(repidx,DICMbuf,charstart,vlen,DICMbuf,(u32)DICMidx,&utf8length);
+                  printf( "\"%.*s\"\n", utf8length,DICMbuf+DICMidx );
+               }
             } break;
             case kvFD: { //floating point double
                printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
@@ -289,6 +297,16 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             case kvsnumber://SeriesNumber
             case kvianumber://AcquisitionNumber
             case kvinumber://InstanceNumber
+            case kvscdaid:{ //ST HL7InstanceIdentifier 0040E001  root^extension
+              printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
+              if (vlen > 0)
+              {
+                 if (_DKVfread(vlen)!=vlen) return false;
+                 printf( "\"%.*s\"\n", vlen,DICMbuf+DICMidx-vlen );
+              }
+              else printf("\"\"\n");
+           } break;
+            //charset
             case kvTS://LO LT SH ST
             case kvpay://LO insurance
             case kvpide://SH patient id extension
@@ -299,7 +317,6 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             case kvean://AccessionNumber
             case kvecode://SQ/SH Study code 00080100,00080102
             case kvsdesc://LO Series name
-            case kvscdaid://ST HL7InstanceIdentifier 0040E001  root^extension
             case kvsdoctitle://ST  DocumentTitle 00420010
             case kvicomment://LO
             case kvPN:
@@ -310,8 +327,13 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
                printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
+                  //charset -> utf-8
+                  u32 repidx=kbuf[kloc+6] + (kbuf[kloc+7] << 8);
+                  u32 charstart=(u32)DICMidx;
+                  u32 utf8length=0;
                   if (_DKVfread(vlen)!=vlen) return false;
-                  printf( "\"%.*s\"\n", vlen,DICMbuf+DICMidx-vlen );
+                  utf8(repidx,DICMbuf,charstart,vlen,DICMbuf,(u32)DICMidx,&utf8length);
+                  printf( "\"%.*s\"\n", utf8length,DICMbuf+DICMidx );
                }
                else printf("\"\"\n");
             } break;
