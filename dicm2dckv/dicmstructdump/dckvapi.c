@@ -120,18 +120,12 @@ bool _DKVclose(void)
 bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    switch (vrcat) {
-      case kvSA: {
-         switch (kloc) {
-            case 0: printf("%8llu %02X%02X%02X%02X+\n",DICMidx-12,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);break;
-            default:printf("%8llu %*s%02X%02X%02X%02X+\n",DICMidx-12,kloc,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);
-         }
-      } break;
-      case kvSZ: printf("%8llu%*s%02X%02X%02X%02X~\n",DICMidx-8,kloc,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);break;
-      case kvIA: printf("%8llu %*s%02X%02X%02X%02X+\n",DICMidx-8,kloc,space,kbuf[kloc-4],kbuf[kloc-3],kbuf[kloc-2],kbuf[kloc-1]);break;
-      case kvIZ: printf("%8llu %*s%02X%02X%02X%02X~\n",DICMidx-8,kloc,space,kbuf[kloc-4],kbuf[kloc-3],kbuf[kloc-2],kbuf[kloc-1]);break;
+      case kvSA:printf("%8llu%*s%02X%02X%02X%02X+\n",DICMidx-12,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);break;
+      case kvSZ:printf("%8llu%*s%02X%02X%02X%02X~\n",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);break;
+      case kvIA: printf("%8llu %*s%02X%02X%02X%02X+\n",DICMidx-8,kloc+kloc-8,space,kbuf[kloc-4],kbuf[kloc-3],kbuf[kloc-2],kbuf[kloc-1]);break;
+      case kvIZ: printf("%8llu %*s%02X%02X%02X%02X~\n",DICMidx-8,kloc+kloc-8,space,kbuf[kloc-4],kbuf[kloc-3],kbuf[kloc-2],kbuf[kloc-1]);break;
       default: {
          switch (vrcat) {
-
             case kv01://OB OD OF OL OV OW SV UV
             case kvsdocument://OB Encapsulated​Document 00420011 xml cda o pdf
             case kvnativeOB: //OB 0x7FE00010
@@ -145,11 +139,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
             case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
             case kvUN: {
-               switch (kloc) {
-                     
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-12,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-12,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-12,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (_DKVfread(vlen)!=vlen) return false;
                printf("{%llu,%u}\n",DICMidx-vlen,vlen);
             }break;
@@ -157,23 +147,15 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             case kveal://UT AccessionNumberIssuer local 00080051.00400031
             case kveau://UT AccessionNumberIssuer universal 00080051.00400032
             case kvTU: { //UR
-               switch (kloc) {
-                     
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-12,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-12,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-12,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (_DKVfread(vlen)!=vlen) return false;
-               //printf("{%llu,%u}\n",DICMidx,vlen);
                printf("\"%*s\"\n",vlen,DICMbuf+DICMidx-vlen);
             } break;
             case kvFD: { //floating point double
-               switch (kloc) {
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-8,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
-                  printf(" (");
+                  printf("(");
                   double d;
                   if (_DKVfread(vlen)!=vlen) return false;
                   for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=8)
@@ -186,13 +168,10 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
                printf("\n");
             }break;
             case kvFL: { //floating point single
-               switch (kloc) {
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-8,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
-                  printf(" (");
+                  printf("(");
                   float f;
                   if (_DKVfread(vlen)!=vlen) return false;
                   for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
@@ -205,13 +184,10 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
                printf("\n");
             }break;
             case kvSL: { //signed long
-               switch (kloc) {
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-8,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
-                  printf(" (");
+                  printf("(");
                   s32 s4B;
                   if (_DKVfread(vlen)!=vlen) return false;
                   for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
@@ -224,13 +200,10 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
                printf("\n");
             }break;
             case kvSS: { //signed short
-               switch (kloc) {
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-8,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
-                  printf(" (");
+                  printf("(");
                   s16 s2B;
                   if (_DKVfread(vlen)!=vlen) return false;
                   for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
@@ -243,13 +216,10 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
                printf("\n");
             }break;
             case kvUL: { //unsigned long
-               switch (kloc) {
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-8,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
-                  printf(" (");
+                  printf("(");
                   u32 u4B;
                   if (_DKVfread(vlen)!=vlen) return false;
                   for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
@@ -270,13 +240,10 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             case kvhigh://12 US
             case kvpixrep://13 US
             case kvplanar: { //14 US
-               switch (kloc) {
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-8,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
-                  printf(" (");
+                  printf("(");
                   u16 u2B;
                   if (_DKVfread(vlen)!=vlen) return false;
                   for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
@@ -289,13 +256,10 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
                printf("\n");
             }break;
             case kvAT: { //attribute tag
-               switch (kloc) {
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-8,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
-                  printf(" (");
+                  printf("(");
                   if (_DKVfread(vlen)!=vlen) return false;
                   for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
                   {
@@ -343,10 +307,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             case kvcda://PN CDA
             case kvref://PN referring
             case kvreq: { //PN requesting
-               switch (kloc) {
-                  case 0: printf("%8llu %02X%02X%02X%02X %c%c %04X ",DICMidx-8,kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));break;
-                  default:printf("%8llu %*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+8,space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-               }
+               printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
                if (vlen > 0)
                {
                   if (_DKVfread(vlen)!=vlen) return false;
