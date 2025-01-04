@@ -136,8 +136,7 @@ bool dicmuptosopts(void)
    stlen-=(DICMbuf[stloc + stlen - 1]==0x0);//remove last 0x0
    u16 stidx=tsidx( DICMbuf+stloc, stlen);
    if (stidx==0) return false;
-   
-   DICMidx += stlen;
+
    if (!_DKVcreate(
                  soloc,         // offset in valbyes for sop class
                  solen,         // length in valbyes for sop class
@@ -564,12 +563,12 @@ bool dicm2dckvInstance(
    u32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
 )
 {
-   struct trcl * attr=(struct trcl*) kbuf;
+   struct trcl * baseattr=(struct trcl*) kbuf;
    
    if (!_DKVfreadattr(0))return false;
    if (dicm2dckvDataset(
        0,          //kloc
-       attr,
+       baseattr,
        0,          //keycs
        beforebyte, //beforebyte
        beforetag  //beforetag

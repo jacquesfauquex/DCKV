@@ -9,14 +9,6 @@
 #include "dckvtypes.h"
 
 
-#pragma mark - read blocking code
-
-u32  _DKVfread(u32 Baskedfor);
-bool _DKVfreadattr(u8 kloc);
-bool _DKVfreaditemtag(u8 kloc);
-bool _DKVfread4(u32* ll);
-
-
 #pragma mark - propietary vr
 
 //cat  e    s    i    f
@@ -112,6 +104,12 @@ kvSZ,//73 SQ tail
 kvUN,//UN 74
 
 };
+
+
+#pragma mark - read blocking code
+
+u32  _DKVfread(u32 Baskedfor);
+bool _DKVfreadattr(u8 kloc);
 
 
 #pragma mark - TO BE IMPLEMENTED FOR EACH TARGET
