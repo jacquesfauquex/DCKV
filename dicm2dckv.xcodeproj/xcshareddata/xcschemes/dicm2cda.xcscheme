@@ -52,14 +52,6 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "I"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/jacquesfauquex/mdbx"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/dscd.dcm"
             isEnabled = "YES">
          </CommandLineArgument>

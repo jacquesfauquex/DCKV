@@ -1,6 +1,6 @@
 # dicmstructdump
 
-- dckv transformed on the flight into dump
+- dicm transformed on the flight to dckv and dumped pretty printed on utf-8 console
 - conforms to dckvapi
 - compares to other dicom dump tools(dcmtk y dcm4chee). Though it is worth notice that dicmstructdump does not make use of any tag dictionary, which is a speed advantage on dcmtk dcmdump.
 

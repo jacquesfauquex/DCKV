@@ -99,7 +99,7 @@ const u32 B7FE00010=0x1000E07F;//kvN OB or OW or kvC
 bool dicmuptosopts(void)
 {
    //read up to dicom version 0002001 (8+150 bytes)
-   D("%s","waiting 158 bytes on stdin");
+   //D("%s","waiting 158 bytes on stdin");
    if(!_DKVfread(158))return false;
    if (DICMidx!=158) return false;
    if (DICMbuf[128]!=0x44 || DICMbuf[129]!=0x49 || DICMbuf[130]!=0x43 || DICMbuf[131]!=0x4D) return false;
