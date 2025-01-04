@@ -33,25 +33,15 @@ typedef unsigned long long u64;//%llu
 u8 intdecsize(int i);
 
 //DICOM atribute header 8 bytes tag vr vl
-struct t4r2l2 {
-   u32 t;
-   u16 r;
-   u16 l;
-};
 struct trcl {
    u32 t;
    u16 r;
    u16 c;
    u32 l;
 };
-struct t4l4 {
-   u32 t;
-   u32 l;
-};
-
-const char *kvVRlabel(u16 idx);
 
 
+/*potencialmente multivalue: AE AS AT CS DA DS DT FD FL IS LO OW PN SH SV TM UC UI UV*/
 enum DICMvr {
    AE=0x4541,//application entity
    AS=0x5341,//age string

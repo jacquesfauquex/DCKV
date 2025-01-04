@@ -89,24 +89,13 @@ const u32 B7FE00008=0x0800E07F;//kvN OF
 const u32 B7FE00009=0x0900E07F;//kvN OD
 const u32 B7FE00010=0x1000E07F;//kvN OB or OW or kvC
 
-const u64 SZbytes=0xDDE0FEFF;//FFFEE0DD00000000
-const u64 IAbytes=0xFFFFFFFF00E0FEFF;//FFFEE000FFFFFFFF
-const u64 IZbytes=0x0DE0FEFF;//FFFEE00D00000000
-const u32 ffffffff=0xFFFFFFFF;
-const u32 fffee000=0xfffee000;
-const u32 fffee00d=0xfffee00d;
-const u32 fffee0dd=0xfffee0dd;
 
-
-#pragma mark parsing
 /*
  NON RECURSIVE
  read stream up to transfer syntax.
  finds sopclassidx
  finds soptsidx
  */
-struct trcl attr;
-
 bool dicmuptosopts(void)
 {
    //read up to dicom version 0002001 (8+150 bytes)
@@ -115,6 +104,7 @@ bool dicmuptosopts(void)
    if (DICMidx!=158) return false;
    if (DICMbuf[128]!=0x44 || DICMbuf[129]!=0x49 || DICMbuf[130]!=0x43 || DICMbuf[131]!=0x4D) return false;
    
+   struct trcl attr;
 #pragma mark read sop object [so] (=sop class)
    if (_DKVfread( 8)!=8) return false;
    memcpy(&attr.t,DICMbuf+DICMidx-8,4);
@@ -165,7 +155,7 @@ bool dicmuptosopts(void)
 extern uint8_t *kbuf;
 bool dicm2dckvDataset(
                       u32 kloc,           // offset actual en el búfer matriz (cambia con el nivel de recursión)
-                      struct trcl *attr, // true:read desde stream. false:ya está en kbuf
+                      struct trcl *attr,  // read in advance
                       u16 keycs,          // key charset
                       u64 beforebyte,     // limite superior de lectura
                       u32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
@@ -173,15 +163,15 @@ bool dicm2dckvDataset(
 {
    while (
        (DICMidx < beforebyte)
-    && (attr->t < beforetag)
+    && (u32swap(attr->t) < beforetag)
    )
    {
       switch (attr->r) {
-         case FD: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvFD,attr->l)) return false; } break;
-         case FL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvFL,attr->l)) return false; } break;
-         case SL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvSL,attr->l)) return false; } break;
-         case SS: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvSS,attr->l)) return false; } break;
-         case UL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvUL,attr->l)) return false; } break;
+         case FD: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvFD,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case FL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvFL,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case SL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvSL,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case SS: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvSS,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case UL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvUL,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
          case US: {
             attr->c=REPERTOIRE_GL;
             switch (   attr->t) {
@@ -195,8 +185,9 @@ bool dicm2dckvDataset(
                case B00280106: if (!_DKVappend(kloc,kvplanar,attr->l)) return false; break;//planar
                default:        if (!_DKVappend(kloc,kvUS,    attr->l)) return false;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
-         case AT: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvAT,attr->l)) return false; } break;
+         case AT: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvAT,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
          case UI: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -208,9 +199,10 @@ bool dicm2dckvDataset(
                //case B00081150:
                default:        if (!_DKVappend(kloc,kvUI,  attr->l)) return false;break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case AS:
-         case DT: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvTP,attr->l)) return false; } break;
+         case DT: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvTP,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
          case DA: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -219,6 +211,7 @@ bool dicm2dckvDataset(
                case B00100030: if (!_DKVappend(kloc,kvpbirth,attr->l)) return false;break;
                default:        if (!_DKVappend(kloc,kvTP,    attr->l)) return false;break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case TM: {
             attr->c=REPERTOIRE_GL;
@@ -226,6 +219,7 @@ bool dicm2dckvDataset(
                case B00080031: if (!_DKVappend(kloc,kvstime,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kvTP,   attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case CS: {
             attr->c=REPERTOIRE_GL;
@@ -262,9 +256,10 @@ bool dicm2dckvDataset(
                } break;
                default:        if (!_DKVappend(kloc,kvTA,       attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case AE:
-         case DS: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvTA,attr->l)) return false; } break;
+         case DS: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvTA,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
          case IS: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -273,6 +268,7 @@ bool dicm2dckvDataset(
                case B00200013:if (!_DKVappend(kloc,kvinumber, attr->l)) return false; break;
                default:       if (!_DKVappend(kloc,kvTA,      attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case LO:
          case LT: {
@@ -287,15 +283,15 @@ bool dicm2dckvDataset(
                case B00204000: if (!_DKVappend(kloc,kvicomment,attr->l)) return false; break;//image comment
                case B00080104: {
                   //find CODE tag
-                  u8 *codebytes=kbuf+kloc-8;
-                  struct t4r2l2 *codestruct=(struct t4r2l2*) codebytes;
-                  switch (codestruct->t) {
+                  u32 *containertag=(u32*) (kbuf+kloc-8);
+                  switch (*containertag) {
                      case B00081032:if (!_DKVappend(kloc,kvecode,attr->l)) return false;break;//study description
                      default:       if (!_DKVappend(kloc,kvTS,   attr->l)) return false;break;
                   }
                } break;
                default:        if (!_DKVappend(kloc,kvTS,      attr->l)) return false;break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case SH: {
             attr->c=keycs;
@@ -306,9 +302,8 @@ bool dicm2dckvDataset(
                case B00080100:
                case B00080102: {
                   //find CODE tag
-                  u8 *codebytes=kbuf+kloc-8;//subbuffer for attr reading
-                  struct t4r2l2 *codestruct=(struct t4r2l2*) codebytes;
-                  switch (codestruct->t) {
+                  u32 *containertag=(u32*) (kbuf+kloc-8);
+                  switch (*containertag) {
                      //study description
                      case B00081032: if (!_DKVappend(kloc,kvecode,attr->l)) return false; break;
                      default:        if (!_DKVappend(kloc,kvTS,   attr->l)) return false; break;
@@ -316,6 +311,7 @@ bool dicm2dckvDataset(
                } break;
                default:        if (!_DKVappend(kloc,kvTS,    attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case ST: {
             attr->c=keycs;
@@ -324,6 +320,7 @@ bool dicm2dckvDataset(
                case B00420010: if (!_DKVappend(kloc,kvsdoctitle,attr->l)) return false; break;//kvsdoctitle ST DocumentTitle 00420010
                default:        if (!_DKVappend(kloc,kvTS,       attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case PN: {
             attr->c=keycs;
@@ -334,6 +331,7 @@ bool dicm2dckvDataset(
                case B00321032: if (!_DKVappend(kloc,kvreq,  attr->l)) return false; break;//requesting
                default:        if (!_DKVappend(kloc,kvPN,   attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case OB: {
             attr->c=REPERTOIRE_GL;
@@ -374,6 +372,7 @@ bool dicm2dckvDataset(
                    */
                default:        if (!_DKVappend(kloc,kv01,       attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case OW: {
             attr->c=REPERTOIRE_GL;
@@ -381,6 +380,7 @@ bool dicm2dckvDataset(
                case B7FE00010: if (!_DKVappend(kloc,kvnativeOW,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case OD: {
             attr->c=REPERTOIRE_GL;
@@ -388,6 +388,7 @@ bool dicm2dckvDataset(
                case B7FE00010: if (!_DKVappend(kloc,kvnativeOD,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case OF: {
             attr->c=REPERTOIRE_GL;
@@ -395,9 +396,10 @@ bool dicm2dckvDataset(
                case B7FE00010: if (!_DKVappend(kloc,kvnativeOF,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case OL:
-         case SV: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kv01,attr->l)) return false; } break;
+         case SV: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kv01,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
          case OV: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -405,6 +407,7 @@ bool dicm2dckvDataset(
                case B7FE00002: if (!_DKVappend(kloc,kvfl,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
          case UV: {
             attr->c=REPERTOIRE_GL;
@@ -412,8 +415,9 @@ bool dicm2dckvDataset(
                case B7FE00003: if (!_DKVappend(kloc,kvft,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
-         case UC: { attr->c=keycs;         if (!_DKVappend(kloc,kvTL,attr->l)) return false; } break;
+         case UC: { attr->c=keycs;         if (!_DKVappend(kloc,kvTL,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
          case UT: {
             attr->c=keycs;
             switch (attr->t) {
@@ -421,147 +425,110 @@ bool dicm2dckvDataset(
                case B00400032: if (!_DKVappend(kloc,kveau,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kvTL, attr->l)) return false; break;
             }
+            if (! _DKVfreadattr(kloc)) return false;
          } break;
-         case UR: { attr->c=ISO_IR192;     if (!_DKVappend(kloc,kvTU, attr->l)) return false; } break;//RFC3986
+         case UR: { attr->c=ISO_IR192;     if (!_DKVappend(kloc,kvTU, attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;//RFC3986
 #pragma mark SQ
-         /*
          case SQ://sequence
          {
-            //register SQ con vr 0000 y length undefined
-            kbuf[kloc+0x8]=0xff;
-            kbuf[kloc+0x9]=0xff;
-            kbuf[kloc+0xA]=0xff;
-            kbuf[kloc+0xB]=0xff;
-            attr->r=SA;
-            attr->c=REPERTOIRE_GL;
-
-
-            if (!_DKVappend(kloc,islong,kvSA,DICMidx,0,frombuffer)) return false;
-
-            //read length
-            if (!_DKVfread4(&vlen)) {
-               E("%s","stream end instead of vll");
+            u64 beforebyteSQ;
+            if      (attr->l==0xFFFFFFFF) beforebyteSQ=beforebyte;//SQ undefined, byte limit will be of the dataset
+            else if (beforebyte==0xFFFFFFFF) beforebyteSQ= DICMidx + attr->l;//dataset undefined, byte limit will be of the SQ
+            else if (DICMidx + attr->l > beforebyte) {
+               E("%s","SQ incomplete input");
                return false;
             }
-            if (vlen==0)
+            else beforebyteSQ=DICMidx + attr->l;
+
+
+            if (!_DKVappend(kloc,kvSA, attr->l)) return false;
+
+
+#pragma mark SQ empty
+            if (attr->l==0)
             {
-               attr->r=SZ;
-               attr->l=0xFFFF;
-               if (!_DKVappend(kloc,isshort,kvSZ,DICMidx,0,fromstdin)) return false;//,(void*)&SZbytes
-               //do not add vlen !
-               if (! _DKVfreadtag(kloc, attr)) return false;
+               if (!_DKVappend(kloc,kvSZ, attr->l)) return false;
             }
-            else //SQ vlen!=0
+            else
             {
-               //SQ length
-               u64 beforebyteSQ;
-               if (vlen==ffffffff) beforebyteSQ=beforebyte;//undefined length
-               else if (beforebyte==ffffffff) beforebyteSQ= DICMidx + vlen;//undefined length container
-               else if (DICMidx + vlen > beforebyte) {
-                  E("%s","SQ incomplete input");
-                  return false;
-               }
-               else beforebyteSQ=DICMidx + vlen;
-
-               
-               //replace vr and vl of SQ by itemnumber
-               u32 itemnumber=1;
-               attr->r=u16swap(itemnumber/0x10000);
-               attr->l=u16swap(itemnumber%0x10000);
-
-
+#pragma mark SQ item number
+               u32 *itemnumber=(u32 *)(kbuf+kloc+4);
+               *itemnumber=u32swap(1);
                
 #pragma mark item level
                kloc+=8;
-               u8 *itembytes=kbuf+kloc;
-               struct trcl *   itemattr=(struct trcl*) itembytes;
-               if (! _DKVfreadtag(    itemattr)) return false;
-
-               
                //for each first attr fffee000 of any new item
-              while ((DICMidx < beforebyteSQ) && (u32swap(   itemattr->t)==fffee000)) //itemstart compulsory
+               if (! _DKVfreadattr(kloc)) return false;
+               struct trcl * itemattr=(struct trcl*) (kbuf+kloc);
+               u32 *delimiter=(u32*) (kbuf+kloc);//tag
+               while ((DICMidx < beforebyteSQ) && (*delimiter==0x00E0FEFF)) //itemstart compulsory
                {
-                  u32 IQll = (   itemattr->l << 16) |    itemattr->r;
-                     itemattr->t=0x00000000;
-                     itemattr->r=IA;
-                     itemattr->l=REPERTOIRE_GL;
-                  if (!_DKVappend(kloc,isshort,kvIA,DICMidx,0,fromstdin)) return false;//,(void*)&IAbytes)
+                  //for each item
+                  delimiter++;//length
                   u64 beforebyteIT;//to be computed from after item start
-                  if (IQll==ffffffff) beforebyteIT=beforebyteSQ;
-                  else if (beforebyteSQ==ffffffff) beforebyteIT=DICMidx + vlen;
-                  else if (DICMidx + IQll > beforebyteSQ) {
+                  if (*delimiter==0xFFFFFFFF) beforebyteIT=beforebyteSQ;
+                  else if (beforebyteSQ==0xFFFFFFFF) beforebyteIT=DICMidx + *delimiter;
+                  else if (DICMidx + *delimiter > beforebyteSQ) {
                      E("%s","IT incomplete input");
                      return false;
                   }
-                  else beforebyteIT=DICMidx + IQll;
+                  else beforebyteIT=DICMidx + *delimiter;
 
-                  dicm2dckvDataset(
-                        kloc,
-                        readfirstattr,
-                        keycs,
-                        (u32)beforebyteIT,
-                        fffee00d
-                        );
-                  //Atención!!! attr still is the first attr of the first item
-                  //the attr of the recursion is not available
-                  //kbuf kept the last attr read one level deeper than current attr
-
-                  
+                  if (!_DKVappend(kloc,kvIA, 0)) return false;
+                  if (!_DKVfreadattr(kloc))return false;
+                  if (!dicm2dckvDataset(
+                      kloc,
+                      itemattr,
+                      keycs,
+                      (u32)beforebyteIT,
+                      0xfffee00d
+                      )) return false;
                   //write IZ
-                  if (u32swap(   itemattr->t)==fffee00d)
+                  if (u32swap(   itemattr->t)==0xfffee00d)
                   {
-                        itemattr->t=ffffffff;
+                        itemattr->t=0xFFFFFFFF;
                         itemattr->r=IZ;
-                        itemattr->l=0x00;
-                     if (!_DKVappend(kloc,isshort,kvIZ,DICMidx,0,fromstdin)) return false;//,(void*)&IZbytes
-                     if (! _DKVfreadtag(   itemattr)) return false;
+                        itemattr->l=0;
+                     if (!_DKVappend(kloc,kvIZ, itemattr->l)) return false;
+                     if (!_DKVfreadattr(kloc)) return false;
                   }
                   else
                   {
-                     struct t4r2l2 copyattr;
-                     copyattr.t=   itemattr->t;
-                     copyattr.r=   itemattr->r;
-                     copyattr.l=   itemattr->l;
-                        itemattr->t=ffffffff;
-                        itemattr->r=IZ;
-                        itemattr->l=0x0;
-                     if (!_DKVappend(kloc,isshort,kvIZ,DICMidx,0,fromstdin)) return false;//,(void*)&IZbytes
-                        itemattr->t=copyattr.t;
-                        itemattr->r=copyattr.r;
-                        itemattr->l=copyattr.l;
+                     if (!_DKVappend(kloc,kvIZ, itemattr->l)) return false;
                   }
-                  
-                  //new item number
-                  itemnumber+=1;
-                  attr->r=u16swap(itemnumber/0x10000);
-                  attr->l=u16swap(itemnumber%0x10000);
-
+                  *itemnumber=u32swap(u32swap(*itemnumber)+1);
                }//end while item
                kloc-=8;
 #pragma mark item level end
+               if (!_DKVappend(kloc,kvSZ, 0)) return false;
 
-               attr->r=SZ;
-               attr->l=0xFFFF;
-//               if (! _DKVfread8(itembytes, &bytescount)) return false;
-               if (!_DKVappend(kloc,isshort,kvSZ,DICMidx,0,fromstdin)) return false;//,(void*)&SZbytes)
-
-               
                //   itemattr may be SZ or post SQ
-               if (u32swap(   itemattr->t)==fffee0dd)
+               if (u32swap(itemattr->t)==0xfffee0dd)
                {
-                  if (! _DKVfreadtag(attr)) return false;
+                  if (! _DKVfreadattr(kloc)) return false;
                }
                else
                {
+                  //should not read new attr after end of switch
+                  //should transfer itemattr to attr instead
                   attr->t=   itemattr->t;
                   attr->r=   itemattr->r;
                   attr->l=   itemattr->l;
                }
             }
          } break;
-          */
-         case 0xFFFF:return true;//end of buffer
+
+         case UN://unknown
+         {
+            // https://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2.2
+             //5. The Value Length Field of VR UN may contain Undefined Length (FFFFFFFFH), in which case the contents can be assumed to be encoded with Implicit VR. See Section 7.5.1 to determine how to parse Data Elements with an Undefined Length.
+            attr->l=REPERTOIRE_GL;
+            if (!_DKVappend(kloc,kvUN, attr->l)) return false;
+            if (! _DKVfreadattr(kloc)) return false;
+         } break;
             
+         case 0xFFFF:return true;//end of buffer
+
          default:
          {
             if (attr->t==0 && attr->r==0 && attr->l==0)
@@ -571,21 +538,9 @@ bool dicm2dckvDataset(
             E("error unknown vr at index %llu %08x %c%c %d",DICMidx, attr->t,attr->r % 0x100,attr->r / 0x100,attr->l);
             return false;
          }
-      //---------
-#pragma mark UN
-         case UN://unknown
-         {
-            // https://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2.2
-             //5. The Value Length Field of VR UN may contain Undefined Length (FFFFFFFFH), in which case the contents can be assumed to be encoded with Implicit VR. See Section 7.5.1 to determine how to parse Data Elements with an Undefined Length.
-            attr->l=REPERTOIRE_GL;
-            if (!_DKVappend(kloc,kvUN, attr->l)) return false;
-            
-         } break;
-
 
       //---------
       }//end switch
-      if (! _DKVfreadtag(kloc, attr)) return false;
    }//end while (*index < beforebyte)
    
    if (attr->t == 0xFCFFFCFF)
@@ -609,10 +564,12 @@ bool dicm2dckvInstance(
    u32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
 )
 {
-   if (!_DKVfreadtag(*kbuf, &attr))return false;
+   struct trcl * attr=(struct trcl*) kbuf;
+   
+   if (!_DKVfreadattr(0))return false;
    if (dicm2dckvDataset(
        0,          //kloc
-       &attr,
+       attr,
        0,          //keycs
        beforebyte, //beforebyte
        beforetag  //beforetag

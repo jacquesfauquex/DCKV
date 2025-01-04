@@ -9,8 +9,6 @@ eDCKVinline implements the API edckvapi, which overrides dckvapi. The override i
 
 - _DKVfread -> EDKVfread
 
-- _DKVfread8 -> EDKVfread8
-
 - _DKVcreate -> EDKVcreate. Also retains sop class and transfert syntax.
 
 - _DKVcommit -> EDKVcommit

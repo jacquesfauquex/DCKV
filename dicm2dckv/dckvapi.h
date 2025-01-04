@@ -12,7 +12,8 @@
 #pragma mark - read blocking code
 
 u32  _DKVfread(u32 Baskedfor);
-bool _DKVfreadtag(u8 kloc, struct trcl *attrpointer);
+bool _DKVfreadattr(u8 kloc);
+bool _DKVfreaditemtag(u8 kloc);
 bool _DKVfread4(u32* ll);
 
 
@@ -136,6 +137,6 @@ bool _DKVclose(void);//aplica a todos los kv
 //_DKVappend called for each parsed attribute, with value already read in vbuf or not.
 //vbuf is 0xFFFE bytes long (máx short DICOM vl).
 
-bool _DKVappend(u32 kloc,enum kvVRcategory vrcat,u32 vlen);
+bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen);
 
 #endif /* dckvapi_h */

@@ -25,34 +25,6 @@ size_t _DKVfread(
    return fread(__ptr,__size,__nitems,__stream);
 }
 
-//returns true when 8 bytes were read
-//possibility to overwrite any tag,vr,length reading
-u8 swapchar;
-bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
-{
-   *bytesReadRef=fread(buffer, 1, 8, stdin);
-   if (ferror(stdin)){
-      E("%s","stdin error");
-      return false;
-   }
-   
-   if (*bytesReadRef==8){
-      swapchar=*buffer;
-      *buffer=*(buffer+1);
-      *(buffer+1)=swapchar;
-      swapchar=*(buffer+2);
-      *(buffer+2)=*(buffer+3);
-      *(buffer+3)=swapchar;
-   }
-   else
-   {
-      *buffer=0xFF;
-      *(buffer+1)=0xFF;
-      *(buffer+2)=0xFF;
-      *(buffer+3)=0xFF;
-   }
-   return true;
-}
 
 bool _DKVcreate(
    char *DICMbuf,
