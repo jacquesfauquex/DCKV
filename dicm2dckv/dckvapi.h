@@ -108,7 +108,7 @@ kvUN,//UN 74
 
 #pragma mark - read blocking code
 
-u32  _DKVfread(u32 Baskedfor);
+bool _DKVfread(u32 bytesaskedfor);
 bool _DKVfreadattr(u8 kloc);
 
 

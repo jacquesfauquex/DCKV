@@ -6,7 +6,11 @@
 #include "dckvapi.h"
 #include "edckvapi.h"
 
-
+extern char *DICMbuf;
+extern u64 DICMidx;
+extern s16 siidx;
+extern uint8_t *kbuf;
+extern struct trcl * baseattr;
 
 #pragma mark base dataset level patient
 /*
@@ -999,34 +1003,80 @@ const u8 PCStype[]={
 };
 
 
-#pragma mark - possibility to overwrite any  read
-size_t _DKVfread(
-                     void * __restrict __ptr,
-                     size_t __size,
-                     size_t __nitems,
-                     FILE * __restrict __stream
-                     )
+#pragma mark - read
+
+static u64 bytesreceived;
+bool _DKVfread(u32 bytesaskedfor)
 {
-   return EDKVfread(__ptr,__size,__nitems,__stream);
+   bytesreceived=fread(DICMbuf+DICMidx,1,bytesaskedfor,stdin);
+   if (bytesreceived>0xFFFFFFFF)return 0;
+   DICMidx+=bytesreceived;
+   return (bytesaskedfor==bytesreceived);
 }
 
-//returns true when 8 bytes were read
-bool _DKVfread8(uint8_t *buffer, u64 *bytesReadRef)
+//reads to DICMbuf and copies to kbuf
+//returns true when 8(+4) bytes were read
+bool _DKVfreadattr(u8 kloc)
 {
-   return EDKVfread8(buffer, bytesReadRef);
+   if (fread(DICMbuf+DICMidx,1,8,stdin)!=8)
+   {
+      if (ferror(stdin)) E("%s","stdin error");
+      return false;
+   }
+   
+   //group LE>BE
+   kbuf[kloc]=DICMbuf[DICMidx+1];
+   kbuf[kloc+1]=DICMbuf[DICMidx];
+   //element LE>BE
+   kbuf[kloc+2]=DICMbuf[DICMidx+3];
+   kbuf[kloc+3]=DICMbuf[DICMidx+2];
+   //vr vl copied (LE)
+   kbuf[kloc+4]=DICMbuf[DICMidx+4];
+   kbuf[kloc+5]=DICMbuf[DICMidx+5];
+   kbuf[kloc+6]=DICMbuf[DICMidx+6];
+   kbuf[kloc+7]=DICMbuf[DICMidx+7];
+
+   switch ((DICMbuf[DICMidx+5]<<8)|(DICMbuf[DICMidx+4])) {
+      case OB://other byte
+      case OW://other word
+      case OD://other double
+      case OF://other float
+      case OL://other long
+      case SV://signed 64-bit very long
+      case OV://other 64-bit very long
+      case UV://unsigned 64-bit very long
+      case UC://unlimited characters
+      case UT://unlimited text
+      case UR://universal resrcurl identifier/locator
+      case SQ://sequence
+      {
+         DICMidx+=8;
+         if (fread(DICMbuf+DICMidx,1,4,stdin)!=4)
+         {
+            if (ferror(stdin)) E("%s","stdin error");
+            return false;
+         }
+         memcpy(kbuf+kloc+8, DICMbuf+DICMidx, 4);
+         DICMidx+=4;
+      }break;
+      default:
+      {
+         //IA,IZ,SZ require postprocessing in dicm2dckv
+         DICMidx+=8;
+         memcpy(kbuf+kloc+8, DICMbuf+DICMidx-2, 2);
+         kbuf[kloc+10]=0;
+         kbuf[kloc+11]=0;
+      }break;
+   }
+   
+   return true;
 }
 
 
-#pragma mark - static
+#pragma mark - instance transactions
 
 static u16 PCSidx;
-static u32 roottag;
-
-#pragma mark - methods overriden by edckv
-
 bool _DKVcreate(
-   char *DICMbuf,
-   u64 *DICMidx,
    u64 soloc,         // offset in valbyes for sop class
    u16 solen,         // length in valbyes for sop class
    u16 soidx,         // index in const char *scstr[]
@@ -1034,15 +1084,11 @@ bool _DKVcreate(
    u16 silen,         // length in valbyes for sop instance uid
    u64 stloc,         // offset in valbyes for transfer syntax
    u16 stlen,         // length in valbyes for transfer syntax
-   u16 stidx,         // index in const char *csstr[]
-   s16 siidx          // SOPinstance index
+   u16 stidx         // index in const char *csstr[]
 )
 {
    PCSidx=0;//to determine if the attribute is patient, exam or series level
-
    return EDKVcreate(
-   DICMbuf,
-   DICMidx,
    soloc,
    solen,
    soidx,
@@ -1050,33 +1096,27 @@ bool _DKVcreate(
    silen,
    stloc,
    stlen,
-   stidx,
-   siidx
+   stidx
    );
 }
 
 
-bool _DKVcommit(s16 *siidx)
+bool _DKVcommit(void)
 {
-   return EDKVcommit(siidx);
+   return EDKVcommit();
 }
 
 
-bool _DKVclose(s16 *siidx)
+bool _DKVclose(void)
 {
-   return EDKVclose(siidx);
+   return EDKVclose();
 }
 
 
-#pragma mark - method discriminating kv by types and calling corresponding edckv method
-bool _DKVappend(
-              u32                kloc,
-              bool               vlenisl,
-              enum kvVRcategory  vrcat,
-              u64                vloc,
-              u32                vlen,
-              bool               fromstdin
-              )
+
+#pragma mark - write
+
+bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    //skip sequence and item delimiters
    if (vrcat==kvSA){D("%s","SA");return true;}
@@ -1085,86 +1125,83 @@ bool _DKVappend(
    if (vrcat==kvSZ){D("%s","SZ");return true;}
    
    //skip group length
-   roottag=u32swap(*(u32*)kbuf);
-   if ( 0 == roottag % 0x10000 )
-   {
-      fread(vbuf,1,vlen,stdin);
-      return true;
-   }
+   u32 Lbaseattr=u32swap(baseattr->t);
+   if (!(Lbaseattr | 0xFFFF)) return true;
    
 #pragma mark private
    if (kbuf[1] & 1)
    {
-      D("P %08X",roottag);
-      return PDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+      D("P %08X",baseattr->t);
+      return appendPDKV(kloc,vrcat,vlen);
    }
 
    switch (vrcat) {
       case kvUN:{
-         D("P %08X",roottag);//private unknown
-         return PDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("P %08X",baseattr->t);//private unknown
+         return appendPDKV(kloc,vrcat,vlen);
       }
       case kvnativeOB:{
-         D("B %08X",roottag);
-         return appendnativeOB(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("B %08X",baseattr->t);
+         return appendnativeOB(kloc,vrcat,vlen);
       }
       case kvnativeOW:{
-         D("W %08X",roottag);//native word
-         return appendnativeOW(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("W %08X",baseattr->t);//native word
+         return appendnativeOW(kloc,vrcat,vlen);
       }
       case kvnativeOF:{
-         D("F %08X",roottag);//
-         return appendnativeOF(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("F %08X",baseattr->t);//
+         return appendnativeOF(kloc,vrcat,vlen);
       }
       case kvnativeOD:{
-         D("D %08X",roottag);
-         return appendnativeOD(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("D %08X",baseattr->t);
+         return appendnativeOD(kloc,vrcat,vlen);
       }
       case kvnativeOC:{
-         D("C %08X",roottag);//comprimido metadata
-         return appendnativeOC(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("C %08X",baseattr->t);//comprimido metadata
+         return appendnativeOC(kloc,vrcat,vlen);
       }
       case kvframesOB:{
-         D("B %08X",roottag);
-         return appendframesOB(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("B %08X",baseattr->t);
+         return appendframesOB(kloc,vrcat,vlen);
       }
       case kvframesOC:{
-         D("B %08X",roottag);
-         return appendframesOC(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+         D("B %08X",baseattr->t);
+         return appendframesOC(kloc,vrcat,vlen);
       }
 
       default:
       {
          //PCSidx: index of next little endian tag in PCStag table (patient, clinical study, series)
          //if current tag is lower than PCStag[PCSidx], current tag is instance or frame tag
-         if (roottag < PCStag[PCSidx])
+         
+         if (Lbaseattr < PCStag[PCSidx])
          {
-            D("I %08X",roottag);
-            return IDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+            D("I %08X",Lbaseattr);
+            return appendIDKV(kloc,vrcat,vlen);
          }
          else
          {
-            while ((roottag > PCStag[PCSidx]) && (PCSidx < 234)) (PCSidx)++;
-            if (roottag == PCStag[PCSidx])
+            while ((Lbaseattr > PCStag[PCSidx]) && (PCSidx < 234)) (PCSidx)++;
+            if (Lbaseattr == PCStag[PCSidx])
             {
                if (PCStype[PCSidx]==0)
                {
-                  D("E %08X",roottag);
-                  return EDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+                  D("E %08X",Lbaseattr);
+                  return appendEDKV(kloc,vrcat,vlen);
                }
                else
                {
-                  D("S %08X",roottag);
-                  return SDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+                  D("S %08X",Lbaseattr);
+                  return appendSDKV(kloc,vrcat,vlen);
                }
             }
             else
             {
-               D("I %08X",roottag);
-               return IDKVappend(kbuf,kloc,vlenisl,vrcat,vloc,vlen,fromStdin,vbuf);
+               D("I %08X",Lbaseattr);
+               return appendIDKV(kloc,vrcat,vlen);
             }
          }
-         E("dckvapi unknown or misplaced %08X\n",roottag);
+         E("dckvapi unknown or misplaced %08X\n",Lbaseattr);
          return false;//should not be here
       }
    }

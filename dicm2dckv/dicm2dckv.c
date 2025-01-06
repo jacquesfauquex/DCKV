@@ -104,35 +104,35 @@ bool dicmuptosopts(void)
    if (DICMidx!=158) return false;
    if (DICMbuf[128]!=0x44 || DICMbuf[129]!=0x49 || DICMbuf[130]!=0x43 || DICMbuf[131]!=0x4D) return false;
    
-   struct trcl attr;
+   struct trcl tosptsattr;
 #pragma mark read sop object [so] (=sop class)
-   if (_DKVfread( 8)!=8) return false;
-   memcpy(&attr.t,DICMbuf+DICMidx-8,4);
-   if (attr.t!=L00020002) return false;
+   if (!_DKVfread(8)) return false;
+   memcpy(&tosptsattr.t,DICMbuf+DICMidx-8,4);
+   if (tosptsattr.t!=L00020002) return false;
    u16 solen=DICMbuf[DICMidx-2]+(DICMbuf[DICMidx-1]<<8);
    u64 soloc=DICMidx;
-   if (_DKVfread( solen)!=solen){E("%s","bad 00020002");return false;}
+   if (!_DKVfread(solen)){E("%s","bad 00020002");return false;}
    solen-=(DICMbuf[soloc + solen - 1]==0x0);//remove last 0x0
    u16 soidx=sopclassidx( DICMbuf+soloc, solen);
    if (soidx==0) return false;//no valid sopclass
 
 #pragma mark read sop instance uid [si]
-   if (_DKVfread( 8)!=8) return false;
-   memcpy(&attr.t,DICMbuf+DICMidx-8,4);
-   if (attr.t!=L00020003) return false;
+   if (!_DKVfread(8)) return false;
+   memcpy(&tosptsattr.t,DICMbuf+DICMidx-8,4);
+   if (tosptsattr.t!=L00020003) return false;
    u16 silen=DICMbuf[DICMidx-2]+(DICMbuf[DICMidx-1]<<8);
    u64 siloc=DICMidx;
-   if (_DKVfread( silen)!=silen){E("%s","bad 00020003");return false;}
+   if (!_DKVfread( silen)){E("%s","bad 00020003");return false;}
    silen-=(DICMbuf[siloc + silen - 1]==0x0);//remove last 0x0
 
 
 #pragma mark read transfer syntax
-   if (_DKVfread( 8)!=8) return false;
-   memcpy(&attr.t,DICMbuf+DICMidx-8,4);
-   if (attr.t!=L00020010) return false;
+   if (!_DKVfread(8)) return false;
+   memcpy(&tosptsattr.t,DICMbuf+DICMidx-8,4);
+   if (tosptsattr.t!=L00020010) return false;
    u16 stlen=DICMbuf[DICMidx-2]+(DICMbuf[DICMidx-1]<<8);
    u64 stloc=DICMidx;
-   if (_DKVfread( stlen)!=stlen){E("%s","bad 00020010");return false;}
+   if (!_DKVfread(stlen)){E("%s","bad 00020010");return false;}
    stlen-=(DICMbuf[stloc + stlen - 1]==0x0);//remove last 0x0
    u16 stidx=tsidx( DICMbuf+stloc, stlen);
    if (stidx==0) return false;
@@ -166,11 +166,11 @@ bool dicm2dckvDataset(
    )
    {
       switch (attr->r) {
-         case FD: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvFD,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
-         case FL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvFL,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
-         case SL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvSL,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
-         case SS: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvSS,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
-         case UL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvUL,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case FD: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvFD,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
+         case FL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvFL,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
+         case SL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvSL,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
+         case SS: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvSS,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
+         case UL: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvUL,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
          case US: {
             attr->c=REPERTOIRE_GL;
             switch (   attr->t) {
@@ -184,9 +184,9 @@ bool dicm2dckvDataset(
                case B00280106: if (!_DKVappend(kloc,kvplanar,attr->l)) return false; break;//planar
                default:        if (!_DKVappend(kloc,kvUS,    attr->l)) return false;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
-         case AT: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvAT,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case AT: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvAT,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
          case UI: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -198,10 +198,10 @@ bool dicm2dckvDataset(
                //case B00081150:
                default:        if (!_DKVappend(kloc,kvUI,  attr->l)) return false;break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case AS:
-         case DT: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvTP,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case DT: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvTP,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
          case DA: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -210,7 +210,7 @@ bool dicm2dckvDataset(
                case B00100030: if (!_DKVappend(kloc,kvpbirth,attr->l)) return false;break;
                default:        if (!_DKVappend(kloc,kvTP,    attr->l)) return false;break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case TM: {
             attr->c=REPERTOIRE_GL;
@@ -218,7 +218,7 @@ bool dicm2dckvDataset(
                case B00080031: if (!_DKVappend(kloc,kvstime,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kvTP,   attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case CS: {
             attr->c=REPERTOIRE_GL;
@@ -255,10 +255,10 @@ bool dicm2dckvDataset(
                } break;
                default:        if (!_DKVappend(kloc,kvTA,       attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case AE:
-         case DS: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvTA,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case DS: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kvTA,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
          case IS: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -267,7 +267,7 @@ bool dicm2dckvDataset(
                case B00200013:if (!_DKVappend(kloc,kvinumber, attr->l)) return false; break;
                default:       if (!_DKVappend(kloc,kvTA,      attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case LO:
          case LT: {
@@ -290,7 +290,7 @@ bool dicm2dckvDataset(
                } break;
                default:        if (!_DKVappend(kloc,kvTS,      attr->l)) return false;break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case SH: {
             attr->c=keycs;
@@ -310,7 +310,7 @@ bool dicm2dckvDataset(
                } break;
                default:        if (!_DKVappend(kloc,kvTS,    attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case ST: {
             attr->c=keycs;
@@ -319,7 +319,7 @@ bool dicm2dckvDataset(
                case B00420010: if (!_DKVappend(kloc,kvsdoctitle,attr->l)) return false; break;//kvsdoctitle ST DocumentTitle 00420010
                default:        if (!_DKVappend(kloc,kvTS,       attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case PN: {
             attr->c=keycs;
@@ -330,7 +330,7 @@ bool dicm2dckvDataset(
                case B00321032: if (!_DKVappend(kloc,kvreq,  attr->l)) return false; break;//requesting
                default:        if (!_DKVappend(kloc,kvPN,   attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case OB: {
             attr->c=REPERTOIRE_GL;
@@ -371,7 +371,7 @@ bool dicm2dckvDataset(
                    */
                default:        if (!_DKVappend(kloc,kv01,       attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case OW: {
             attr->c=REPERTOIRE_GL;
@@ -379,7 +379,7 @@ bool dicm2dckvDataset(
                case B7FE00010: if (!_DKVappend(kloc,kvnativeOW,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case OD: {
             attr->c=REPERTOIRE_GL;
@@ -387,7 +387,7 @@ bool dicm2dckvDataset(
                case B7FE00010: if (!_DKVappend(kloc,kvnativeOD,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case OF: {
             attr->c=REPERTOIRE_GL;
@@ -395,10 +395,10 @@ bool dicm2dckvDataset(
                case B7FE00010: if (!_DKVappend(kloc,kvnativeOF,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case OL:
-         case SV: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kv01,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case SV: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kv01,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
          case OV: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -406,7 +406,7 @@ bool dicm2dckvDataset(
                case B7FE00002: if (!_DKVappend(kloc,kvfl,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
          case UV: {
             attr->c=REPERTOIRE_GL;
@@ -414,9 +414,9 @@ bool dicm2dckvDataset(
                case B7FE00003: if (!_DKVappend(kloc,kvft,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
-         case UC: { attr->c=keycs;         if (!_DKVappend(kloc,kvTL,attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;
+         case UC: { attr->c=keycs;         if (!_DKVappend(kloc,kvTL,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
          case UT: {
             attr->c=keycs;
             switch (attr->t) {
@@ -424,9 +424,9 @@ bool dicm2dckvDataset(
                case B00400032: if (!_DKVappend(kloc,kveau,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kvTL, attr->l)) return false; break;
             }
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
-         case UR: { attr->c=ISO_IR192;     if (!_DKVappend(kloc,kvTU, attr->l)) return false; if (! _DKVfreadattr(kloc)) return false;} break;//RFC3986
+         case UR: { attr->c=ISO_IR192;     if (!_DKVappend(kloc,kvTU, attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;//RFC3986
 #pragma mark SQ
          case SQ://sequence
          {
@@ -457,7 +457,7 @@ bool dicm2dckvDataset(
 #pragma mark item level
                kloc+=8;
                //for each first attr fffee000 of any new item
-               if (! _DKVfreadattr(kloc)) return false;
+               if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
                struct trcl * itemattr=(struct trcl*) (kbuf+kloc);
                u32 *delimiter=(u32*) (kbuf+kloc);//tag
                while ((DICMidx < beforebyteSQ) && (*delimiter==0x00E0FEFF)) //itemstart compulsory
@@ -489,10 +489,11 @@ bool dicm2dckvDataset(
                         itemattr->r=IZ;
                         itemattr->l=0;
                      if (!_DKVappend(kloc,kvIZ, itemattr->l)) return false;
-                     if (!_DKVfreadattr(kloc)) return false;
+                     if (!_DKVfreadattr(kloc))  {attr->t=u32swap(beforetag);attr->r=0xFFFF;};
                   }
                   else
                   {
+                     if (itemattr->r==0xFFFF) return false;//could not read next itemattr with item dataset
                      if (!_DKVappend(kloc,kvIZ, itemattr->l)) return false;
                   }
                   *itemnumber=u32swap(u32swap(*itemnumber)+1);
@@ -504,7 +505,7 @@ bool dicm2dckvDataset(
                //   itemattr may be SZ or post SQ
                if (u32swap(itemattr->t)==0xfffee0dd)
                {
-                  if (! _DKVfreadattr(kloc)) return false;
+                  if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
                }
                else
                {
@@ -523,7 +524,7 @@ bool dicm2dckvDataset(
              //5. The Value Length Field of VR UN may contain Undefined Length (FFFFFFFFH), in which case the contents can be assumed to be encoded with Implicit VR. See Section 7.5.1 to determine how to parse Data Elements with an Undefined Length.
             attr->l=REPERTOIRE_GL;
             if (!_DKVappend(kloc,kvUN, attr->l)) return false;
-            if (! _DKVfreadattr(kloc)) return false;
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
             
          case 0xFFFF:return true;//end of buffer
@@ -557,13 +558,13 @@ bool dicm2dckvDataset(
    return true;
 }
 
-
+struct trcl * baseattr;
 bool dicm2dckvInstance(
    u64 beforebyte,     // limite superior de lectura
    u32 beforetag       // limite superior attr. Al salir, el attr se encuentra leido y guardado en kbuf
 )
 {
-   struct trcl * baseattr=(struct trcl*) kbuf;
+   baseattr=(struct trcl*) kbuf;
    
    if (!_DKVfreadattr(0))return false;
    if (dicm2dckvDataset(

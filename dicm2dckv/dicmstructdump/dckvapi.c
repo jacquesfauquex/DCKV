@@ -11,12 +11,15 @@ extern u64 DICMidx;
 extern s16 siidx;
 extern uint8_t *kbuf;
 
-u32 _DKVfread(u32 Baskedfor)
+#pragma mark - read
+
+static u64 bytesreceived;
+bool _DKVfread(u32 bytesaskedfor)
 {
-   u64 Breceived=fread(DICMbuf+DICMidx,1,Baskedfor,stdin);
-   if (Breceived>0xFFFFFFFF)return 0;
-   DICMidx+=Breceived;
-   return (u32)Breceived;
+   bytesreceived=fread(DICMbuf+DICMidx,1,bytesaskedfor,stdin);
+   if (bytesreceived>0xFFFFFFFF)return 0;
+   DICMidx+=bytesreceived;
+   return (bytesaskedfor==bytesreceived);
 }
 
 
@@ -79,6 +82,8 @@ bool _DKVfreadattr(u8 kloc)
 
 const char *space=" ";
 
+#pragma mark - instance transactions
+
 bool _DKVcreate(
    u64 soloc,         // offset in valbyes for sop class
    u16 solen,         // length in valbyes for sop class
@@ -90,8 +95,6 @@ bool _DKVcreate(
    u16 stidx          // index in const char *csstr[]
 )
 {
-   //static
-
    D("dump create #%d",siidx);
    printf("     144 %s\n","00020001 OB 0000 {156,2}");
    printf("%8llu 00020002 UI 0000 \"%s\" [%hu]\n",soloc,DICMbuf+soloc,soidx);
@@ -113,12 +116,13 @@ bool _DKVclose(void)
    return true;
 }
 
+#pragma mark - write
 
 bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    switch (vrcat) {
-      case kvSA:printf("%8llu%*s%02X%02X%02X%02X+\n",DICMidx-12,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);break;
-      case kvSZ:printf("%8llu%*s%02X%02X%02X%02X~\n",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);break;
+      case kvSA: printf("%8llu%*s%02X%02X%02X%02X+\n",DICMidx-12,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);break;
+      case kvSZ: printf("%8llu%*s%02X%02X%02X%02X~\n",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3]);break;
       case kvIA: printf("%8llu %*s%02X%02X%02X%02X+\n",DICMidx-8,kloc+kloc-8,space,kbuf[kloc-4],kbuf[kloc-3],kbuf[kloc-2],kbuf[kloc-1]);break;
       case kvIZ: printf("%8llu %*s%02X%02X%02X%02X~\n",DICMidx-8,kloc+kloc-8,space,kbuf[kloc-4],kbuf[kloc-3],kbuf[kloc-2],kbuf[kloc-1]);break;
       case kv01://OB OD OF OL OV OW SV UV
@@ -135,7 +139,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
       case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
       case kvUN: {
          printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-12,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
-         if (_DKVfread(vlen)!=vlen) return false;
+         if (!_DKVfread(vlen)) return false;
          printf("{%llu,%u}\n",DICMidx-vlen,vlen);
       }break;
       case kvTL://UC
@@ -149,7 +153,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             u32 repidx=kbuf[kloc+6] + (kbuf[kloc+7] << 8);
             u32 charstart=(u32)DICMidx;
             u32 utf8length=0;
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             utf8(repidx,DICMbuf,charstart,vlen,DICMbuf,(u32)DICMidx,&utf8length);
             printf( "\"%.*s\"\n", utf8length,DICMbuf+DICMidx );
          }
@@ -160,7 +164,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
          {
             printf("(");
             double d;
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=8)
             {
                memcpy(&d, DICMbuf+idx, 8);
@@ -176,7 +180,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
          {
             printf("(");
             float f;
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
             {
                memcpy(&f, DICMbuf+idx, 4);
@@ -192,7 +196,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
          {
             printf("(");
             s32 s4B;
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
             {
                memcpy(&s4B, DICMbuf+idx, 4);
@@ -208,7 +212,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
          {
             printf("(");
             s16 s2B;
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
             {
                memcpy(&s2B, DICMbuf+idx, 2);
@@ -224,7 +228,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
          {
             printf("(");
             u32 u4B;
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=4)
             {
                memcpy(&u4B, DICMbuf+idx, 4);
@@ -248,7 +252,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
          {
             printf("(");
             u16 u2B;
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
             {
                memcpy(&u2B, DICMbuf+idx, 2);
@@ -263,7 +267,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
          if (vlen > 0)
          {
             printf("(");
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             for (u16 idx=DICMidx-vlen; idx<DICMidx; idx+=2)
             {
                printf(" %04x%04x",*DICMbuf+idx,*DICMbuf+idx+1);
@@ -296,7 +300,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
         printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
         if (vlen > 0)
         {
-           if (_DKVfread(vlen)!=vlen) return false;
+           if (!_DKVfread(vlen)) return false;
            printf( "\"%.*s\"\n", vlen,DICMbuf+DICMidx-vlen );
         }
         else printf("\"\"\n");
@@ -326,7 +330,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
             u32 repidx=kbuf[kloc+6] + (kbuf[kloc+7] << 8);
             u32 charstart=(u32)DICMidx;
             u32 utf8length=0;
-            if (_DKVfread(vlen)!=vlen) return false;
+            if (!_DKVfread(vlen)) return false;
             utf8(repidx,DICMbuf,charstart,vlen,DICMbuf,(u32)DICMidx,&utf8length);
             printf( "\"%.*s\"\n", utf8length,DICMbuf+DICMidx );
          }

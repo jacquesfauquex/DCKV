@@ -10,17 +10,15 @@ extern u64 DICMidx;
 extern s16 siidx;
 extern uint8_t *kbuf;
 
-static FILE *outFile;
+#pragma mark - read
 
-static char *dbpath;
-const char *backslash = "\\";
-
-u32 _DKVfread(u32 Baskedfor)
+static u64 bytesreceived;
+bool _DKVfread(u32 bytesaskedfor)
 {
-   u64 Breceived=fread(DICMbuf+DICMidx,1,Baskedfor,stdin);
-   if (Breceived>0xFFFFFFFF)return 0;
-   DICMidx+=Breceived;
-   return (u32)Breceived;
+   bytesreceived=fread(DICMbuf+DICMidx,1,bytesaskedfor,stdin);
+   if (bytesreceived>0xFFFFFFFF)return 0;
+   DICMidx+=bytesreceived;
+   return (bytesaskedfor==bytesreceived);
 }
 
 //returns true when 8(+4) bytes were read
@@ -28,7 +26,7 @@ bool _DKVfreadattr(u8 kloc)
 {
    if (fread(DICMbuf+DICMidx,1,8,stdin)!=8)
    {
-      if (ferror(stdin)) E("%s","stdin error");
+      if (ferror(stdin)) D("%s","stdin error");
       return false;
    }
    
@@ -80,6 +78,9 @@ bool _DKVfreadattr(u8 kloc)
    return true;
 }
 
+#pragma mark - instance transactions
+static char *dbpath;
+static FILE *outFile;
 
 bool _DKVcreate(
    u64 soloc,         // offset in valbyes for sop class
@@ -99,13 +100,30 @@ bool _DKVcreate(
    outFile=fopen(dbpath, "w");
    return true;
 }
-bool _DKVcommit(void){
-   return _DKVclose();
-}
+
 bool _DKVclose(void){
    fclose(outFile);
    return true;
 }
+
+static u32 titlerepidx=0;
+static u32 titleoffset=0;
+static u32 titlelength=0;
+static u32 documentoffset=0;
+static u32 documentlength=0;
+bool _DKVcommit(void){
+   //title charset -> utf-8
+   u32 utf8length=0;
+   utf8(titlerepidx,DICMbuf,titleoffset,titlelength,DICMbuf,(u32)DICMidx,&utf8length);
+   printf( "%.*s\n", utf8length,DICMbuf+DICMidx );
+   
+   //write document
+   if (!fwrite(DICMbuf+documentoffset ,1, documentlength , outFile)) return false;
+
+   return _DKVclose();
+}
+
+#pragma mark - write
 
 bool _DKVappend(int kloc, enum kvVRcategory  vrcat, u32 vlen)
 {
@@ -115,23 +133,17 @@ bool _DKVappend(int kloc, enum kvVRcategory  vrcat, u32 vlen)
       case kvIA:
       case kvIZ: break;
       case kvsdoctitle: { //ST  DocumentTitle 00420010
-         if (vlen > 0)
-         {
-            //charset -> utf-8
-            u32 repidx=kbuf[kloc+6] + (kbuf[kloc+7] << 8);
-            u32 charstart=(u32)DICMidx;
-            u32 utf8length=0;
-            if (_DKVfread(vlen)!=vlen) return false;
-            utf8(repidx,DICMbuf,charstart,vlen,DICMbuf,(u32)DICMidx,&utf8length);
-            printf( "%.*s\n", utf8length,DICMbuf+DICMidx );
-         }
+         titlerepidx=kbuf[kloc+6] + (kbuf[kloc+7] << 8);
+         titleoffset=(u32)DICMidx;
+         titlelength=vlen;
+         if ((vlen > 0) && (!_DKVfread(vlen))) return false;
       } break;
       case kvsdocument: { //OB encapsulaed document
-         if (_DKVfread(vlen)!=vlen) return false;
-         u32 documentlength=vlen - (DICMbuf[DICMidx-1]==0);//last char 0x00 ?
-         if (!fwrite(DICMbuf+DICMidx-vlen ,1, documentlength , outFile)) return false;
+         if (!_DKVfread(vlen)) return false;
+         documentoffset=(u32)(DICMidx-vlen);
+         documentlength=vlen - (DICMbuf[DICMidx-1]==0);//last char 0x00 ?
       } break;
-      default:if (_DKVfread(vlen)!=vlen) return false;break;
+      default:if (!_DKVfread(vlen)) return false;break;
    }
    return true;
 }

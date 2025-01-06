@@ -5,11 +5,14 @@
 
 #include "edckvapi.h"
 
+extern char *DICMbuf;
+extern u64 DICMidx;
+extern s16 siidx;
+extern uint8_t *kbuf;
+
 
 #pragma mark - static
 static size_t bytesread;
-//static char *DICMbuf;
-static u32 DICMidx=0;
 static FILE *fileptr;
 struct stat st={0};//for directory creation
 static char dirpath[256];
@@ -154,56 +157,9 @@ static u16  high;
 static u16  pixrep;
 static u16  planar;
 
-
-#pragma mark - overwrite read hooks
-size_t EDKVfread(
-                     void * __restrict __ptr,
-                     size_t __size,
-                     size_t __nitems,
-                     FILE * __restrict __stream
-                     )
-{
-   
-   bytesread=fread(__ptr,__size,__nitems,__stream);
-   DICMidx+=bytesread;
-   return bytesread;
-}
-
-
-
-//returns true when 8 bytes were read
-u8 swapchar;
-bool EDKVfread8(uint8_t *buffer, u64 *bytesReadRef)
-{
-   *bytesReadRef=EDKVfread(buffer, 1, 8, stdin);
-   if (ferror(stdin)){
-      E("%s","stdin error");
-      return false;
-   }
-   
-   if (*bytesReadRef==8){
-      swapchar=*buffer;
-      *buffer=*(buffer+1);
-      *(buffer+1)=swapchar;
-      swapchar=*(buffer+2);
-      *(buffer+2)=*(buffer+3);
-      *(buffer+3)=swapchar;
-   }
-   else
-   {
-      *buffer=0xFF;
-      *(buffer+1)=0xFF;
-      *(buffer+2)=0xFF;
-      *(buffer+3)=0xFF;
-   }
-   return true;
-}
-
 static u16 isoidx=0;
 static u16 istidx=0;
 bool EDKVcreate(
-   char *DICMbuf,
-   u64 *DICMidx,
    u64 soloc,         // offset in valbyes for sop class
    u16 solen,         // length in valbyes for sop class
    u16 soidx,         // index in const char *scstr[]
@@ -211,8 +167,7 @@ bool EDKVcreate(
    u16 silen,         // length in valbyes for sop instance uid
    u64 stloc,         // offset in valbyes for transfer syntax
    u16 stlen,         // length in valbyes for transfer syntax
-   u16 stidx,         // index in const char *csstr[]
-   s16 siidx          // SOPinstance index
+   u16 stidx          // index in const char *csstr[]
 )
 {
    isoidx=soidx;//class
@@ -767,18 +722,6 @@ bool morebuf(enum EDKVfamily f, u32 vlen)
          }
          Ibuf=newbuf;
       } break;
-      case FDKV:{
-         if (vlen > 0xFF00) {
-            newbuf=realloc(Fbuf,Fmax+vlen+0x00FF);
-            if (newbuf == NULL) return false;
-            Fmax+=vlen+0x00FF;
-         } else {
-            newbuf=realloc(Fbuf,Fmax+0xFFFF);
-            if (newbuf == NULL) return false;
-            Fmax+=0xFFFF;
-         }
-         Fbuf=newbuf;
-      } break;
       default:
          return false;
          break;
@@ -790,7 +733,7 @@ bool morebuf(enum EDKVfamily f, u32 vlen)
 
 #pragma mark -
 
-bool EDKVcommit(s16 *siidx)
+bool EDKVcommit(void)
 {
    fileptr=fopen("edckv.dcm", "w");
    if (fileptr == NULL) return false;
@@ -1063,33 +1006,23 @@ bool EDKVcommit(s16 *siidx)
    
    snumber=0;
    inumber=0;
-   return _DKVclose(siidx);
+   return _DKVclose();
 }
 
 
-bool EDKVclose(s16 *siidx)
+bool EDKVclose(void)
 {
    sqlite3_finalize(eblake3stmt);
    sqlite3_finalize(einsertstmt);
    sqlite3_free(dberr);
    sqlite3_close(db);
    DICMidx=0;
-   I("!#%d",*siidx);
    return true;
 }
 
 #pragma mark -
 
-bool EDKVappend( //patient and study level attributes
-   uint8_t            *kbuf,    //contextualized key value buffer
-   u32                kloc,     //offset of current attribute in key
-   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-   enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-   u64                vloc,     //value location in input stream
-   u32                vlen,     //value length
-   bool               fromStdin,//value to be read, or already read in vbuf
-   uint8_t            *vbuf     //buffer for values
-)
+bool appendEDKV(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    //freeing buffer necesary?
    if ((vlen + 21 + kloc + Eidx > Emax) && !morebuf(EDKV,vlen)) return false;
@@ -1110,11 +1043,8 @@ bool EDKVappend( //patient and study level attributes
    memcpy(Ebuf+Eidx, &vlen, 4);
    Eidx+=4;
    if (vlen==0) return true;
-   //value with contents
-
-   if (fromStdin){if(EDKVfread(Ebuf+Eidx,1,vlen,stdin)!=vlen) return false;}
-   else memcpy(Ebuf+Eidx, vbuf, vlen);//from vbuf
-   
+   if (!_DKVfread(vlen)) return false;
+   memcpy(Ebuf+Eidx, DICMbuf+DICMidx-vlen, vlen);
    switch (vrcat)
    {
       case kveuid://StudyInstanceUID
@@ -1275,16 +1205,7 @@ bool EDKVappend( //patient and study level attributes
    return true;
 }
 
-bool SDKVappend(//seWe add to this category instance level attributes SR and encapsulatedCDA
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-)
+bool appendSDKV(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    //freeing buffer necesary?
    if ((vlen + 21 + kloc + Sidx > Smax) && !morebuf(SDKV,vlen)) return false;
@@ -1305,10 +1226,8 @@ bool SDKVappend(//seWe add to this category instance level attributes SR and enc
    memcpy(Sbuf+Sidx, &vlen, 4);
    Sidx+=4;
    if (vlen==0) return true;
-   //value with contents
-
-   if (fromStdin){if(EDKVfread(Sbuf+Sidx,1,vlen,stdin)!=vlen) return false;}
-   else memcpy(Sbuf+Sidx, vbuf, vlen);//from vbuf
+   if (!_DKVfread(vlen)) return false;
+   memcpy(Sbuf+Sidx, DICMbuf+DICMidx-vlen, vlen);
    switch (vrcat)
    {
       case kvsuid://SeriesInstanceUID
@@ -1351,7 +1270,7 @@ bool SDKVappend(//seWe add to this category instance level attributes SR and enc
          vlenNoPadding=Sidx+vlen-1;
          while (Sbuf[vlenNoPadding]!='>')
          {
-            printf("%d",Sbuf[vlenNoPadding]);
+            D("document tail (%d) %02X\n",vlenNoPadding,Sbuf[vlenNoPadding]);
             
             Sbuf[vlenNoPadding]=' ';
             vlenNoPadding--;
@@ -1383,16 +1302,7 @@ bool SDKVappend(//seWe add to this category instance level attributes SR and enc
    return true;
 }
 
-bool PDKVappend( //odd group and UN attributes
-   uint8_t            *kbuf,    //contextualized key value buffer
-   u32                kloc,     //offset of current attribute in key
-   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-   enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-   u64                vloc,     //value location in input stream
-   u32                vlen,     //value length
-   bool               fromStdin,//value to be read, or already read in vbuf
-   uint8_t            *vbuf     //buffer for values
-)
+bool appendPDKV(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    //freeing buffer necesary?
    if ((vlen + 21 + kloc + Pidx > Pmax) && !morebuf(PDKV,vlen)) return false;
@@ -1413,15 +1323,14 @@ bool PDKVappend( //odd group and UN attributes
    memcpy(Pbuf+Pidx, &vlen, 4);
    Pidx+=4;
    if (vlen==0) return true;
-   //value with contents
+   if (!_DKVfread(vlen)) return false;
+   memcpy(Pbuf+Pidx, DICMbuf+DICMidx-vlen, vlen);
+/*
    switch (vrcat)
    {
 #pragma mark UID
       case kvUI://unique ID
       {
-         if (fromStdin){if(EDKVfread(Pbuf+Pidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Pbuf+Pidx, vbuf, vlen);//from vbuf
-         Pidx+=vlen;
       };break;
 
 #pragma mark generic
@@ -1441,29 +1350,19 @@ bool PDKVappend( //odd group and UN attributes
       //   kvUN only private
       case kv01://OB OD OF OL OV OW SV UV
       {
-         if (fromStdin){if(EDKVfread(Pbuf+Pidx,1,vlen,stdin)!=vlen) return false;}
-         else memcpy(Pbuf+Pidx, vbuf, vlen);//from vbuf
-         Pidx+=vlen;
       };break;
 
       default: return false;
 
    }
+*/
+   Pidx+=vlen;
 
    return true;
    
 }
 
-bool IDKVappend( //any other instance level attribute
-   uint8_t            *kbuf,    //contextualized key value buffer
-   u32                kloc,     //offset of current attribute in key
-   bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-   enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-   u64                vloc,     //value location in input stream
-   u32                vlen,     //value length
-   bool               fromStdin,//value to be read, or already read in vbuf
-   uint8_t            *vbuf     //buffer for values
-)
+bool appendIDKV(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    //freeing buffer necesary?
    if ((vlen + 21 + kloc + Iidx > Imax) && !morebuf(IDKV,vlen)) return false;
@@ -1484,12 +1383,8 @@ bool IDKVappend( //any other instance level attribute
    memcpy(Ibuf+Iidx, &vlen, 4);
    Iidx+=4;
    if (vlen==0) return true;
-   //value with contents
-
-
-   if (fromStdin){if(EDKVfread(Ibuf+Iidx,1,vlen,stdin)!=vlen) return false;}
-   else memcpy(Ibuf+Iidx, vbuf, vlen);//from vbuf
-   
+   if (!_DKVfread(vlen)) return false;
+   memcpy(Ibuf+Iidx, DICMbuf+DICMidx-vlen, vlen);
    /*
     7:iclass,
     8:itype
@@ -1569,26 +1464,18 @@ bool IDKVappend( //any other instance level attribute
    return true;
 }
 
-bool appendnativeOB(
-                  uint8_t            *kbuf,    //contextualized key value buffer
-                  u32                kloc,     //offset of current attribute in key
-                  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-                  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-                  u64                vloc,     //value location in input stream
-                  u32                vlen,     //value length
-                  bool               fromStdin,//value to be read, or already read in vbuf
-                  uint8_t            *vbuf     //buffer for values
-                )
+bool appendnativeOB(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    D("%s","appendnativeOB");
    //Fbuf
    //sopuid
    //transfersyntax
    //freeing buffer necesary?
-   if ((vlen + 21 + kloc + Fidx > Fmax) && !morebuf(FDKV,vlen)) return false;
+ //  if ((vlen + 21 + kloc + Fidx > Fmax) && !morebuf(FDKV,vlen)) return false;
 
    //key length = key path length + 8 prefix + 8 current attribute
    //idx increased by 1
+/*
    Fbuf[Fidx++]=kloc+16;
    
    //prefix
@@ -1603,80 +1490,37 @@ bool appendnativeOB(
    memcpy(Fbuf+Fidx, &vlen, 4);
    Fidx+=4;
    if (vlen==0) return true;
-   //value with contents
-
-
-   if (fromStdin){if(EDKVfread(Fbuf+Fidx,1,vlen,stdin)!=vlen) return false;}
-   else memcpy(Fbuf+Fidx, vbuf, vlen);//from vbuf
-   
-
+   if (!_DKVfread(vlen)) return false;
+   memcpy(Fbuf+Fidx, DICMbuf+DICMidx-vlen, vlen);
    Fidx+=vlen;
-
+*/
    return false;
 }
 
-bool appendnativeOW(
-                  uint8_t            *kbuf,    //contextualized key value buffer
-                  u32                kloc,     //offset of current attribute in key
-                  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-                  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-                  u64                vloc,     //value location in input stream
-                  u32                vlen,     //value length
-                  bool               fromStdin,//value to be read, or already read in vbuf
-                  uint8_t            *vbuf     //buffer for values
-                )
+bool appendnativeOW(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    D("%s","appendnativeOW");
    
    return false;
 }
 
-bool appendnativeOF(
-                  uint8_t            *kbuf,    //contextualized key value buffer
-                  u32                kloc,     //offset of current attribute in key
-                  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-                  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-                  u64                vloc,     //value location in input stream
-                  u32                vlen,     //value length
-                  bool               fromStdin,//value to be read, or already read in vbuf
-                  uint8_t            *vbuf     //buffer for values
-                )
+bool appendnativeOF(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    D("%s","appendnativeOF");
      return false;
 }
 
-bool appendnativeOD(
-                  uint8_t            *kbuf,    //contextualized key value buffer
-                  u32                kloc,     //offset of current attribute in key
-                  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-                  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-                  u64                vloc,     //value location in input stream
-                  u32                vlen,     //value length
-                  bool               fromStdin,//value to be read, or already read in vbuf
-                  uint8_t            *vbuf     //buffer for values
-                )
+bool appendnativeOD(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    D("%s","appendnativeOD");
      return false;
 }
 
-bool appendnativeOC(
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-)
+bool appendnativeOC(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    //https://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_A.4
    if (vlen!=0xFFFFFFFF) return false; //0x7FE00010 fragments vlen is undefined
 
-   if (fromStdin)
-   {
       /*
        our codification does not follow the standard
        u32 number of fragments
@@ -1685,7 +1529,7 @@ bool appendnativeOC(
        fragments data
        */
       
-      
+/*
       u64 fragmentbytes=0;
       struct t4l4 *fragmentstruct=(struct t4l4*) &fragmentbytes;
       
@@ -1742,24 +1586,13 @@ bool appendnativeOC(
          vloc+=8+fragmentstruct->l;//174674 en lugar de 172954 (dif 1720)
          if (EDKVfread(&fragmentbytes, 1, 8, stdin)!=8) return false;
       }
-   }
-   else //already in buffer
-   {
-   }
+*/
    return true;
 }
 
-bool appendframesOB(
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-)
+bool appendframesOB(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
+/*
    //freeing buffer necesary?
    if ((vlen + 21 + kloc + Fidx > Fmax) && !morebuf(FDKV,vlen)) return false;
 
@@ -1807,20 +1640,13 @@ bool appendframesOB(
 
       default: return false;
    }
+ */
    return true;
 }
 
-bool appendframesOC(
-  uint8_t            *kbuf,    //contextualized key value buffer
-  u32                kloc,     //offset of current attribute in key
-  bool               vlenisl,  //attribute is long (4 bytes) or short (2 bytes)
-  enum kvVRcategory  vrcat,    //propietary vr number (ver enum)
-  u64                vloc,     //value location in input stream
-  u32                vlen,     //value length
-  bool               fromStdin,//value to be read, or already read in vbuf
-  uint8_t            *vbuf     //buffer for values
-)
+bool appendframesOC(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
+/*
    //freeing buffer necesary?
    if ((vlen + 21 + kloc + Fidx > Fmax) && !morebuf(FDKV,vlen)) return false;
 
@@ -1868,5 +1694,6 @@ bool appendframesOC(
 
       default: return false;
    }
+ */
    return true;
 }
