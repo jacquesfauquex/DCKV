@@ -40,6 +40,8 @@ static int currentIpk;
 static sqlite3_stmt *iframepksstmt;
 static sqlite3_stmt *finsertstmt;
 
+static sqlite3_stmt *tinsertstmt;
+
 static u32 vlenNoPadding;
 
 //buffers ...
@@ -291,8 +293,6 @@ static u16  high;
 static u16  pixrep;
 static u16  planar;
 
-static u16 isoidx=0;
-static u16 istidx=0;
 bool iinsert(u64 prefix)
 {
    /*
@@ -426,6 +426,28 @@ bool finsert(u64 prefix)
    return true;
 }
 
+
+bool tinsert(void)
+{
+   /*
+    0:Ifk
+      1:pk
+    2:blob BLOB
+    */
+   // int pk
+   sqlite3_bind_int( tinsertstmt, 1, currentIpk);
+   sqlite3_bind_blob(tinsertstmt, 2, DICMbuf+DICMidx-DICMlen,DICMlen, NULL);
+
+   //finalize
+   dbrc = sqlite3_step(tinsertstmt);
+   if (dbrc != SQLITE_DONE )
+   {
+      E("tinsertstmt error: %s\n", dberr);
+      return false;
+   }
+   sqlite3_reset(tinsertstmt);
+   return true;
+}
 bool EDKVcreate(
    u64 soloc,         // offset in valbyes for sop class
    u16 solen,         // length in valbyes for sop class
@@ -533,7 +555,8 @@ bool EDKVcreate(
     pk
     fnumber
     fdckv BLOB
-    nativeurl TEXT
+    DICMidx
+    DICMlen
     syntaxidx
     compressed
     fast
@@ -574,6 +597,35 @@ bool EDKVcreate(
       exit(1);
    }
    */
+
+   
+   
+#pragma mark T sqlite stmt(s)
+//existing one
+   /*
+    Ifk
+    pk
+    blob BLOB
+    */
+   /*
+   char iframepks[]="SELECT pk, fnumber FROM F WHERE Ifk=?;";
+   dbrc = sqlite3_prepare_v2(db, iframepks, sizeof(iframepks), &iframepksstmt, 0);
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot initialize iframepksstmt: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
+    */
+   char tinsertchars[] = "INSERT INTO T(Ifk,blob) VALUES(?,?)";
+   dbrc=sqlite3_prepare(db, tinsertchars, -1, &tinsertstmt, 0);
+   if (dbrc != SQLITE_OK)
+   {
+      E( "Cannot prepare tinsertstmt: %s\n", sqlite3_errmsg(db));
+      sqlite3_close_v2(db);
+      exit(1);
+   }
+
 #pragma mark pid dir
    sprintf(relativepath, "%d", getpid());
    relativepathlength=intdecsize(getpid());
@@ -790,7 +842,7 @@ u64 sqliteESIP(void)
       stepreturnstatus = sqlite3_step(sblake3stmt);
       if (stepreturnstatus != SQLITE_ROW)
       {
-         if (!sinsert(0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(isoidx)*0x100000000000000)) return false;
+         if (!sinsert(0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(classidx)*0x100000000000000)) return false;
       }
       else //suidb64 exists in S
       {
@@ -813,7 +865,7 @@ u64 sqliteESIP(void)
          }
          if (notRegistered)
          {
-            if (!sinsert(0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(isoidx)*0x100000000000000)) return false;
+            if (!sinsert(0x10|sversion|u16swap(snumber)*0x100|rversion*0x1000000|u16swap(rnumber)*0x100000000|u16swap(classidx)*0x100000000000000)) return false;
          }
       }
       //reset (not snumber y sversion que se usan para I N C)
@@ -840,7 +892,7 @@ u64 sqliteESIP(void)
       stepreturnstatus = sqlite3_step(iblake3stmt);
       if (stepreturnstatus != SQLITE_ROW)
       {
-         if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(isoidx)*0x100000000000000)) return false;
+         if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(classidx)*0x100000000000000)) return false;
       }
       else //iuidb64 exists in I
       {
@@ -863,7 +915,7 @@ u64 sqliteESIP(void)
          }
          if (notRegistered)
          {
-            if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(isoidx)*0x100000000000000)) return false;
+            if (!iinsert(0x20|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(classidx)*0x100000000000000)) return false;
          }
       }
       sqlite3_reset(iblake3stmt);
@@ -872,10 +924,14 @@ u64 sqliteESIP(void)
    }
    return true;
 }
-bool EDKVcommit(void)
+bool EDKVcommit(bool hastrailing)
 {
    if (relativepathlength<10) sqliteESIP();//no pixel handler called the method
-
+   if (hastrailing)
+   {
+      I("%s","hastrailing");
+      tinsert();
+   }
 #pragma mark write DICM
    relativepath[relativepathlength+iuidb64length]=0x00;
    fileptr=fopen(relativepath, "w");

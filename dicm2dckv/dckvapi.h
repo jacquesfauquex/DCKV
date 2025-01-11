@@ -127,7 +127,7 @@ bool _DKVcreate(
 );
 
 //called after parsing successfully all the attributes
-bool _DKVcommit(void);//aplica a todos los kv
+bool _DKVcommit(bool hastrailing);//aplica a todos los kv
 
 //finalizes the opened tx
 bool _DKVclose(void);//aplica a todos los kv

@@ -1100,9 +1100,9 @@ bool _DKVcreate(
 }
 
 
-bool _DKVcommit(void)
+bool _DKVcommit(bool hastrailing)
 {
-   return EDKVcommit();
+   return EDKVcommit(hastrailing);
 }
 
 

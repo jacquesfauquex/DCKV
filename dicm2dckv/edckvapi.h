@@ -35,7 +35,7 @@ bool EDKVcreate(
    u16 stlen,         // length in vbuf for transfer syntax
    u16 stidx         // index in const char *csstr[]
 );
-bool EDKVcommit(void);
+bool EDKVcommit(bool hastrailing);
 bool EDKVclose(void);
 
 bool appendEDKV(    int kloc,enum kvVRcategory vrcat,u32 vlen);

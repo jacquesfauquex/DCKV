@@ -554,7 +554,7 @@ bool dicm2dckvInstance(
        0,          //keycs
        beforebyte, //beforebyte
        beforetag  //beforetag
-      ) && _DKVcommit()) return true;
+      ) && _DKVcommit(baseattr)) return true;
    _DKVclose();
    return false;
 }
