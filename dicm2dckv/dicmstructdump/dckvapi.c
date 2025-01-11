@@ -102,7 +102,7 @@ bool _DKVcreate(
    printf("%8llu 00020010 UI 0000 \"%s\" [%hu]\n",stloc,DICMbuf+stloc,stidx);
    return true;
 }
-bool _DKVcommit(void)
+bool _DKVcommit(bool hastrailing)
 {
    FILE *fileptr=fopen("dicmstructdump.dcm", "w");
    if (fileptr == NULL) return false;
