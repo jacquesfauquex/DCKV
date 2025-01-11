@@ -127,13 +127,12 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
       case kvIZ: printf("%8llu %*s%02X%02X%02X%02X~\n",DICMidx-8,kloc+kloc-8,space,kbuf[kloc-4],kbuf[kloc-3],kbuf[kloc-2],kbuf[kloc-1]);break;
       case kv01://OB OD OF OL OV OW SV UV
       case kvsdocument://OB Encapsulated​Document 00420011 xml cda o pdf
-      case kvnativeOB: //OB 0x7FE00010
-      case kvnativeOW: //OW 0x7FE00010
-      case kvnativeOD: //OD 0x7FE00009
-      case kvnativeOF: //OF 0x7FE00008
-      case kvnativeOC: //OB 0x7E000010
-      case kvframesOB: //OB 0x7E000010
-      case kvframesOC: //OB 0x7E000010
+      case kvpixelOF: //OF 0x7FE00008
+      case kvpixelOD: //OD 0x7FE00009
+      case kvpixelOB: //OB 0x7FE00010
+      case kvpixelOW: //OW 0x7FE00010
+      case kvpixelOL: //OB 0x7E000010
+      case kvpixelOV: //OB 0x7E000010
       case kvfo://OV Extended​Offset​Table fragments offset 7FE00001
       case kvfl://OV Extended​Offset​TableLengths fragments offset 7FE00002
       case kvft://UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003
@@ -296,6 +295,7 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
       case kvsnumber://SeriesNumber
       case kvianumber://AcquisitionNumber
       case kvinumber://InstanceNumber
+      case kvframesnumber://Number of frames
       case kvscdaid:{ //ST HL7InstanceIdentifier 0040E001  root^extension
         printf("%8llu%*s%02X%02X%02X%02X %c%c %04X ",DICMidx-8,kloc+kloc+(kloc!=0),space, kbuf[kloc],kbuf[kloc+1],kbuf[kloc+2],kbuf[kloc+3],kbuf[kloc+4],kbuf[kloc+5],kbuf[kloc+6] + (kbuf[kloc+7] << 8));
         if (vlen > 0)

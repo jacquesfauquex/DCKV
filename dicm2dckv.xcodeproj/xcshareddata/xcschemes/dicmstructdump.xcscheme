@@ -68,7 +68,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/D/ele/MG1.ele.dcm"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/heka/GDCM/Testing/Data/GE_DLX-8-MONO2-Multiframe-Jpeg_Lossless.dcm"
@@ -92,7 +92,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/_dicom_samples/dscd.dcm"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

@@ -42,12 +42,11 @@ bool appendEDKV(    int kloc,enum kvVRcategory vrcat,u32 vlen);
 bool appendSDKV(    int kloc,enum kvVRcategory vrcat,u32 vlen);
 bool appendPDKV(    int kloc,enum kvVRcategory vrcat,u32 vlen);
 bool appendIDKV(    int kloc,enum kvVRcategory vrcat,u32 vlen);
-bool appendnativeOB(int kloc,enum kvVRcategory vrcat,u32 vlen);
-bool appendnativeOW(int kloc,enum kvVRcategory vrcat,u32 vlen);
-bool appendnativeOF(int kloc,enum kvVRcategory vrcat,u32 vlen);
-bool appendnativeOD(int kloc,enum kvVRcategory vrcat,u32 vlen);
-bool appendnativeOC(int kloc,enum kvVRcategory vrcat,u32 vlen);
-bool appendframesOB(int kloc,enum kvVRcategory vrcat,u32 vlen);
-bool appendframesOC(int kloc,enum kvVRcategory vrcat,u32 vlen);
+bool appendpixelOF(int kloc,enum kvVRcategory vrcat,u32 vlen);//7FE00008
+bool appendpixelOD(int kloc,enum kvVRcategory vrcat,u32 vlen);//7FE00009
+bool appendpixelOB(int kloc,enum kvVRcategory vrcat,u32 vlen);//7FE00010
+bool appendpixelOW(int kloc,enum kvVRcategory vrcat,u32 vlen);
+bool appendpixelOL(int kloc,enum kvVRcategory vrcat,u32 vlen);
+bool appendpixelOV(int kloc,enum kvVRcategory vrcat,u32 vlen);
 
 #endif /* edckvapi_h */

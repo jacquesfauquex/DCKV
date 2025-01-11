@@ -56,36 +56,36 @@ kvTA,//27 CS AE DS IS 13 text short ascii
           kvsnumber,//33 IS SeriesNumber
                kvianumber,//34 IS AcquisitionNumber
                kvinumber,//35 IS InstanceNumber
+               kvframesnumber,//36 IS NumberOfFrames
 
-kvTS,//36 LO LT SH ST text short charset
-    kvpay,//37 LO insurance
-    kvpide,//38 SH patient id extension
-    kvpidr,//39 LO patient id root issuer
-    kvimg,//40 LO InstitutionName 00080080
-    kvedesc,//41 LO Study name
-    kveid,//42 SH StudyID
-    kvean,//43 SH AccessionNumber 00080050
-    kvecode,//44 SQ/SH Study code 00080100,00080102
-        kvsdesc,//45 LO Series name
-        kvscdaid,//46 ST HL7InstanceIdentifier 0040E001  root^extension
-        kvsdoctitle,//47 ST DocumentTitle 00420010
-            kvicomment,//48 LO
+kvTS,//37 LO LT SH ST text short charset
+    kvpay,//38 LO insurance
+    kvpide,//39 SH patient id extension
+    kvpidr,//40 LO patient id root issuer
+    kvimg,//41 LO InstitutionName 00080080
+    kvedesc,//42 LO Study name
+    kveid,//43 SH StudyID
+    kvean,//44 SH AccessionNumber 00080050
+    kvecode,//45 SQ/SH Study code 00080100,00080102
+        kvsdesc,//46 LO Series name
+        kvscdaid,//47 ST HL7InstanceIdentifier 0040E001  root^extension
+        kvsdoctitle,//48 ST DocumentTitle 00420010
+            kvicomment,//49 LO
 
-kvPN,//49 PN person name has a special treatment in json and xml
-    kvpname,//50 PN patient name
-    kvcda,//51 PN CDA
-    kvref,//52 PN referring
-    kvreq,//53 PN requesting
+kvPN,//50 PN person name has a special treatment in json and xml
+    kvpname,//51 PN patient name
+    kvcda,//52 PN CDA
+    kvref,//53 PN referring
+    kvreq,//54 PN requesting
    
-kv01,  //54 other OB OD OF OL OV OW SV UV binary
-   kvsdocument,//55 OB Encapsulated​Document 00420011 xml cda o pdf
-   kvnativeOB, //56 OB 0x7FE00010
-   kvnativeOW, //57 OW 0x7FE00010
-   kvnativeOD, //58 OD 0x7FE00009
-   kvnativeOF, //59 OF 0x7FE00008
-   kvnativeOC, //60 OB 0x7E000010
-   kvframesOB, //61 OB 0x7E000010
-   kvframesOC, //62 OB 0x7E000010
+kv01,  //55 other OB OD OF OL OV OW SV UV binary
+   kvsdocument,//56 OB Encapsulated​Document 00420011 xml cda o pdf
+   kvpixelOF, //57 OF 0x7FE00008
+   kvpixelOD, //58 OD 0x7FE00009
+   kvpixelOB, //59 OB 0x7FE00010
+   kvpixelOW, //60 OW 0x7FE00010
+   kvpixelOL, //61 OL 0x7E000010
+   kvpixelOV, //62 OV 0x7E000010
    kvfo,//63 OV Extended​Offset​Table fragments offset 7FE00001
    kvfl,//64 OV Extended​Offset​TableLengths fragments offset 7FE00002
    kvft,//65 UV Encapsulated​Pixel​Data​Value​Total​Length 7FE00003

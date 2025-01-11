@@ -96,23 +96,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "219"
             endingLineNumber = "219"
-            landmarkName = "u8u4(byte_array, idx)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A597A9E9-2304-4D73-9EF8-5F6917305134"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/dicm2cda/dckvapi.c"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "81"
-            endingLineNumber = "81"
-            landmarkName = "_DKVcreate(DICMbuf, DICMidx, soloc, solen, soidx, siloc, silen, stloc, stlen, stidx, siidx)"
+            landmarkName = "ui2b64(ui, uilength, b64, b64length)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -126,25 +110,9 @@
             filePath = "dicm2dckv/edckvapi/dckvapi.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1112"
-            endingLineNumber = "1112"
-            landmarkName = "_DKVappend(kloc, vlenisl, vrcat, vloc, vlen, fromstdin)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "886C20E3-35D2-4FCF-8635-1A5D88DDC5DA"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1444"
-            endingLineNumber = "1444"
-            landmarkName = "PDKVappend(kbuf, kloc, vlenisl, vrcat, vloc, vlen, fromStdin, vbuf)"
+            startingLineNumber = "1155"
+            endingLineNumber = "1155"
+            landmarkName = "_DKVappend(kloc, vrcat, vlen)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -158,9 +126,9 @@
             filePath = "dicm2dckv/edckvapi/dckvapi.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1163"
-            endingLineNumber = "1163"
-            landmarkName = "_DKVappend(kloc, vlenisl, vrcat, vloc, vlen, fromstdin)"
+            startingLineNumber = "1195"
+            endingLineNumber = "1195"
+            landmarkName = "_DKVappend(kloc, vrcat, vlen)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -174,41 +142,9 @@
             filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "449"
-            endingLineNumber = "449"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
             landmarkName = "einsert()"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "6B950198-016B-4F57-83A8-C4AD38203136"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1539"
-            endingLineNumber = "1539"
-            landmarkName = "IDKVappend(kbuf, kloc, vlenisl, vrcat, vloc, vlen, fromStdin, vbuf)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "D81109A2-8D6D-4A46-A897-1BF5B0E31B96"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/dicm2dckv.c"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "164"
-            endingLineNumber = "164"
-            landmarkName = "dicm2dckvDataset(kloc, attr, keycs, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -222,25 +158,9 @@
             filePath = "dicm2dckv/dicm2dckv.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "570"
-            endingLineNumber = "570"
+            startingLineNumber = "551"
+            endingLineNumber = "551"
             landmarkName = "dicm2dckvInstance(beforebyte, beforetag)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "E10718C2-FD4E-4274-AF6E-DB2E345315A5"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "dicm2dckv/dicmstructdump/dckvapi.c"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "33"
-            endingLineNumber = "33"
-            landmarkName = "_DKVfreaditemtag(kloc)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -254,8 +174,8 @@
             filePath = "dicm2dckv/dicm2dckv.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "456"
-            endingLineNumber = "456"
+            startingLineNumber = "434"
+            endingLineNumber = "434"
             landmarkName = "dicm2dckvDataset(kloc, attr, keycs, beforebyte, beforetag)"
             landmarkType = "9">
          </BreakpointContent>
@@ -264,15 +184,47 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "C1713DB9-F8C3-45B4-88AB-93EC97AE0AAF"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "dicm2dckv/dicm2dckv.c"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "506"
-            endingLineNumber = "506"
+            startingLineNumber = "485"
+            endingLineNumber = "485"
             landmarkName = "dicm2dckvDataset(kloc, attr, keycs, beforebyte, beforetag)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BEAFC52C-FCC4-488A-ABE4-BCFE8D78F6A9"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/edckvapi/dckvapi.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1172"
+            endingLineNumber = "1172"
+            landmarkName = "_DKVappend(kloc, vrcat, vlen)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4D6D2FFE-0E83-4E47-A5A7-27AEB3665A87"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "dicm2dckv/edckvapi/edckv/edckvapi.c"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1242"
+            endingLineNumber = "1242"
+            landmarkName = "appendpixelOB(kloc, vrcat, vlen)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

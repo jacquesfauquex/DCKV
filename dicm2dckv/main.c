@@ -47,9 +47,7 @@ int main(int argc, const char * argv[]) {
    getcwd(cwd, sizeof(cwd));
    D("working dir:  %s", cwd);
 
-#pragma mark DICMrelativepath DICMbuffermegas
-   const char* DICMrelativepath = getenv("DICMrelativepath");
-   if (DICMrelativepath==NULL) DICMrelativepath="edckv.dcm";
+#pragma mark DICMbuffermegas
    //in MB, 0=no dicom binary output
    int DICMmegamax=300;
    const char* aDICMmegamax = getenv("DICMmegamax");

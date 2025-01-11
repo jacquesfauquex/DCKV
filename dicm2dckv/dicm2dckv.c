@@ -7,7 +7,6 @@
 
 extern char *DICMbuf;
 extern u64 DICMidx;
-extern s16 siidx;
 
 const u32 L00020002=0x00020002;
 const u32 L00020003=0x00030002;
@@ -77,6 +76,7 @@ const u32 B00080008=0x08000800;//CS image type itype
 const u32 B00204000=0x00402000;//LT compression desc (image comment)
 const u32 B00280002=0x02002800;//US spp
 const u32 B00280004=0x04002800;//CS photocode (photometric interpretation)
+const u32 B00280008=0x08002800;//IS numberOfFrames
 const u32 B00280010=0x10002800;//US rows
 const u32 B00280011=0x11002800;//US cols
 const u32 B00280100=0x00012800;//US alloc
@@ -265,6 +265,7 @@ bool dicm2dckvDataset(
                case B00200011:if (!_DKVappend(kloc,kvsnumber, attr->l)) return false; break;
                case B00200012:if (!_DKVappend(kloc,kvianumber,attr->l)) return false; break;
                case B00200013:if (!_DKVappend(kloc,kvinumber, attr->l)) return false; break;
+               case B00280008:if (!_DKVappend(kloc,kvframesnumber, attr->l)) return false; break;
                default:       if (!_DKVappend(kloc,kvTA,      attr->l)) return false; break;
             }
             if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
@@ -332,51 +333,11 @@ bool dicm2dckvDataset(
             }
             if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
-         case OB: {
+            
+         case OF: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
-               case B00420011: if (!_DKVappend(kloc,kvsdocument,attr->l)) return false; break;
-#pragma mark TODO
-                  /*
-               case B7FE00010:
-               {
-                  //native
-                   //nativeencoded
-                   //frames
-                   //encodedframes
-                  
-                  if (sopclassidxisframes(soidx))
-                  {
-                     if(stidx==2)
-                     {
-                        if (!_DKVappend(kloc,islong,kvframesOB,DICMidx,vlen,fromstdin)) return false;
-                     }
-                     else
-                     {
-                        if(!_DKVappend(kloc,islong,kvframesOC,DICMidx,vlen,fromstdin)) return false;
-                     }
-                  }
-                  else
-                  {
-                     if(stidx==2)
-                     {
-                        if (!_DKVappend(kloc,islong,kvnativeOB,DICMidx,vlen,fromstdin)) return false;
-                     }
-                     else
-                     {
-                        if(!_DKVappend(kloc,islong,kvnativeOC,DICMidx,vlen,fromstdin)) return false;
-                     }
-                  }
-               } break;
-                   */
-               default:        if (!_DKVappend(kloc,kv01,       attr->l)) return false; break;
-            }
-            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
-         } break;
-         case OW: {
-            attr->c=REPERTOIRE_GL;
-            switch (attr->t) {
-               case B7FE00010: if (!_DKVappend(kloc,kvnativeOW,attr->l)) return false; break;
+               case B7FE00010: if (!_DKVappend(kloc,kvpixelOF,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
             if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
@@ -384,30 +345,48 @@ bool dicm2dckvDataset(
          case OD: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
-               case B7FE00010: if (!_DKVappend(kloc,kvnativeOD,attr->l)) return false; break;
+               case B7FE00010: if (!_DKVappend(kloc,kvpixelOD,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
             if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
-         case OF: {
+         case OB: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
-               case B7FE00010: if (!_DKVappend(kloc,kvnativeOF,attr->l)) return false; break;
+               case B00420011: if (!_DKVappend(kloc,kvsdocument,attr->l)) return false; break;
+               case B7FE00010: if (!_DKVappend(kloc,kvpixelOB,attr->l)) return false; break;
+               default:        if (!_DKVappend(kloc,kv01,       attr->l)) return false; break;
+            }
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
+         } break;
+         case OW: {
+            attr->c=REPERTOIRE_GL;
+            switch (attr->t) {
+               case B7FE00010: if (!_DKVappend(kloc,kvpixelOW,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
             }
             if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
-         case OL:
-         case SV: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kv01,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
+         case OL: {
+            attr->c=REPERTOIRE_GL;
+            switch (attr->t) {
+               case B7FE00010: if (!_DKVappend(kloc,kvpixelOL,attr->l)) return false; break;
+               default:        if (!_DKVappend(kloc,kv01,      attr->l)) return false; break;
+            }
+            if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
+         } break;
          case OV: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
                case B7FE00001: if (!_DKVappend(kloc,kvfo,attr->l)) return false; break;
                case B7FE00002: if (!_DKVappend(kloc,kvfl,attr->l)) return false; break;
+               case B7FE00010: if (!_DKVappend(kloc,kvpixelOV,attr->l)) return false; break;
                default:        if (!_DKVappend(kloc,kv01,attr->l)) return false; break;
             }
             if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}
          } break;
+            
+         case SV: { attr->c=REPERTOIRE_GL; if (!_DKVappend(kloc,kv01,attr->l)) return false; if (! _DKVfreadattr(kloc)) {attr->t=u32swap(beforetag);attr->r=0xFFFF;}} break;
          case UV: {
             attr->c=REPERTOIRE_GL;
             switch (attr->t) {
@@ -545,16 +524,18 @@ bool dicm2dckvDataset(
    
    if (attr->t == 0xFCFFFCFF)
    {
-      attr->c=REPERTOIRE_GL;
-#pragma mark TODO
-      /*
-      if (!_DKVfread4(&vlen)) {
-         E("%s","stream end instead of vll");
-         return false;
+      if (attr->l==0) DICMidx-=12;
+      else
+      {
+         //trailing padding
+         attr->c=REPERTOIRE_GL;
+   #pragma mark TODO sqlite T
+         if (!_DKVfread(attr->l)) {
+            E("%s","trailling padding");
+            return false;
+         }
       }
-      if ((vlen > 0) && !_DKVappend(kloc,islong,kv01,DICMidx,vlen,fromstdin)) return false;
-      */
-   }
+   }      
    return true;
 }
 

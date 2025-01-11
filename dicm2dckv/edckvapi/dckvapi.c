@@ -8,7 +8,6 @@
 
 extern char *DICMbuf;
 extern u64 DICMidx;
-extern s16 siidx;
 extern uint8_t *kbuf;
 extern struct trcl * baseattr;
 
@@ -1131,42 +1130,38 @@ bool _DKVappend(int kloc,enum kvVRcategory vrcat,u32 vlen)
 #pragma mark private
    if (kbuf[1] & 1)
    {
-      D("P %08X",baseattr->t);
+      D("P %08X",Lbaseattr);
       return appendPDKV(kloc,vrcat,vlen);
    }
 
    switch (vrcat) {
       case kvUN:{
-         D("P %08X",baseattr->t);//private unknown
+         D("P %08X(UN) ",Lbaseattr);//private unknown
          return appendPDKV(kloc,vrcat,vlen);
       }
-      case kvnativeOB:{
-         D("B %08X",baseattr->t);
-         return appendnativeOB(kloc,vrcat,vlen);
+      case kvpixelOF:{
+         D("F %08X",Lbaseattr);//
+         return appendpixelOF(kloc,vrcat,vlen);
       }
-      case kvnativeOW:{
-         D("W %08X",baseattr->t);//native word
-         return appendnativeOW(kloc,vrcat,vlen);
+      case kvpixelOD:{
+         D("D %08X",Lbaseattr);
+         return appendpixelOD(kloc,vrcat,vlen);
       }
-      case kvnativeOF:{
-         D("F %08X",baseattr->t);//
-         return appendnativeOF(kloc,vrcat,vlen);
+      case kvpixelOB:{
+         D("B %08X",Lbaseattr);
+         return appendpixelOB(kloc,vrcat,vlen);
       }
-      case kvnativeOD:{
-         D("D %08X",baseattr->t);
-         return appendnativeOD(kloc,vrcat,vlen);
+      case kvpixelOW:{
+         D("W %08X",Lbaseattr);//native word
+         return appendpixelOW(kloc,vrcat,vlen);
       }
-      case kvnativeOC:{
-         D("C %08X",baseattr->t);//comprimido metadata
-         return appendnativeOC(kloc,vrcat,vlen);
+      case kvpixelOL:{
+         D("B %08X",Lbaseattr);
+         return appendpixelOL(kloc,vrcat,vlen);
       }
-      case kvframesOB:{
-         D("B %08X",baseattr->t);
-         return appendframesOB(kloc,vrcat,vlen);
-      }
-      case kvframesOC:{
-         D("B %08X",baseattr->t);
-         return appendframesOC(kloc,vrcat,vlen);
+      case kvpixelOV:{
+         D("B %08X",Lbaseattr);
+         return appendpixelOV(kloc,vrcat,vlen);
       }
 
       default:
