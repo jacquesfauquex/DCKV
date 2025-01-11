@@ -1,1 +1,3 @@
 *.DS_Store
+/dicm2dckv.xcodeproj/project.xcworkspace
+/dicm2dckv.xcodeproj/xcuserdata
