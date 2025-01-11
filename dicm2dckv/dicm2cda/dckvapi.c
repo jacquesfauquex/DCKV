@@ -111,7 +111,7 @@ static u32 titleoffset=0;
 static u32 titlelength=0;
 static u32 documentoffset=0;
 static u32 documentlength=0;
-bool _DKVcommit(void){
+bool _DKVcommit(bool hastrailing){
    //title charset -> utf-8
    u32 utf8length=0;
    utf8(titlerepidx,DICMbuf,titleoffset,titlelength,DICMbuf,(u32)DICMidx,&utf8length);
