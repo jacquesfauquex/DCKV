@@ -4,6 +4,7 @@
 // created by jacquesfauquex on 2024-04-04.
 
 #include "edckvapi.h"
+#include "opjcompress.h"
 
 extern char *DICMbuf;
 extern u64 DICMidx;
@@ -57,13 +58,18 @@ static u32 Eidx=0;
 static u32 Sidx=0;
 static u32 Iidx=0;
 static u32 Pidx=0;
-static u32 Fidx=0;
 
 static u32 Emax=0;
 static u32 Smax=0;
 static u32 Imax=0;
 static u32 Pmax=0;
 static u32 Fmax=0;
+
+static u64 Fcidx=0;
+static u64 Ffidx=0;
+static u64 Fhidx=0;
+static u64 Foidx=0;
+static u64 Feidx=0;
 
 static u32 utf8length;
 static char utf8bytes[256];
@@ -281,9 +287,8 @@ static u8   itypelength;
 static char icomment[64];
 static u8   icommentlength;
 static u16  iframes;
-static u16 fnumber;
 //pdckv
-static u16  spp;
+static u16  spp;//sample per plane = components
 static u16  photocode;
 static u16  rows;
 static u16  cols;
@@ -291,7 +296,7 @@ static u16  alloc;
 static u16  stored;
 static u16  high;
 static u16  pixrep;
-static u16  planar;
+static u16  planar;//0 = RGB del pixel; 1 = componentes RGB
 
 bool iinsert(u64 prefix)
 {
@@ -309,15 +314,15 @@ bool iinsert(u64 prefix)
     10:icomment
     11:iframes, (0:no frame objects, 1:native, n:encoded)
     12:pdckv (private attributes)
-    13:spp
-    14:photocode
-    15:rows
-    16:cols
-    17:alloc
-    18:stored
-    19:high
-    20:pixrep
-    21:planar
+    13:spp 00280002 US
+    14:photocode 00280004 CS https://dicom.innolitics.com/ciods/rt-dose/image-pixel/00280004
+    15:rows 00280010 US
+    16:cols 00280011 US
+    17:alloc 00280100 US
+    18:stored 00280101 US
+    19:high 00280102 US
+    20:pixrep 00280103 US
+    21:planar 00280006 US
     22:DICMrelpath
     */
    // int pk
@@ -394,26 +399,40 @@ bool iinsert(u64 prefix)
    return true;
 }
 
+static u16 fnumber;
+static u64 cidx=0;
+static u64 fidx=0;
+static u64 hidx=0;
+static u64 oidx=0;
+static u64 zidx=0;
+
 bool finsert(u64 prefix)
 {
    /*
     0:Ifk
       1:pk
     2:fnumber
-    3:fdckv BLOB
-    4:DICMidx
-    5:DICMlen
-    6:syntaxidx
+    3:DICMidx
+    4:DICMlen
+    5:syntaxidx
+    6:compressed
+    7:fast
+    8:high
+    9:original
+    
     */
    // int pk
    sqlite3_bind_int( finsertstmt, 1, currentIpk);
    sqlite3_bind_int( finsertstmt, 2, fnumber);
    
 #pragma mark TODO   add prefix
-   sqlite3_bind_blob(finsertstmt, 3, Fbuf,0, NULL);
-   sqlite3_bind_int( finsertstmt, 4, (int)DICMidx-DICMlen);
-   sqlite3_bind_int( finsertstmt, 5, DICMlen);
-   sqlite3_bind_int( finsertstmt, 6, syntaxidx);
+   sqlite3_bind_int( finsertstmt, 3, (int)DICMidx-DICMlen);
+   sqlite3_bind_int( finsertstmt, 4, DICMlen);
+   sqlite3_bind_int( finsertstmt, 5, syntaxidx);
+   sqlite3_bind_blob(finsertstmt, 6, DICMbuf+cidx,(u32)(fidx-cidx), NULL);
+   sqlite3_bind_blob(finsertstmt, 7, DICMbuf+fidx,(u32)(hidx-fidx), NULL);
+   sqlite3_bind_blob(finsertstmt, 8, DICMbuf+hidx,(u32)(oidx-hidx), NULL);
+   sqlite3_bind_blob(finsertstmt, 9, DICMbuf+oidx,(u32)(zidx-oidx), NULL);
 
    //finalize
    dbrc = sqlite3_step(finsertstmt);
@@ -571,7 +590,7 @@ bool EDKVcreate(
       sqlite3_close_v2(db);
       exit(1);
    }
-   char finsertchars[] = "INSERT INTO F(Ifk,fnumber,fdckv,DICMidx,DICMlen,syntaxidx) VALUES(?,?,?,?,?,?)";
+   char finsertchars[] = "INSERT INTO F(Ifk,fnumber,DICMidx,DICMlen,syntaxidx,compressed,fast,high,original) VALUES(?,?,?,?,?,?,?,?,')";
    dbrc=sqlite3_prepare(db, finsertchars, -1, &finsertstmt, 0);
    if (dbrc != SQLITE_OK)
    {
@@ -1273,6 +1292,7 @@ bool appendIDKV(int kloc,enum kvVRcategory vrcat,u32 vlen)
 #pragma mark - alternative calls
 //https://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_A.4
 
+
 bool appendpixelOF(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
    I("%s","appendpixelOF");
@@ -1288,7 +1308,157 @@ bool appendpixelOD(int kloc,enum kvVRcategory vrcat,u32 vlen)
 
 bool appendpixelOB(int kloc,enum kvVRcategory vrcat,u32 vlen)
 {
-   D("%s","appendpixelOB");
+   //freeing buffer necesary?
+   if ((vlen + 21 + kloc + Iidx > Imax) && !morebuf(IDKV,vlen)) return false;
+
+   //key length = key path length + 8 prefix + 8 current attribute
+   //idx increased by 1
+   Ibuf[Iidx++]=kloc+16;
+   
+   //prefix
+   memcpy(Ibuf+Iidx, &prefix, 8);
+   Iidx+=8;
+   
+   //key
+   memcpy(Ibuf+Iidx, kbuf, kloc+8);
+   Iidx+=kloc+8;
+   
+   //value length
+   memcpy(Ibuf+Iidx, &vlen, 4);
+   Iidx+=4;
+
+   if (iframes==0)iframes=1;
+   if (!sqliteESIP()) return false;//create sql for E,S,I,P
+
+   for (fnumber=1;fnumber <= iframes;fnumber++)
+   {
+      //standarize pixel representation (per component, unsigned int LE
+      DICMlen=cols * rows * spp;
+      if (!_DKVfread(DICMlen)) return false;
+      cidx=DICMidx;
+      //write 4times bigger normalized data after the read in buffer
+      if (pixrep) //signed
+      {
+         if ((spp==1)||planar)
+         {
+            for (u64 i=DICMidx - DICMlen; i < DICMidx; i++)
+            {
+               DICMbuf[cidx++]=(char)DICMbuf[i];
+               DICMbuf[cidx++]=0;
+               DICMbuf[cidx++]=0;
+               DICMbuf[cidx++]=0;
+            }
+         }
+         else //multi comp pixels
+         {
+            u64 j;
+            u64 compsize=cols * rows;
+            for (u64 i=DICMidx - DICMlen; i < DICMidx; i+=spp)
+            {
+               for (j=0; j<spp; j++)
+               {
+                  DICMbuf[cidx+(compsize*j)]=(char)DICMbuf[i];
+                  DICMbuf[cidx+(compsize*j)+1]=0;
+                  DICMbuf[cidx+(compsize*j)+2]=0;
+                  DICMbuf[cidx+(compsize*j)+3]=0;
+               }
+               cidx++;
+            }
+            cidx+=cols * rows * (spp -1);
+         }
+      }
+      else //unsigned
+      {
+         if ((spp==1)||planar)
+         {
+            for (u64 i=DICMidx - DICMlen; i < DICMidx; i++)
+            {
+               DICMbuf[cidx++]=DICMbuf[i];
+               DICMbuf[cidx++]=0;
+               DICMbuf[cidx++]=0;
+               DICMbuf[cidx++]=0;
+            }
+         }
+         else //multi comp pixels
+         {
+            u64 j;
+            u64 compsize=cols * rows;
+            for (u64 i=DICMidx - DICMlen; i < DICMidx; i+=spp)
+            {
+               for (j=0; j<spp; j++)
+               {
+                  DICMbuf[cidx+(compsize*j)]=DICMbuf[i];
+                  DICMbuf[cidx+(compsize*j)+1]=0;
+                  DICMbuf[cidx+(compsize*j)+2]=0;
+                  DICMbuf[cidx+(compsize*j)+3]=0;
+               }
+               cidx++;
+            }
+            cidx+=cols * rows * (spp -1);
+         }
+       }
+
+      /*
+      9:syntaxidx
+      11:iframes, (0:no frame objects, 1:native, n:encoded)
+      13:spp
+      14:photocode
+      15:rows
+      16:cols
+      17:alloc
+      18:stored
+      19:high
+      20:pixrep
+      21:planar
+      */
+
+      //compression cfho
+      u64 fidx=0;//fast offset
+      u64 hidx=0;//high offset
+      u64 oidx=0;//original offset
+      u64 zidx=0;//first byte after original
+      if (!opj_cfho(photocode ,spp,rows,cols,stored,DICMidx,cidx,&fidx,&hidx,&oidx,&zidx))
+      {
+         E("%s","error");
+      }
+      
+      
+      
+      //4 s SS SS iu II II FF FF
+      if (!finsert(0x40|sversion|u16swap(snumber)*0x100|iversion*0x100000|concat*0x1000000|u16swap(inumber)*0x100000000|u16swap(fnumber)*0x100000000000000)) return false;
+   }
+   /*
+     call compress for each frame
+    
+    bool finsert(u64 prefix)
+    {
+        0:Ifk
+          1:pk
+        2:fnumber
+        //3:fdckv BLOB
+        4:DICMidx
+        5:DICMlen
+        6:syntaxidx
+ 
+    */
+   if (!_DKVfread(vlen)) return false;
+
+   
+   
+   
+   memcpy(Ibuf+Iidx, DICMbuf+DICMidx-vlen, vlen);
+   Iidx+=vlen;
+   return true;
+
+   
+   
+   
+   
+   
+   
+   
+
+   return true;   D("%s","appendpixelOB");
 
    /*
     put first E S P I to sqlite to get pk
@@ -1338,7 +1508,8 @@ bool appendpixelOW(int kloc,enum kvVRcategory vrcat,u32 vlen)
    19:high
    20:pixrep
    21:planar
-*/
+   */
+   
    if ( (spp==1) && (alloc==16) )
    {
       //always explicit

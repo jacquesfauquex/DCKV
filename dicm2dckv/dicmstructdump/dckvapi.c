@@ -17,7 +17,7 @@ static u64 bytesreceived;
 bool _DKVfread(u32 bytesaskedfor)
 {
    bytesreceived=fread(DICMbuf+DICMidx,1,bytesaskedfor,stdin);
-   if (bytesreceived>0xFFFFFFFF)return 0;
+   //if (bytesreceived>0xFFFFFFFF)return 0;
    DICMidx+=bytesreceived;
    return (bytesaskedfor==bytesreceived);
 }

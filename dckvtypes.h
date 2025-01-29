@@ -21,6 +21,12 @@
 #include <sqlite3.h>
 //#include <errno.h>
 
+//openjpeg
+#include <math.h>
+#include <assert.h>
+#include <limits.h>
+
+
 typedef char                s8;//%c
 typedef unsigned char       u8;//%c
 typedef short              s16;//%hd
